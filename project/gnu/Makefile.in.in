@@ -1,0 +1,132 @@
+LIBRARIES := Depends
+INSTALL_LIBRARIES := 
+PROGRAMS := 
+MODULES := $(LIBRARIES) $(PROGRAMS)
+MODULE_DIRS := $(patsubst %,lib/%,$(LIBRARIES)) $(patsubst %,bin/%,$(PROGRAMS))
+
+all : real_all
+
+# List of all makefiles - we re-make on a makefile change
+MAKEFILES = Makefile $(patsubst %,$(srcdir)/%/module.mk,$(MODULE_DIRS))
+## filled in by configury
+# directories
+srcdir=@srcdir@
+vpath %.c .:$(srcdir)
+vpath %.cc .:$(srcdir)
+vpath %.cpp .:$(srcdir)
+
+vpath %.h .:$(srcdir)
+vpath %.y .:$(srcdir)
+vpath %.l .:$(srcdir)
+# the shell
+SHELL=@SHELL@
+# target architecture
+ARCH=@ARCH@
+# C ompiler
+CC=@CC@
+CXX=@CXX@
+# libtool
+top_builddir=.
+LIBTOOL=@LIBTOOL@
+# conditionals
+HAVE_PTHREAD_SIGMASK=@HAVE_PTHREAD_SIGMASK@
+# flags
+CFLAGS=@CFLAGS@
+CXXFLAGS=@CXXFLAGS@ @DEFS@ 
+CPPFLAGS=@CPPFLAGS@
+LDFLAGS=@LDFLAGS@
+# directories
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+bindir=@bindir@
+libdir=@libdir@
+libexecdir=@libexecdir@
+includedir=@includedir@
+# programs & tools
+INSTALL=@INSTALL@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+INSTALL_SCRIPT=@INSTALL_SCRIPT@
+INSTALL_DATA=@INSTALL_DATA@
+
+# platform-specific stuff
+EXEEXT=@EXEEXT@
+
+# look for include files in each of the modules:
+CFLAGS += -g -Wall -Werror -Wno-unused-label -I. -I$(srcdir) @DEFS@
+LDFLAGS += -g
+# extra libs if required
+LIBS := @LIBS@
+
+ENABLE_SERIALIZATION := @ENABLE_SERIALIZATION@
+
+# each module will add to this
+SRC :=
+
+# include the generic rules
+include $(srcdir)/project/gnu/rules.mk
+
+# include the generic macros
+include $(srcdir)/project/gnu/macros.mk
+
+# include the description of each module
+-include $(patsubst %,$(srcdir)/%/module.mk,$(MODULE_DIRS))
+-include $(srcdir)/tests/*/*/module.mk
+
+# $(foreach mod,$(MODULES),$(eval $(call OBJ_template,$(mod))))
+
+# library linking rules
+include $(srcdir)/project/gnu/link.mk
+
+# include dependencies
+-include $(OBJ:.lo=.d)
+
+define LTLIBRARIES_function
+	LTLIBRARIES += $(1)
+endef
+$(foreach lib,$(LIBRARIES),$(eval $(call LTLIBRARIES_function,$(lib))))
+
+# dependencies for library targets
+
+real_all : $(patsubst %,lib%.la,$(LTLIBRARIES)) 
+
+install : all
+	test -z "$(bindir)" || mkdir -p $(DESTDIR)$(bindir)
+	test -z "$(libdir)" || mkdir -p $(DESTDIR)$(libdir)
+	list='$(patsubst %,%.la,$(INSTALL_LIBRARIES))'; for l in $$list; do if [ -f $$l ]; then libtool --mode=install cp "$$l" "$(DESTDIR)$(libdir)/$$l" || exit 1; fi; done
+	for h in $(INSTALL_HEADERS); do	mkdir -p $(DESTDIR)$(includedir)/$$(dirname $$h);  cp $(srcdir)/lib/$$h $(DESTDIR)$(includedir)/$$h; done
+
+# calculate C include dependencies
+%.d : %.c $(MAKEFILES)
+	mkdir -p `dirname $@`
+	$(SHELL) $(srcdir)/project/gnu/depend.sh -c `dirname $@` $(CFLAGS) $(CPPFLAGS) $< > $@
+
+%.d : %.cpp $(MAKEFILES)
+	mkdir -p `dirname $@`
+	$(SHELL) $(srcdir)/project/gnu/depend.sh -cxx `dirname $@` $(CXXFLAGS) $(CPPFLAGS) $< > $@
+
+%.d : %.cc $(MAKEFILES)
+	mkdir -p `dirname $@`
+	$(SHELL) $(srcdir)/project/gnu/depend.sh -cxx `dirname $@` $(CXXFLAGS) $(CPPFLAGS) $< > $@
+
+# dependencies for configury-related files
+Makefile : $(srcdir)/Makefile.in
+	$(SHELL) config.status
+
+$(srcdir)/Makefile.in : $(srcdir)/project/gnu/Makefile.in.in
+	cd $(srcdir) && bash bootstrap
+
+$(srcdir)/configure.ac : $(srcdir)/project/gnu/configure.ac.in
+	cd $(srcdir) && bash bootstrap
+
+config.status : $(srcdir)/configure
+	$(SHELL) $(srcdir)/configure
+
+$(srcdir)/configure : $(srcdir)/configure.ac
+	cd $(srcdir) && bash bootstrap
+
+check : all $(CHECK_DEPS)
+	for i in $(CHECK_DEPS); do $(LIBTOOL) --mode=execute ./$$i; done
+
+debug : all $(CHECK_DEPS)
+	for i in $(CHECK_DEPS); do $(LIBTOOL) --mode=execute gdb ./$$i; done
+

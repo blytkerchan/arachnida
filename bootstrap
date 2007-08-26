@@ -1,0 +1,44 @@
+#! /bin/bash -x
+function get_version_info()
+{
+	export PACKAGE="spin"
+	source project/gnu/version
+	echo VERSION=$VERSION
+}
+
+function gen_configure_ac()
+{
+	cat > bootstrap.pl <<EOF
+#! /usr/bin/perl -w
+while (<>)
+{
+	\$_ =~ s/\\\$\\\$__PACKAGE__\\\$\\\$/$PACKAGE/g;
+	\$_ =~ s/\\\$\\\$__VERSION__\\\$\\\$/$VERSION/g;
+	print \$_;
+}
+EOF
+	cat project/gnu/configure.ac.in | perl bootstrap.pl > configure.ac
+}
+
+function gen_makefile_in()
+{
+	cat > bootstrap.pl <<EOF
+#! /use/bin/perl -w
+while (<>)
+{
+	\$_ =~ s/\\\$\\\$__PACKAGE__\\\$\\\$/$PACKAGE/g;
+	\$_ =~ s/\\\$\\\$__VERSION__\\\$\\\$/$VERSION/g;
+	print \$_;
+}
+EOF
+	cat project/gnu/Makefile.in.in | perl bootstrap.pl > Makefile.in
+}
+
+get_version_info
+gen_configure_ac
+gen_makefile_in
+
+libtoolize && \
+aclocal && \
+autoconf && \
+cp project/gnu/install-sh .

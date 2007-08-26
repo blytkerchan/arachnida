@@ -1,0 +1,40 @@
+# Process this file with autoconf to produce a configure script.
+AC_PREREQ(2.53)
+AC_INIT([$$__PACKAGE__$$],[$$__VERSION__$$],[ronald (at) landheer-cieslak (dot) com])
+AC_CONFIG_SRCDIR([project/gnu/configure.ac.in])
+
+# Checks for programs.
+AC_PROG_CXX
+AC_PROG_MAKE_SET
+AC_PROG_LIBTOOL
+
+# Checks for libraries.
+AC_ARG_WITH([boost-headers], [Tell configury where the Boost headers are], [
+	if test X"no" = X"$withval"; then
+		echo "You must have Boost"
+		exit 1;
+	else
+		AC_SUBST(BOOST_INCLUDE, ${withval})
+		AC_LANG_PUSH(C++)
+		CPPFLAGS="$CPPFLAGS -I${withval}"
+		AC_CHECK_HEADERS([boost/version.hpp], [], [
+			echo "Couldn't find Boost headers"
+			exit 1;
+		])
+		AC_LANG_POP(C++)
+	fi
+], [
+	echo "Boost headers should be in the default search path"
+	AC_SUBST(BOOST_INCLUDE, "")
+	AC_LANG_PUSH(C++)
+	CPPFLAGS="$CPPFLAGS -I${withval}"
+	AC_CHECK_HEADERS([boost/version.hpp], [], [
+		echo "Couldn't find Boost headers"
+		exit 1;
+	])
+	AC_LANG_POP(C++)
+])
+
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT
+
