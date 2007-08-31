@@ -134,8 +134,8 @@ namespace Spin
 									;
 					HTTP_version_	= str_p("HTTP") >> ch_p('/') >> +DIGIT_ >> '.' >> +DIGIT_
 									;
-					//http_URL_		= str_p("http:") >> "//" >> host_ >> !(':' >> port_) >> !(abs_path_ >> !('?' >> query_))
-					//				;
+					http_URL_		= str_p("http:") >> "//" >> host_ >> !(':' >> port_) >> !(abs_path_ >> !('?' >> query_))
+									;
 					HTTP_date_		= rfc1123_date_
 									| rfc850_date_
 									| asctime_date_
@@ -196,8 +196,8 @@ namespace Spin
 									;
 					chunk_data_		= repeat_p(boost::ref(chunk_size_))[OCTET_]
 									;
-					//trailer_		= *(entity_header_ >> CRLF_)
-					//				;
+					trailer_		= *(entity_header_ >> CRLF_)
+									;
 					media_type_		= type_ >> '/' >> subtype >> *(';' >> parameter_)
 									;
 					type_			= token_
@@ -249,7 +249,7 @@ namespace Spin
 									| *TEXT_
 									;
 					message_body_	= entity_body_
-//									| +OCTET_ // <entity-body encoded as per Transfer-Encoding>
+									| +OCTET_ // <entity-body encoded as per Transfer-Encoding>
 									;
 					general_header_	= Cache_Control_		// Section 14.9
 									| Connection_			// Section 14.10
@@ -505,6 +505,94 @@ namespace Spin
 									;
 					If_Modified_Since_
 									= str_p("If-Modified-Since") >> ':' >> HTTP_date_
+									;
+					If_None_Match_	= str_p("If-none-Match") >> ':' >> ('*' | ((*LWS_ >> entity_tag_ >> *LWS_) % ','))
+									;
+					If_Unmodified_Since_
+									= str_p("If-Unmodified-Since") >> ':' >> HTTP_date_
+									;
+					Last_Modified_	= str_p("Last-Modified") >> ':' >> HTTP_date_
+									;
+					Location_		= str_p("Last-Modified") >> ':' >> absoluteURI_
+									;
+					Max_Forwards_	= str_p("Max-Forwards") >> ':' >> +DIGIT_
+									;
+					Pragma_			= str_p("Pragma") >> ':' >> ((*LWS_ >> pragma_directive_ >> *LWS_) % ',')
+									;
+					pragma_directive_
+									= "no-cache"
+									| extension_pragma_
+									;
+					extension_pragma_
+									= token_ >> !('=' >> (token_ | quoted_string_))
+									;
+					Proxy_Authenticate_
+									= str_p("Proxy-Authenticate") >> ':' >> ((*LWS_ >> challenge_ >> *LWS_) % ',')
+									;
+					Proxy_Authorization_
+									= str_p("Proxy-Authorization") >> ':' >> credentials_
+									;
+					ranges_specifier_
+									= byte_ranges_specifier_
+									;
+					byte_ranges_specifier_
+									= bytes_unit_ >> '=' >> byte_range_set_
+									;
+					byte_range_set_	= ((*LWS_ >> (byte_range_spec_ | suffix_byte_range_spec_) >> *LWS_) % ',')
+									;
+					byte_range_spec_= first_byte_pos_ >> '-' >> !last_byte_pos_
+									;
+					first_byte_pos_	= +DIGIT_
+									;
+					last_byte_pos_	= +DIGIT_
+									;
+					suffix_byte_range_spec_
+									= '-' >> suffix_length_
+									;
+					suffix_length_	= +DIGIT_
+									;
+					Range_			= str_p("Range") >> ':' >> ranges_specifier_
+									;
+					Referer_		= str_p("Referer") >> ':' >> (absoluteURI_ | relativeURI_)
+									;
+					Retry_After_	= str_p("Retry-After") >> ':' >> (HTTP_date_ | delta_seconds_)
+									;
+					Trailer_		= str_p("Trailer") >> ':' >> ((*LWS_ >> field_name_ >> *LWS_) % ',')
+									;
+					Transfer_Encoding_
+									= str_p("Transfer-Encoding") >> ':' >> ((*LWS_ >> transfer_coding_ >> *LWS_) % ',')
+									;
+					Upgrade_		= str_p("Upgrade") >> ':' >> ((*LWS_ >> product_ >> *LWS_) % ',')
+									;
+					User_Agent_		= str_p("User-Agent") >> ':' >> ((*LWS_ >> (product_ | comment_) >> *LWS_) % ',')
+									;
+					Vary_			= str_p("Vary") >> ':' >> ('*' | ((*LWS_ >> field_name_ >> *LWS_) % ','))
+									;
+					Via_			= str_p("Via") >> ':' >> ((received_protocol_ >> received_by_ >> !comment_) % ',')
+									;
+					received_protocol_
+									= !( protocol_name_ >> '/' ) >> protocol_version_
+									;
+					protocol_name_	= token_
+									;
+					protocol_version_
+									= token_
+									;
+					received_by_	= ( host_ !( ':' >> port_ ) ) | pseudonym_
+									;
+					pseudonym_		= token_
+									;
+					Warning_		= str_p("Warning") >> ':' >> (warning_value_ % ',')
+									;
+					warning_value_	= warn_code_ >> SP_ >> warn_agent_ >> SP_ >> warn_text_ >> !(SP_ >> warn_date_)
+									;
+					warn_code_		= repeat_p(3)[DIGIT_]	
+									;
+					warn_agent_		= ( host_ !(':' >> port_ ) ) | pseudonym_
+									;
+					warn_text_		= quoted_string_
+									;
+					warn_date_		= '"' HTTP_date_ '"'
 									;
 				}
 
@@ -2461,6 +2549,801 @@ namespace Spin
 				 * The result of a request having both an If-Modified-Since header field 
 				 * and either an If-Match or an If-Unmodified-Since header fields is 
 				 * undefined by this specification.
+				 */
+				//////////////////////////////////////////////////////////////////////////
+				// Section 14.26
+				//////////////////////////////////////////////////////////////////////////
+				/*
+				 * The If-None-Match request-header field is used with a method to make 
+				 * it conditional. A client that has one or more entities previously 
+				 * obtained from the resource can verify that none of those entities is 
+				 * current by including a list of their associated entity tags in the 
+				 * If-None-Match header field. The purpose of this feature is to allow 
+				 * efficient updates of cached information with a minimum amount of 
+				 * transaction overhead. It is also used to prevent a method (e.g. PUT)
+				 * from inadvertently modifying an existing resource when the client 
+				 * believes that the resource does not exist.
+				 *
+				 * As a special case, the value “*” matches any current entity of the 
+				 * resource.
+				 */
+				boost::spirit::rule< Scanner > If_None_Match_;
+				/*
+				 * If any of the entity tags match the entity tag of the entity that would 
+				 * have been returned in the response to a similar GET request (without the 
+				 * If-None-Match header) on that resource, or if “*” is given and any current
+				 * entity exists for that resource, then the server MUST NOT perform the 
+				 * requested method, unless required to do so because the resource’s 
+				 * modification date fails to match that supplied in an If-Modified-Since 
+				 * header field in the request. Instead, if the request method was GET or 
+				 * HEAD, the server SHOULD respond with a 304 (Not Modified) response, 
+				 * including the cache-related header fields (particularly ETag) of one of 
+				 * the entities that matched. For all other request methods, the server 
+				 * MUST respond with a status of 412 (Precondition Failed).
+				 *
+				 * See section 13.3.3 for rules on how to determine if two entities tags 
+				 * match. The weak comparison function can only be used with GET or HEAD 
+				 * requests.
+				 *
+				 * If none of the entity tags match, then the server MAY perform the requested 
+				 * method as if the If-None-Match header field did not exist, but MUST also 
+				 * ignore any If-Modified-Since header field(s) in the request. That is,
+				 * if no entity tags match, then the server MUST NOT return a 304 (Not Modified)
+				 * response.
+				 *
+				 * If the request would, without the If-None-Match header field, result in 
+				 * anything other than a 2xx or 304 status, then the If-None-Match header MUST 
+				 * be ignored. (See section 13.3.4 for a discussion of server behavior when
+				 * both If-Modified-Since and If-None-Match appear in the same request.)
+				 *
+				 * The meaning of “If-None-Match: *” is that the method MUST NOT be performed 
+				 * if the representation selected by the origin server (or by a cache, possibly 
+				 * using the Vary mechanism, see section 14.44) exists, and SHOULD be performed 
+				 * if the representation does not exist. This feature is intended to be useful 
+				 * in preventing races between PUT operations.
+				 *
+				 * Examples:
+				 *     If-None-Match: "xyzzy"
+				 *     If-None-Match: W/"xyzzy"
+				 *     If-None-Match: "xyzzy", "r2d2xxxx", "c3piozzzz"
+				 *     If-None-Match: W/"xyzzy", W/"r2d2xxxx", W/"c3piozzzz"
+				 *     If-None-Match: *
+				 * The result of a request having both an If-None-Match header field and either 
+				 * an If-Match or an If-Unmodified-Since header fields is undefined by this 
+				 * specification.
+				 */
+				//////////////////////////////////////////////////////////////////////////
+				// Section 14.27
+				//////////////////////////////////////////////////////////////////////////
+				/*
+				 * If a client has a partial copy of an entity in its cache, and wishes to 
+				 * have an up-to-date copy of the entire entity in its cache, it could use 
+				 * the Range request-header with a conditional GET (using either or both 
+				 * of If-Unmodified-Since and If-Match.) However, if the condition fails 
+				 * because the entity has been modified, the client would then have to make 
+				 * a second request to obtain the entire current entity-body.
+				 * 
+				 * The If-Range header allows a client to “short-circuit” the second request.
+				 * Informally, its meaning is ‘if the entity is unchanged, send me the part(s)
+				 * that I am missing; otherwise, send me the entire new entity.’
+				 */
+				boost::spirit::rule< Scanner > If_Range_;
+				/*
+				 * If the client has no entity tag for an entity, but does have a Last-Modified 
+				 * date, it MAY use that date in an If-Range header. (The server can distinguish 
+				 * between a valid HTTP-date and any form of entity-tag by examining no more than 
+				 * two characters.) The If-Range header SHOULD only be used together with a Range
+				 * header, and MUST be ignored if the request does not include a Range header, or
+				 * if the server does not support the sub-range operation.
+				 *
+				 * If the entity tag given in the If-Range header matches the current entity tag
+				 * for the entity, then the server SHOULD provide the specified sub-range of the
+				 * entity using a 206 (Partial content) response. If the entity tag does not match,
+				 * then the server SHOULD return the entire entity using a 200 (OK) response.
+				 */
+				//////////////////////////////////////////////////////////////////////////
+				// Section 14.28
+				//////////////////////////////////////////////////////////////////////////
+				/*
+				 * The If-Unmodified-Since request-header field is used with a method to 
+				 * make it conditional. If the requested resource has not been modified 
+				 * since the time specified in this field, the server SHOULD perform the 
+				 * requested operation as if the If-Unmodified-Since header were not
+				 * present.
+				 *
+				 * If the requested variant has been modified since the specified time, 
+				 * the server MUST NOT perform the requested operation, and MUST return 
+				 * a 412 (Precondition Failed).
+				 */
+				boost::spirit::rule< Scanner > If_Unmodified_Since_;
+				/*
+				 * An example of the field is:
+				 *     If-Unmodified-Since: Sat, 29 Oct 1994 19:43:31 GMT
+				 * If the request normally (i.e., without the If-Unmodified-Since header)
+				 * would result in anything other than a 2xx or 412 status, the 
+				 * If-Unmodified-Since header SHOULD be ignored.
+				 *
+				 * If the specified date is invalid, the header is ignored. 
+				 *
+				 * The result of a request having both an If-Unmodified-Since header field 
+				 * and either an If-None-Match or an If-Modified-Since header fields is 
+				 * undefined by this specification.
+				 */
+				//////////////////////////////////////////////////////////////////////////
+				// Section 14.29
+				//////////////////////////////////////////////////////////////////////////
+				/*
+				 * The Last-Modified entity-header field indicates the date and time at 
+				 * which the origin server believes the variant was last modified.
+				 */
+				boost::spirit::rule< Scanner > Last_Modified_;
+				/*
+				 * An example of its use is
+				 *     Last-Modified: Tue, 15 Nov 1994 12:45:26 GMT
+				 * The exact meaning of this header field depends on the implementation 
+				 * of the origin server and the nature of the original resource. For 
+				 * files, it may be just the file system last-modified time. For entities 
+				 * with dynamically included parts, it may be the most recent of the set 
+				 * of last-modify times for its component parts. For database gateways, it 
+				 * may be the last-update time stamp of the record. For virtual objects, 
+				 * it may be the last time the internal state changed.
+				 *
+				 * An origin server MUST NOT send a Last-Modified date which is later than 
+				 * the server’s time of message origination. In such cases, where the 
+				 * resource’s last modification would indicate some time in the future, 
+				 * the server MUST replace that date with the message origination date.
+				 *
+				 * An origin server SHOULD obtain the Last-Modified value of the entity as 
+				 * close as possible to the time that it generates the Date value of its 
+				 * response. This allows a recipient to make an accurate assessment of the 
+				 * entity’s modification time, especially if the entity changes near the 
+				 * time that the response is generated.
+				 *
+				 * HTTP/1.1 servers SHOULD send Last-Modified whenever feasible
+				 */
+				//////////////////////////////////////////////////////////////////////////
+				// Section 14.30
+				//////////////////////////////////////////////////////////////////////////
+				/*
+				 * The Location response-header field is used to redirect the recipient to 
+				 * a location other than the Request-URI for completion of the request or 
+				 * identification of a new resource. For 201 (Created) responses, the 
+				 * Location is that of the new resource which was created by the request. 
+				 * For 3xx responses, the location SHOULD indicate the server’s preferred 
+				 * URI for automatic redirection to the resource. The field value consists 
+				 * of a single absolute URI.
+				 */
+				boost::spirit::rule< Scanner > Location_;
+				/*
+				 * An example is:
+				 *     Location: http://www.w3.org/pub/WWW/People.html
+				 * Note: The Content-Location header field (section 14.14) differs from 
+				 *       Location in that the Content-Location identifies the original 
+				 *       location of the entity enclosed in the request. It is therefore
+				 *       possible for a response to contain header fields for both Location 
+				 *       and Content-Location. Also see section 13.10 for cache requirements
+				 *       of some methods. 
+				 */
+				//////////////////////////////////////////////////////////////////////////
+				// Section 14.31
+				//////////////////////////////////////////////////////////////////////////
+				/*
+				 * The Max-Forwards request-header field provides a mechanism with the 
+				 * TRACE (section 9.8) and OPTIONS (section 9.2) methods to limit the number
+				 * of proxies or gateways that can forward the request to the next inbound 
+				 * server. This can be useful when the client is attempting to trace a request
+				 * chain which appears to be failing or looping in mid-chain.
+				 */
+				boost::spirit::rule< Scanner > Max_Forwards_;
+				/*
+				 * The Max-Forwards value is a decimal integer indicating the remaining 
+				 * number of times this request message may be forwarded.
+				 *
+				 * Each proxy or gateway recipient of a TRACE or OPTIONS request 
+				 * containing a Max-Forwards header field MUST check and update its value 
+				 * prior to forwarding the request. If the received value is zero (0), 
+				 * the recipient MUST NOT forward the request; instead, it MUST respond 
+				 * as the final recipient. If the received Max-Forwards value is greater 
+				 * than zero, then the forwarded message MUST contain an updated Max-Forwards
+				 * field with a value decremented by one (1).
+				 *
+				 * The Max-Forwards header field MAY be ignored for all other methods defined 
+				 * by this specification and for any extension methods for which it is not 
+				 * explicitly referred to as part of that method definition.
+				 */
+				//////////////////////////////////////////////////////////////////////////
+				// Section 14.32
+				//////////////////////////////////////////////////////////////////////////
+				/*
+				 * The Pragma general-header field is used to include implementation-specific 
+				 * directives that might apply to any recipient along the request/response 
+				 * chain. All pragma directives specify optional behavior from the viewpoint 
+				 * of the protocol; however, some systems MAY require that behavior be 
+				 * consistent with the directives.
+				 */
+				boost::spirit::rule< Scanner > Pragma_;
+				boost::spirit::rule< Scanner > pragma_directive_;
+				boost::spirit::rule< Scanner > extension_pragma_;
+				/*
+				 * When the no-cache directive is present in a request message, an application 
+				 * SHOULD forward the request toward the origin server even if it has a cached 
+				 * copy of what is being requested. This pragma directive has the same semantics 
+				 * as the no-cache cache-directive (see section 14.9) and is defined here for 
+				 * backward compatibility with HTTP/1.0. Clients SHOULD include both header 
+				 * fields when a no-cache request is sent to a server not known to be HTTP/1.1 
+				 * compliant.
+				 *
+				 * Pragma directives MUST be passed through by a proxy or gateway application,
+				 * regardless of their significance to that application, since the directives 
+				 * might be applicable to all recipients along the request/response chain. It 
+				 * is not possible to specify a pragma for a specific recipient; however, any 
+				 * pragma directive not relevant to a recipient SHOULD be ignored by that 
+				 * recipient.
+				 *
+				 * HTTP/1.1 caches SHOULD treat “Pragma: no-cache” as if the client had sent 
+				 * “Cache-Control: nocache”. No new Pragma directives will be defined in HTTP.
+				 *
+				 * Note: because the meaning of “Pragma: no-cache” as a response header field 
+				 *       is not actually specified, it does not provide a reliable replacement
+				 *       for “Cache-Control: no-cache” in a response.
+				 */
+				//////////////////////////////////////////////////////////////////////////
+				// Section 14.33
+				//////////////////////////////////////////////////////////////////////////
+				/*
+				 * The Proxy-Authenticate response-header field MUST be included as part 
+				 * of a 407 (Proxy Authentication Required) response. The field value 
+				 * consists of a challenge that indicates the authentication scheme and 
+				 * parameters applicable to the proxy for this Request-URI.
+				 */
+				boost::spirit::rule< Scanner > Proxy_Authenticate_;
+				/*
+				 * The HTTP access authentication process is described in “HTTP 
+				 * Authentication: Basic and Digest Access Authentication” [43]. Unlike 
+				 * WWW-Authenticate, the Proxy-Authenticate header field applies only to 
+				 * the current connection and SHOULD NOT be passed on to downstream 
+				 * clients. However, an intermediate proxy might need to obtain its own 
+				 * credentials by requesting them from the downstream client, which in 
+				 * some circumstances will appear as if the proxy is forwarding the 
+				 * Proxy-Authenticate header field.
+				 */
+				//////////////////////////////////////////////////////////////////////////
+				// Section 14.34
+				//////////////////////////////////////////////////////////////////////////
+				/*
+				 * The Proxy-Authorization request-header field allows the client to 
+				 * identify itself (or its user) to a proxy which requires authentication. 
+				 * The Proxy-Authorization field value consists of credentials containing 
+				 * the authentication information of the user agent for the proxy and/or
+				 * realm of the resource being requested.
+				 */
+				boost::spirit::rule< Scanner > Proxy_Authorization_;
+				/*
+				 * The HTTP access authentication process is described in “HTTP 
+				 * Authentication: Basic and Digest Access Authentication” [43] . Unlike 
+				 * Authorization, the Proxy-Authorization header field applies only to the
+				 * next outbound proxy that demanded authentication using the 
+				 * Proxy-Authenticate field. When multiple proxies are used in a chain, 
+				 * the Proxy-Authorization header field is consumed by the first outbound 
+				 * proxy that was expecting to receive credentials. A proxy MAY relay the 
+				 * credentials from the client request to the next proxy if that is the 
+				 * mechanism by which the proxies cooperatively authenticate a given request.
+				 */
+				//////////////////////////////////////////////////////////////////////////
+				// Section 14.35.1
+				//////////////////////////////////////////////////////////////////////////
+				/*
+				 * Since all HTTP entities are represented in HTTP messages as sequences 
+				 * of bytes, the concept of a byte range is meaningful for any HTTP entity.
+				 * (However, not all clients and servers need to support byte-range 
+				 * operations.)
+				 *
+				 * Byte range specifications in HTTP apply to the sequence of bytes in the 
+				 * entity-body (not necessarily the same as the message-body).
+				 *
+				 * A byte range operation MAY specify a single range of bytes, or a set of 
+				 * ranges within a single entity.
+				 */
+				boost::spirit::rule< Scanner > ranges_specifier_;
+				boost::spirit::rule< Scanner > byte_ranges_specifier_;
+				boost::spirit::rule< Scanner > byte_range_set_;
+				boost::spirit::rule< Scanner > byte_range_spec_;
+				boost::spirit::rule< Scanner > first_byte_pos_;
+				boost::spirit::rule< Scanner > last_byte_pos_;
+				/*
+				 * The first-byte-pos value in a byte-range-spec gives the byte-offset of 
+				 * the first byte in a range. The last-byte-pos value gives the byte-offset 
+				 * of the last byte in the range; that is, the byte positions specified are
+				 * inclusive. Byte offsets start at zero.
+				 *
+				 * If the last-byte-pos value is present, it MUST be greater than or equal 
+				 * to the first-byte-pos in that byte-range-spec, or the byte-range-spec is
+				 * syntactically invalid. The recipient of a byte-range-set that includes 
+				 * one or more syntactically invalid byte-range-spec values MUST ignore the 
+				 * header field that includes that byte-range-set.
+				 *
+				 * If the last-byte-pos value is absent, or if the value is greater than or 
+				 * equal to the current length of the entity-body, last-byte-pos is taken 
+				 * to be equal to one less than the current length of the entity-body in 
+				 * bytes. By its choice of last-byte-pos, a client can limit the number of 
+				 * bytes retrieved without knowing the size of the entity.
+				 */
+				boost::spirit::rule< Scanner > suffix_byte_range_spec_;
+				boost::spirit::rule< Scanner > suffix_length_;
+				/*
+				 * A suffix-byte-range-spec is used to specify the suffix of the entity-body,
+				 * of a length given by the suffix-length value. (That is, this form specifies
+				 * the last N bytes of an entity-body.) If the entity is shorter than the 
+				 * specified suffix-length, the entire entity-body is used.
+				 * 
+				 * If a syntactically valid byte-range-set includes at least one 
+				 * byte-range-spec whose first-byte-pos is less than the current length of the
+				 * entity-body, or at least one suffix-byte-range-spec with a non-zero 
+				 * suffix-length, then the byterange-set is satisfiable. Otherwise, the 
+				 * byte-range-set is unsatisfiable. If the byte-range-set is unsatisfiable, 
+				 * the server SHOULD return a response with a status of 416 (Requested range 
+				 * not satisfiable). Otherwise, the server SHOULD return a response with a 
+				 * status of 206 (Partial Content) containing the satisfiable ranges of the 
+				 * entity-body.
+				 *
+				 * Examples of byte-ranges-specifier values (assuming an entity-body of 
+				 * length 10000):
+				 * · The first 500 bytes (byte offsets 0-499, inclusive):
+				 *   bytes=0-499
+				 * · The second 500 bytes (byte offsets 500-999, inclusive):
+				 *   bytes=500-999
+				 * · The final 500 bytes (byte offsets 9500-9999, inclusive):
+				 *   bytes=-500
+				 * · Or
+				 *   bytes=9500-
+				 * · The first and last bytes only (bytes 0 and 9999):
+				 *   bytes=0-0,-1
+				 * · Several legal but not canonical specifications of the second 500 bytes 
+				 *   (byte offsets 500-999, inclusive):
+				 *   bytes=500-600,601-999
+				 *   bytes=500-700,601-999
+				 */
+				//////////////////////////////////////////////////////////////////////////
+				// Section 14.35.2
+				//////////////////////////////////////////////////////////////////////////
+				/*
+				 * HTTP retrieval requests using conditional or unconditional GET methods 
+				 * MAY request one or more sub-ranges of the entity, instead of the entire
+				 * entity, using the Range request header, which applies to the entity 
+				 * returned as the result of the request:
+				 */
+				boost::spirit::rule< Scanner > Range_;
+				/*
+				 * A server MAY ignore the Range header. However, HTTP/1.1 origin servers 
+				 * and intermediate caches ought to support byte ranges when possible, 
+				 * since Range supports efficient recovery from partially failed transfers, 
+				 * and supports efficient partial retrieval of large entities.
+				 *
+				 * If the server supports the Range header and the specified range or 
+				 * ranges are appropriate for the entity:
+				 * · The presence of a Range header in an unconditional GET modifies what 
+				 *   is returned if the GET is otherwise successful. In other words, the
+				 *   response carries a status code of 206 (Partial Content) instead of
+				 *   200 (OK).
+				 * · The presence of a Range header in a conditional GET (a request using 
+				 *   one or both of If-Modified-Since and If-None-Match, or one or both of 
+				 *   If-Unmodified-Since and If-Match) modifies what is returned if the 
+				 *   GET is otherwise successful and the condition is true. It does not 
+				 *   affect the 304 (Not Modified) response returned if the conditional 
+				 *   is false.
+				 * In some cases, it might be more appropriate to use the If-Range header 
+				 * (see section 14.27) in addition to the Range header.
+				 *
+				 * If a proxy that supports ranges receives a Range request, forwards the 
+				 * request to an inbound server, and receives an entire entity in reply, 
+				 * it SHOULD only return the requested range to its client. It SHOULD 
+				 * store the entire received response in its cache if that is consistent 
+				 * with its cache allocation policies.
+				 */
+				//////////////////////////////////////////////////////////////////////////
+				// Section 14.36
+				//////////////////////////////////////////////////////////////////////////
+				/*
+				 * The Referer[sic] request-header field allows the client to specify, 
+				 * for the server’s benefit, the address (URI) of the resource from which
+				 * the Request-URI was obtained (the “referrer”, although the header field
+				 * is misspelled.) The Referer request-header allows a server to generate
+				 * lists of back-links to resources for interest, logging, optimized
+				 * caching, etc. It also allows obsolete or mistyped links to be traced
+				 * for maintenance. The Referer field MUST NOT be sent if the Request-URI
+				 * was obtained from a source that does not have its own URI, such as 
+				 * input from the user keyboard.
+				 */
+				boost::spirit::rule< Scanner > Referer_;
+				/*
+				 * Example:
+				 *     Referer: http://www.w3.org/hypertext/DataSources/Overview.html
+				 * If the field value is a relative URI, it SHOULD be interpreted 
+				 * relative to the Request-URI. The URI MUST NOT include a fragment. 
+				 * See section 15.1.3 for security considerations.
+				 */
+				//////////////////////////////////////////////////////////////////////////
+				// Section 14.37
+				//////////////////////////////////////////////////////////////////////////
+				/*
+				 * The Retry-After response-header field can be used with a 503 (Service 
+				 * Unavailable) response to indicate how long the service is expected to 
+				 * be unavailable to the requesting client. This field MAY also be used 
+				 * with any 3xx (Redirection) response to indicate the minimum time the 
+				 * user-agent is asked wait before issuing the redirected request. The 
+				 * value of this field can be either an HTTP-date or an integer number 
+				 * of seconds (in decimal) after the time of the response.
+				 */
+				boost::spirit::rule< Scanner > Retry_After_;
+				/*
+				 * Two examples of its use are
+				 *     Retry-After: Fri, 31 Dec 1999 23:59:59 GMT
+				 *     Retry-After: 120
+				 * In the latter example, the delay is 2 minutes.
+				 */
+				//////////////////////////////////////////////////////////////////////////
+				// Section 14.38
+				//////////////////////////////////////////////////////////////////////////
+				/*
+				 * The Server response-header field contains information about the 
+				 * software used by the origin server to handle the request. The field 
+				 * can contain multiple product tokens (section 3.8) and comments
+				 * identifying the server and any significant subproducts. The product
+				 * tokens are listed in order of their significance for identifying the
+				 * application.
+				 */
+				boost::spirit::rule< Scanner > Server_;
+				/*
+				 * Example:
+				 *     Server: CERN/3.0 libwww/2.17
+				 * If the response is being forwarded through a proxy, the proxy 
+				 * application MUST NOT modify the Server response-header. Instead, it 
+				 * SHOULD include a Via field (as described in section 14.45).
+				 *
+				 * Note: Revealing the specific software version of the server might 
+				 *       allow the server machine to become more vulnerable to attacks 
+				 *       against software that is known to contain security holes. Server
+				 *       implementors are encouraged to make this field a configurable
+				 *       option.
+				 */
+				//////////////////////////////////////////////////////////////////////////
+				// Section 14.39
+				//////////////////////////////////////////////////////////////////////////
+				/*
+				 * The TE request-header field indicates what extension transfer-codings
+				 * it is willing to accept in the response and whether or not it is willing
+				 * to accept trailer fields in a chunked transfer-coding. Its value may
+				 * consist of the keyword “trailers” and/or a comma-separated list of
+				 * extension transfer-coding names with optional accept parameters (as
+				 * described in section 3.6).
+				 */
+				boost::spirit::rule< Scanner > TE_;
+				boost::spirit::rule< Scanner > t_codings_;
+				/*
+				 * The presence of the keyword “trailers” indicates that the client is willing 
+				 * to accept trailer fields in a chunked transfer-coding, as defined in section
+				 * 3.6.1. This keyword is reserved for use with transfer-coding values even
+				 * though it does not itself represent a transfer-coding.
+				 *
+				 * Examples of its use are:
+				 *     TE: deflate
+				 *     TE:
+				 *     TE: trailers, deflate;q=0.5
+				 * The TE header field only applies to the immediate connection. Therefore, the 
+				 * keyword MUST be supplied within a Connection header field (section 14.10)
+				 * whenever TE is present in an HTTP/1.1 message.
+				 *
+				 * A server tests whether a transfer-coding is acceptable, according to a TE 
+				 * field, using these rules:
+				 * 1. The “chunked” transfer-coding is always acceptable. If the keyword 
+				 *    “trailers” is listed, the client indicates that it is willing to accept 
+				 *    trailer fields in the chunked response on behalf of itself and an downstream
+				 *    clients. The implication is that, if given, the client is stating that 
+				 *    either all downstream clients are willing to accept trailer fields in
+				 *    the forwarded response, or that it will attempt to buffer the response on
+				 *    behalf of downstream recipients.
+				 *
+				 *    Note: HTTP/1.1 does not define any means to limit the size of a chunked
+				 *          response such that a client can be assured of buffering the entire
+				 *          response.
+				 * 2. If the transfer-coding being tested is one of the transfer-codings 
+				 *    listed in the TE field, then it is acceptable unless it is accompanied 
+				 *    by a qvalue of 0. (As defined in section 3.9, a qvalue of 0 means 
+				 *    “not acceptable.”)
+				 * 3. If multiple transfer-codings are acceptable, then the acceptable 
+				 *    transfer-coding with the highest non-zero qvalue is preferred. The 
+				 *    “chunked” transfer-coding always has a qvalue of 1.
+				 *
+				 * If the TE field-value is empty or if no TE field is present, the only 
+				 * transfer-coding is “chunked”. A message with no transfer-coding is always 
+				 * acceptable.
+				 */
+				//////////////////////////////////////////////////////////////////////////
+				// Section 14.40
+				//////////////////////////////////////////////////////////////////////////
+				/*
+				 * The Trailer general field value indicates that the given set of header
+				 * fields is present in the trailer of a message encoded with chunked
+				 * transfer-coding.
+				 */
+				boost::spirit::rule< Scanner > Trailer_;
+				/*
+				 * An HTTP/1.1 message SHOULD include a Trailer header field in a message
+				 * using chunked transfer-coding with a non-empty trailer. Doing so allows
+				 * the recipient to know which header fields to expect in the trailer.
+				 *
+				 * If no Trailer header field is present, the trailer SHOULD NOT include
+				 * any header fields. See section 3.6.1 for restrictions on the use of
+				 8 trailer fields in a “chunked” transfer-coding. 
+				 *
+				 * Message header fields listed in the Trailer header field MUST NOT include
+				 * the following header fields:
+				 * · Transfer-Encoding
+				 * · Content-Length
+				 * · Trailer
+				 */
+				//////////////////////////////////////////////////////////////////////////
+				// Section 14.41
+				//////////////////////////////////////////////////////////////////////////
+				/*
+				 * The Transfer-Encoding general-header field indicates what (if any) type
+				 * of transformation has been applied to the message body in order to
+				 * safely transfer it between the sender and the recipient. This differs
+				 * from the contentcoding in that the transfer-coding is a property of the
+				 * message, not of the entity.
+				 */
+				boost::spirit::rule< Scanner > Transfer_Encoding_;
+				/*
+				 * Transfer-codings are defined in section 3.6. An example is:
+				 *     Transfer-Encoding: chunked
+				 * If multiple encodings have been applied to an entity, the transfer-codings
+				 * MUST be listed in the order in which they were applied. Additional
+				 * information about the encoding parameters MAY be provided by other 
+				 * entity-header fields not defined by this specification.
+				 *
+				 * Many older HTTP/1.0 applications do not understand the Transfer-Encoding
+				 * header.
+				 */
+				//////////////////////////////////////////////////////////////////////////
+				// Section 14.42
+				//////////////////////////////////////////////////////////////////////////
+				/*
+				 * The Upgrade general-header allows the client to specify what additional
+				 * communication protocols it supports and would like to use if the server
+				 * finds it appropriate to switch protocols. The server MUST use the
+				 * Upgrade header field within a 101 (Switching Protocols) response to
+				 * indicate which protocol(s) are being switched.
+				 */
+				boost::spirit::rule< Scanner > Upgrade_;
+				/*
+				 * For example,
+				 *     Upgrade: HTTP/2.0, SHTTP/1.3, IRC/6.9, RTA/x11
+				 *
+				 * The Upgrade header field is intended to provide a simple mechanism for
+				 * transition from HTTP/1.1 to some other, incompatible protocol. It does
+				 * so by allowing the client to advertise its desire to use another
+				 * protocol, such as a later version of HTTP with a higher major version
+				 * number, even though the current request has been made using HTTP/1.1.
+				 * This eases the difficult transition between incompatible protocols by
+				 * allowing the client to initiate a request in the more commonly supported
+				 * protocol while indicating to the server that it would like to use a
+				 * “better” protocol if available (where “better” is determined by the
+				 * server, possibly according to the nature of the method and/or resource
+				 * being requested).
+				 *
+				 * The Upgrade header field only applies to switching application-layer
+				 * protocols upon the existing transport-layer connection. Upgrade cannot
+				 * be used to insist on a protocol change; its acceptance and use by the
+				 * server is optional.
+				 *
+				 * The capabilities and nature of the application-layer communication
+				 * after the protocol change is entirely dependent upon the new protocol
+				 * chosen, although the first action after changing the protocol MUST be
+				 * a response to the initial HTTP request containing the Upgrade header
+				 * field.
+				 *
+				 * The Upgrade header field only applies to the immediate connection.
+				 * Therefore, the upgrade keyword MUST be supplied within a Connection
+				 * header field (section 14.10) whenever Upgrade is present in an HTTP/1.1
+				 * message.
+				 *
+				 * The Upgrade header field cannot be used to indicate a switch to a
+				 * protocol on a different connection. For that purpose, it is more
+				 * appropriate to use a 301, 302, 303, or 305 redirection response.
+				 *
+				 * This specification only defines the protocol name “HTTP” for use by
+				 * the family of Hypertext Transfer Protocols, as defined by the HTTP
+				 * version rules of section 3.1 and future updates to this specification.
+				 * Any token can be used as a protocol name; however, it will only be
+				 * useful if both the client and server associate the name with the same
+				 * protocol.
+				 */
+				//////////////////////////////////////////////////////////////////////////
+				// Section 14.43
+				//////////////////////////////////////////////////////////////////////////
+				/*
+				 * The User-Agent request-header field contains information about the user
+				 * agent originating the request. This is for statistical purposes, the
+				 * tracing of protocol violations, and automated recognition of user
+				 * agents for the sake of tailoring responses to avoid particular user
+				 * agent limitations. User agents SHOULD include this field with requests.
+				 * The field can contain multiple product tokens (section 3.8) and comments
+				 * identifying the agent and any subproducts which form a significant part
+				 * of the user agent. By convention, the product tokens are listed in order
+				 * of their significance for identifying the application.
+				 */
+				boost::spirit::rule< Scanner > User_Agent_;
+				/*
+				 * Example:
+				 *     User-Agent: CERN-LineMode/2.15 libwww/2.17b3
+				 */
+				//////////////////////////////////////////////////////////////////////////
+				// Section 14.44
+				//////////////////////////////////////////////////////////////////////////
+				/*
+				 * The Vary field value indicates the set of request-header fields that
+				 * fully determines, while the response is fresh, whether a cache is
+				 * permitted to use the response to reply to a subsequent request without
+				 * revalidation. For uncacheable or stale responses, the Vary field value
+				 * advises the user agent about the criteria that were used to select
+				 * the representation. A Vary field value of “*” implies that a cache
+				 * cannot determine from the request headers of a subsequent request whether
+				 * this response is the appropriate representation. See section 13.6 for
+				 * use of the Vary header field by caches.
+				 */
+				boost::spirit::rule< Scanner > Vary_;
+				/*
+				 * An HTTP/1.1 server SHOULD include a Vary header field with any cacheable 
+				 * response that is subject to serverdriven negotiation. Doing so allows a
+				 * cache to properly interpret future requests on that resource and informs
+				 * the user agent about the presence of negotiation on that resource. A
+				 * server MAY include a Vary header field with a non-cacheable response
+				 * that is subject to server-driven negotiation, since this might provide
+				 * the user agent with useful information about the dimensions over which
+				 * the response varies at the time of the response.
+				 *
+				 * A Vary field value consisting of a list of field-names signals that the
+				 * representation selected for the response is based on a selection algorithm
+				 * which considers ONLY the listed request-header field values in selecting
+				 * the most appropriate representation. A cache MAY assume that the same 
+				 * selection will be made for future requests with the same values for the
+				 * listed field names, for the duration of time for which the response is
+				 * fresh.
+				 *
+				 * The field-names given are not limited to the set of standard request-header
+				 * fields defined by this specification. Field names are case-insensitive.
+				 *
+				 * A Vary field value of “*” signals that unspecified parameters not limited
+				 * to the request-headers (e.g., the network address of the client), play a
+				 * role in the selection of the response representation. The “*” value MUST
+				 * NOT be generated by a proxy server; it may only be generated by an origin
+				 * server.
+				 */
+				//////////////////////////////////////////////////////////////////////////
+				// Section 14.45
+				//////////////////////////////////////////////////////////////////////////
+				/*
+				 * The Via general-header field MUST be used by gateways and proxies to
+				 * indicate the intermediate protocols and recipients between the user agent
+				 * and the server on requests, and between the origin server and the client
+				 * on responses. It is analogous to the “Received” field of RFC 822 [9] and
+				 * is intended to be used for tracking message forwards, avoiding request
+				 * loops, and identifying the protocol capabilities of all senders along the
+				 * request/response chain.
+				 */
+				boost::spirit::rule< Scanner > Via_;
+				boost::spirit::rule< Scanner > received_protocol_;
+				boost::spirit::rule< Scanner > protocol_name_;
+				boost::spirit::rule< Scanner > protocol_version_;
+				boost::spirit::rule< Scanner > received_by_;
+				boost::spirit::rule< Scanner > pseudonym_;
+				/*
+				 * The received-protocol indicates the protocol version of the message 
+				 * received by the server or client along each segment of the 
+				 * request/response chain. The received-protocol version is appended to 
+				 * the Via field value when the message is forwarded so that information
+				 * about the protocol capabilities of upstream applications remains visible
+				 * to all recipients.
+				 *
+				 * The protocol-name is optional if and only if it would be “HTTP”. The
+				 * received-by field is normally the host and optional port number of a
+				 * recipient server or client that subsequently forwarded the message.
+				 * However, if the real host is considered to be sensitive information,
+				 * it MAY be replaced by a pseudonym. If the port is not given, it MAY
+				 * be assumed to be the default port of the received-protocol.
+				 *
+				 * Multiple Via field values represents each proxy or gateway that has
+				 * forwarded the message. Each recipient MUST append its information such
+				 * that the end result is ordered according to the sequence of forwarding
+				 * applications.
+				 *
+				 * Comments MAY be used in the Via header field to identify the software of
+				 * the recipient proxy or gateway, analogous to the User-Agent and Server
+				 * header fields. However, all comments in the Via field are optional and
+				 * MAY be removed by any recipient prior to forwarding the message.
+				 *
+				 * For example, a request message could be sent from an HTTP/1.0 user agent
+				 * to an internal proxy code-named “fred”, which uses HTTP/1.1 to forward
+				 * the request to a public proxy at nowhere.com, which completes the request
+				 * by forwarding it to the origin server at www.ics.uci.edu. The request
+				 * received by www.ics.uci.edu would then have the following Via header field:
+				 *     Via: 1.0 fred, 1.1 nowhere.com (Apache/1.1)
+				 * Proxies and gateways used as a portal through a network firewall SHOULD NOT,
+				 * by default, forward the names and ports of hosts within the firewall region.
+				 * This information SHOULD only be propagated if explicitly enabled. If not
+				 * enabled, the received-by host of any host behind the firewall SHOULD be
+				 * replaced by an appropriate pseudonym for that host.
+				 *
+				 * For organizations that have strong privacy requirements for hiding internal
+				 * structures, a proxy MAY combine an ordered subsequence of Via header field
+				 * entries with identical received-protocol values into a single such entry.
+				 * For example,
+				 *     Via: 1.0 ricky, 1.1 ethel, 1.1 fred, 1.0 lucy
+				 * could be collapsed to
+				 *     Via: 1.0 ricky, 1.1 mertz, 1.0 lucy
+				 * 
+				 * Applications SHOULD NOT combine multiple entries unless they are all under
+				 * the same organizational control and the hosts have already been replaced by
+				 * pseudonyms. Applications MUST NOT combine entries which have different
+				 * received-protocol values.
+				 */
+				//////////////////////////////////////////////////////////////////////////
+				// Section 14.46
+				//////////////////////////////////////////////////////////////////////////
+				/*
+				 * The Warning general-header field is used to carry additional information
+				 * about the status or transformation of a message which might not be
+				 * reflected in the message. This information is typically used to warn
+				 * about a possible lack of semantic transparency from caching operations
+				 * or transformations applied to the entity body of the message.
+				 *
+				 * Warning headers are sent with responses using:
+				 */
+				boost::spirit::rule< Scanner > Warning_;
+				boost::spirit::rule< Scanner > warning_value_;
+				boost::spirit::rule< Scanner > warn_code_;
+				boost::spirit::rule< Scanner > warn_agent_;
+				boost::spirit::rule< Scanner > warn_text_;
+				boost::spirit::rule< Scanner > warn_date_;
+				/*
+				 * The warn-text SHOULD be in a natural language and character set that is
+				 * most likely to be intelligible to the human user receiving the response.
+				 * This decision MAY be based on any available knowledge, such as the location
+				 * of the cache or user, the Accept-Language field in a request, the
+				 * Content-Language field in a response, etc. The default language is English
+				 * and the default character set is ISO-8859-1.
+				 * 
+				 * If a character set other than ISO-8859-1 is used, it MUST be encoded in the
+				 * warn-text using the method described in RFC 2047 [14].
+				 * 
+				 * Warning headers can in general be applied to any message, however some specific
+				 * warn-codes are specific to caches and can only be applied to response messages.
+				 * New Warning headers SHOULD be added after any existing Warning headers. A cache
+				 * MUST NOT delete any Warning header that it received with a message. However, 
+				 * if a cache successfully validates a cache entry, it SHOULD remove any Warning 
+				 * headers previously attached to that entry except as specified for specific
+				 * Warning codes. It MUST then add any Warning headers received in the validating
+				 * response. In other words, Warning headers are those that would be attached to
+				 * the most recent relevant response.
+				 *
+				 * When multiple Warning headers are attached to a response, the user agent ought 
+				 * to inform the user of as many of them as possible, in the order that they appear
+				 * in the response. If it is not possible to inform the user of all of the
+				 * warnings, the user agent SHOULD follow these heuristics:
+				 * · Warnings that appear early in the response take priority over those appearing 
+				 *   later in the response.
+				 * · Warnings in the user’s preferred character set take priority over warnings in
+				 *   other character sets but with identical warn-codes and warn-agents.
+				 * Systems that generate multiple Warning headers SHOULD order them with this user 
+				 * agent behavior in mind.
+				 * 
+				 * Requirements for the behavior of caches with respect to Warnings are stated 
+				 * in section 13.1.2.
+				 * 
+				 * This is a list of the currently-defined warn-codes, each with a recommended 
+				 * warn-text in English, and a description of its meaning.
+				 110 Response is stale
+				 MUST be included whenever the returned response is stale.
 				 */
 				boost::spirit::rule< Scanner > target_;
 			};
