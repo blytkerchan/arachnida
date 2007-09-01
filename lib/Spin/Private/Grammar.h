@@ -594,6 +594,9 @@ namespace Spin
 									;
 					warn_date_		= '"' HTTP_date_ '"'
 									;
+					WWW_Authenticate_
+									= str_p("WWW-Authenticate") >> ':' >> ((*LWS_ >> challenge_ >> *LWS_) % ',')
+									;
 				}
 
 				const boost::spirit::rule< Scanner > & start() const
@@ -3342,8 +3345,62 @@ namespace Spin
 				 * 
 				 * This is a list of the currently-defined warn-codes, each with a recommended 
 				 * warn-text in English, and a description of its meaning.
-				 110 Response is stale
-				 MUST be included whenever the returned response is stale.
+				 *
+				 * 110 Response is stale
+				 *     MUST be included whenever the returned response is stale.
+				 * 111 Revalidation failed
+				 *     MUST be included if a cache returns a stale response because an attempt 
+				 *     to revalidate the response failed, due to an inability to reach the server.
+				 * 112 Disconnected operation
+				 *     SHOULD be included if the cache is intentionally disconnected from the rest 
+				 *     of the network for a period of time.
+				 * 113 Heuristic expiration
+				 *     MUST be included if the cache heuristically chose a freshness lifetime 
+				 *     greater than 24 hours and the response’s age is greater than 24 hours.
+				 * 199 Miscellaneous warning
+				 *     The warning text MAY include arbitrary information to be presented to a 
+				 *     human user, or logged. A system receiving this warning MUST NOT take any 
+				 *     automated action, besides presenting the warning to the user.
+				 * 214 Transformation applied
+				 *     MUST be added by an intermediate cache or proxy if it applies any 
+				 *     transformation changing the content-coding (as specified in the 
+				 *     Content-Encoding header) or media-type (as specified in the Content-Type 
+				 *     header) of the response, or the entity-body of the response, unless this
+				 *     Warning code already appears in the response.
+				 * 299 Miscellaneous persistent warning
+				 *     The warning text MAY include arbitrary information to be presented to a 
+				 *     human user, or logged. A system receiving this warning MUST NOT take any 
+				 *     automated action.
+				 *
+				 * If an implementation sends a message with one or more Warning headers whose 
+				 * version is HTTP/1.0 or lower, then the sender MUST include in each warning-value 
+				 * a warn-date that matches the date in the response.
+				 *
+				 * If an implementation receives a message with a warning-value that includes a 
+				 * warn-date, and that warndate is different from the Date value in the response,
+				 * then that warning-value MUST be deleted from the message before storing, 
+				 * forwarding, or using it. (This prevents bad consequences of naive caching of
+				 * Warning header fields.) If all of the warning-values are deleted for this 
+				 * reason, the Warning header MUST be deleted as well.
+				 */
+				//////////////////////////////////////////////////////////////////////////
+				// Section 14.47
+				//////////////////////////////////////////////////////////////////////////
+				/*
+				 * The WWW-Authenticate response-header field MUST be included in 401 
+				 * (Unauthorized) response messages. The field value consists of at least 
+				 * one challenge that indicates the authentication scheme(s) and parameters
+				 * applicable to the Request-URI.
+				 */
+				boost::spirit::rule< Scanner > WWW_Authenticate_;
+				/*
+				 * The HTTP access authentication process is described in “HTTP 
+				 * Authentication: Basic and Digest Access Authentication” [43]. User
+				 * agents are advised to take special care in parsing the WWW-Authenticate
+				 * field value as it might contain more than one challenge, or if more
+				 * than one WWW-Authenticate header field is provided, the contents of
+				 * a challenge itself can contain a comma-separated list of authentication
+				 * parameters.
 				 */
 				boost::spirit::rule< Scanner > target_;
 			};
