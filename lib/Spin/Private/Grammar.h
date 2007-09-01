@@ -198,7 +198,7 @@ namespace Spin
 									;
 					trailer_		= *(entity_header_ >> CRLF_)
 									;
-					media_type_		= type_ >> '/' >> subtype >> *(';' >> parameter_)
+					media_type_		= type_ >> '/' >> subtype_ >> *(';' >> parameter_)
 									;
 					type_			= token_
 									;
@@ -209,7 +209,7 @@ namespace Spin
 					product_version_= token_
 									;
 					qvalue_			= (ch_p('1') >> !repeat_p(0,3)[DIGIT_])
-									| (ch_p('1') >> !repeat_p(0,3)['0'])
+									| (ch_p('1') >> !repeat_p(0,3)[ch_p('0')])
 									;
 					language_tag_	= primary_tag_ >> *('-' >> subtag_)
 									;
@@ -248,7 +248,7 @@ namespace Spin
 					field_content_	= *(token_ | separators_ | quoted_string_)
 									| *TEXT_
 									;
-					message_body_	= entity_body_
+					message_body_	= +OCTET_//entity_body_
 									| +OCTET_ // <entity-body encoded as per Transfer-Encoding>
 									;
 					general_header_	= Cache_Control_		// Section 14.9
@@ -281,7 +281,7 @@ namespace Spin
 					Request_URI_	= '*'
 									| absoluteURI_
 									| abs_path_
-									: authority_
+									| authority_
 									;
 					request_header_	= Accept_				// Section 14.1
 									| Accept_Charset_		// Section 14.2
@@ -348,6 +348,7 @@ namespace Spin
 									| "504"					// Section 10.5.5: Gateway Time-out
 									| "505"					// Section 10.5.6: HTTP Version not supported
 									| extension_code_
+									;
 					extension_code_	= repeat_p(3)[DIGIT_]
 									;
 					Reason_Phrase_	= *(TEXT_ - CR_ - LF_)
@@ -378,7 +379,7 @@ namespace Spin
 					extension_header_
 									= message_header_
 									;
-					Accept_			= "Accept" >> ':' >> !((*LWS_ >> media_range_ >> *LWS_ >> !accept_params_ >> *LWS_) % ',')
+					Accept_			= str_p("Accept") >> ':' >> !((*LWS_ >> media_range_ >> *LWS_ >> !accept_params_ >> *LWS_) % ',')
 									;
 					media_range_	= ( "*/*" 
 									  | (type_ >> '/' >> '*')
@@ -390,7 +391,7 @@ namespace Spin
 					accept_extension_
 									= ';' >> token_ >> !('=' >> (token_ | quoted_string_))
 									;
-					Accept_Charset_	= str_p("Accept-Charset") >> ':' >> ((*LWS_ >> (charset_ | '*') >. *LWS_ >> !(*LWS_ >. ch_p(';') >> *LWS_ >> 'q' >> *LWS_ >> '=' >> *LWS_ >> qvalue_ >> *LWS_)) % ',')
+					Accept_Charset_	= str_p("Accept-Charset") >> ':' >> ((*LWS_ >> (charset_ | '*') >> *LWS_ >> !(*LWS_ >> ch_p(';') >> *LWS_ >> 'q' >> *LWS_ >> '=' >> *LWS_ >> qvalue_ >> *LWS_)) % ',')
 									;
 					Accept_Encoding_
 									= str_p("Accept-Encoding") >> ':' >> ((*LWS_ >> codings_ >> *LWS_ >> !(*LWS_ >> ch_p(';') >> *LWS_ >> 'q' >> *LWS_ >> '=' >> *LWS_ >> qvalue_ >> *LWS_)) % ',')
@@ -412,11 +413,11 @@ namespace Spin
 									;
 					age_value_		= delta_seconds_
 									;
-					Allow_			= str_p("Allow") >> ':' >> ((*LWS_ >> Method_ *LWS_) % ',')
+					Allow_			= str_p("Allow") >> ':' >> ((*LWS_ >> Method_ >> *LWS_) % ',')
 									;
-					Authorization_	= str_p("Authorization") >> ':' >> credentials_
+					Authorization_	= str_p("Authorization") >> ':' >> token_//credentials_
 									;
-					Cache_Control_	= str_p("Cache-Control") >> ':' ((*LWS_ >> cache_directive_ >> *LWS_) % ',')
+					Cache_Control_	= str_p("Cache-Control") >> ':' >> ((*LWS_ >> cache_directive_ >> *LWS_) % ',')
 									;
 					cache_directive_= cache_request_directive_
 									| cache_response_directive_
@@ -433,8 +434,8 @@ namespace Spin
 									;
 					cache_response_directive_
 									= str_p("public")											// Section 14.9.1
-									| (str_p("private") !( '=' >> ch_p('"') ((*LWS_ >> field_name_ >> *LWS_) % ',') ch_p('"') ))	// Section 14.9.1
-									| ("no-cache" [ "=" <"> 1#field-name <"> ])					// Section 14.9.1
+									| (str_p("private") >> !( '=' >> ch_p('"') >> ((*LWS_ >> field_name_ >> *LWS_) % ',') >> ch_p('"') ))	// Section 14.9.1
+									| ("no-cache" >> !( ch_p('=') >> '"' >>  (field_name_ % ',') >> '"' ))	// Section 14.9.1
 									| "no-store"												// Section 14.9.2
 									| "no-transform"											// Section 14.9.5
 									| "must-revalidate"											// Section 14.9.4
@@ -459,7 +460,7 @@ namespace Spin
 					Content_Length_	= str_p("Content-Length") >> ';' >> +DIGIT_
 									;
 					Content_Location_
-									= str_p("Content-Location") >> ':' >> (absoluteURI | relativeURI)
+									= str_p("Content-Location") >> ':' >> (absoluteURI_ | relativeURI_)
 									;
 					Content_MD5_	= str_p("Content-MD5") >> ';' >> md5_digest_
 									;
@@ -491,14 +492,14 @@ namespace Spin
 									| expectation_extension_
 									;
 					expectation_extension_
-									= token >> !('=' >> (token_ | quoted_string_) >> *expect_params_)
+									= token_ >> !('=' >> (token_ | quoted_string_) >> *expect_params_)
 									;
-					expect_params_	= ';' >> token_ >. !('=' >> (token_ | quoted_string_))
+					expect_params_	= ';' >> token_ >> !('=' >> (token_ | quoted_string_))
 									;
 					Expires_		= str_p("Expires") >> ':' >> HTTP_date_
 									;
-					From_			= str_p("From") >> ':' >> mailbox_
-									;
+					//From_			= str_p("From") >> ':' >> mailbox_
+					//				;
 					Host_			= str_p("Host") >> ':' >> host_ >> !(':' >> port_)
 									;
 					If_Match_		= str_p("If-Match") >> ':' >> ('*' | ((*LWS_ >> entity_tag_ >> *LWS_) % ','))
@@ -526,12 +527,12 @@ namespace Spin
 					extension_pragma_
 									= token_ >> !('=' >> (token_ | quoted_string_))
 									;
-					Proxy_Authenticate_
-									= str_p("Proxy-Authenticate") >> ':' >> ((*LWS_ >> challenge_ >> *LWS_) % ',')
-									;
-					Proxy_Authorization_
-									= str_p("Proxy-Authorization") >> ':' >> credentials_
-									;
+					//Proxy_Authenticate_
+					//				= str_p("Proxy-Authenticate") >> ':' >> ((*LWS_ >> challenge_ >> *LWS_) % ',')
+					//				;
+					//Proxy_Authorization_
+					//				= str_p("Proxy-Authorization") >> ':' >> credentials_
+					//				;
 					ranges_specifier_
 									= byte_ranges_specifier_
 									;
@@ -578,7 +579,8 @@ namespace Spin
 					protocol_version_
 									= token_
 									;
-					received_by_	= ( host_ !( ':' >> port_ ) ) | pseudonym_
+					received_by_	= ( host_ >> !( ':' >> port_ ) )
+									| pseudonym_
 									;
 					pseudonym_		= token_
 									;
@@ -588,14 +590,166 @@ namespace Spin
 									;
 					warn_code_		= repeat_p(3)[DIGIT_]	
 									;
-					warn_agent_		= ( host_ !(':' >> port_ ) ) | pseudonym_
+					warn_agent_		= ( host_ >> !(':' >> port_ ) )
+									| pseudonym_
 									;
 					warn_text_		= quoted_string_
 									;
-					warn_date_		= '"' HTTP_date_ '"'
+					warn_date_		= '"' >> HTTP_date_ >> '"'
 									;
-					WWW_Authenticate_
-									= str_p("WWW-Authenticate") >> ':' >> ((*LWS_ >> challenge_ >> *LWS_) % ',')
+					//WWW_Authenticate_
+					//				= str_p("WWW-Authenticate") >> ':' >> ((*LWS_ >> challenge_ >> *LWS_) % ',')
+					//				;
+					absoluteURI_	= lexeme_d[scheme_ >> ':' >> (hier_part_ | opaque_part_)]
+									;
+					hier_part_		= (net_path_ | abs_path_) >> !('?' >> query_)
+									;
+					net_path_		= "//" >> authority_ >> !abs_path_
+									;
+					abs_path_		= '/' >> path_segments_
+									;
+					opaque_part_	= uric_no_slash_ >> *uric_
+									;
+					uric_no_slash_	= unreserved_
+									| escaped_
+									| ';'
+									| '?'
+									| ':'
+									| '@'
+									| '&'
+									| '='
+									| '+' 
+									| '$'
+									| ','
+									;
+					uric_			= reserved_
+									| unreserved_
+									| escaped_
+									;
+					reserved_		= ch_p(';')
+									| '/'
+									| '?'
+									| ':'
+									| '@'
+									| '&'
+									| '='
+									| '+'
+									| '$'
+									| ','
+									;
+					unreserved_		= ALPHA_ | DIGIT_ | mark_
+									;
+					mark_			= ch_p('-')
+									| '_'
+									| '.'
+									| '!'
+									| '~'
+									| '*'
+									| '\''
+									| '('
+									| ')'
+									;
+					escaped_		= '%' >> HEX_ >> HEX_
+									;
+					delims_			= ch_p('<')
+									| '>'
+									| '#'
+									| '%'
+									| '"'
+									;
+					unwise_			= ch_p('{')
+									| '}'
+									| '|'
+									| '\\'
+									| '^' 
+									| '['
+									| ']'
+									| '`'
+									;
+					scheme_			= ALPHA_ >> *(ALPHA_ | DIGIT_ | '+' | '-' | '.')
+									;
+					authority_		= server_
+									| reg_name_
+									;
+					reg_name_		= +( unreserved_
+									   | escaped_
+									   | '$'
+									   | ','
+									   | ';'
+									   | ':'
+									   | '@'
+									   | '&'
+									   | '='
+									   | '+'
+									   )
+									;
+					server_			= !(userinfo_ >> '@') >> hostport_
+									;
+					userinfo_		= *( unreserved_
+									   | escaped_
+									   | ';'
+									   | ':'
+									   | '&'
+									   | '='
+									   | '+'
+									   | '$'
+									   | ','
+									   )
+									;
+					hostport_		= host_ >> !(':' >> port_)
+									;
+					host_			= hostname_ | IPV4address_
+									;
+					hostname_		= *(domainlabel_ >> '.') >> toplabel_ >> !ch_p('.')
+									;
+					domainlabel_	= (ALPHA_ | DIGIT_)
+									| (ALPHA_ | DIGIT_) >> *(ALPHA_ | DIGIT_ | '-') >> (ALPHA_ | DIGIT_)
+									;
+					toplabel_		= ALPHA_
+									| ALPHA_ >> *(ALPHA_ | DIGIT_ | '-') >> (ALPHA_ | DIGIT_)
+									;
+					IPV4address_	= +DIGIT_ >> repeat_p(3)['.' >> +DIGIT_]
+									;
+					port_			= +DIGIT_
+									;
+					path_			= abs_path_ | opaque_part_
+									;
+					path_segments_	= segment_ % '/'
+									;
+					segment_		= *pchar_ >> *(';' >> param_)
+									;
+					param_			= *pchar_
+									;
+					pchar_			= unreserved_
+									| escaped_
+									| ':'
+									| '@'
+									| '&'
+									| '='
+									| '+'
+									| '$'
+									| ','
+									;
+					query_			= *uric_
+									;
+					URI_reference_	= !( absoluteURI_ | relativeURI_ ) >> !( '#' >> fragment_ )
+									;
+					fragment_		= *uric_
+									;
+					relativeURI_	= (net_path_ | abs_path_ | rel_path_) >> !('?' >> query_)
+									;
+					rel_path_		= rel_segment_ >> !abs_path_
+									;
+					rel_segment_	= +( unreserved_ 
+									   | escaped_
+									   | ';'
+									   | '@'
+									   | '&'
+									   | '='
+									   | '+'
+									   | '$'
+									   | ','
+									   )
 									;
 				}
 
@@ -3402,6 +3556,48 @@ namespace Spin
 				 * a challenge itself can contain a comma-separated list of authentication
 				 * parameters.
 				 */
+				//////////////////////////////////////////////////////////////////////////
+				// RFC 2396, Section 2
+				//////////////////////////////////////////////////////////////////////////
+				boost::spirit::rule< Scanner > uric_;
+				boost::spirit::rule< Scanner > reserved_;
+				boost::spirit::rule< Scanner > unreserved_;
+				boost::spirit::rule< Scanner > mark_;
+				boost::spirit::rule< Scanner > escaped_;
+				boost::spirit::rule< Scanner > delims_;
+				boost::spirit::rule< Scanner > unwise_;
+				//////////////////////////////////////////////////////////////////////////
+				// RFC 2396, section 3
+				//////////////////////////////////////////////////////////////////////////
+				boost::spirit::rule< Scanner > absoluteURI_;
+				boost::spirit::rule< Scanner > hier_part_;
+				boost::spirit::rule< Scanner > net_path_;
+				boost::spirit::rule< Scanner > abs_path_;
+				boost::spirit::rule< Scanner > opaque_part_;
+				boost::spirit::rule< Scanner > uric_no_slash_;
+				boost::spirit::rule< Scanner > scheme_;
+				boost::spirit::rule< Scanner > authority_;
+				boost::spirit::rule< Scanner > reg_name_;
+				boost::spirit::rule< Scanner > server_;
+				boost::spirit::rule< Scanner > userinfo_;
+				boost::spirit::rule< Scanner > hostport_;
+				boost::spirit::rule< Scanner > host_;
+				boost::spirit::rule< Scanner > hostname_;
+				boost::spirit::rule< Scanner > domainlabel_;
+				boost::spirit::rule< Scanner > toplabel_;
+				boost::spirit::rule< Scanner > IPV4address_;
+				boost::spirit::rule< Scanner > port_;
+				boost::spirit::rule< Scanner > path_;
+				boost::spirit::rule< Scanner > path_segments_;
+				boost::spirit::rule< Scanner > segment_;
+				boost::spirit::rule< Scanner > param_;
+				boost::spirit::rule< Scanner > pchar_;
+				boost::spirit::rule< Scanner > query_;
+				boost::spirit::rule< Scanner > URI_reference_;
+				boost::spirit::rule< Scanner > fragment_;
+				boost::spirit::rule< Scanner > relativeURI_;
+				boost::spirit::rule< Scanner > rel_path_;
+				boost::spirit::rule< Scanner > rel_segment_;
 				boost::spirit::rule< Scanner > target_;
 			};
 		};
