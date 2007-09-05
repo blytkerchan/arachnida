@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 9.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Spin", "Spin\Spin.vcproj", "{F747D8ED-2A5E-4968-AA90-0497A4546B9F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test_Spin", "Test_Spin\Test_Spin.vcproj", "{BE589F03-C422-4DA1-BF64-425D49F25E2A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F747D8ED-2A5E-4968-AA90-0497A4546B9F} = {F747D8ED-2A5E-4968-AA90-0497A4546B9F}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

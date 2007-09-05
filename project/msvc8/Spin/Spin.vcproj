@@ -20,7 +20,7 @@
 			OutputDirectory="c:\cvstempo1\src\Spin\project\msvc8\Spin.sln\Debug\Win32\"
 			IntermediateDirectory="c:\cvstempo1\p_\src\Spin\project\msvc8\Spin.sln\Spin\Debug\Win32\"
 			ConfigurationType="2"
-			CharacterSet="1"
+			CharacterSet="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;SPIN_EXPORTS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;SPIN_EXPORTS;HAVE_ATOMIC_PRIMITIVES"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -60,6 +60,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="ACEd.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -95,7 +96,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
-			CharacterSet="1"
+			CharacterSet="0"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -115,7 +116,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SPIN_EXPORTS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SPIN_EXPORTS;HAVE_ATOMIC_PRIMITIVES"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -133,6 +134,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="ACE.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -173,10 +175,102 @@
 			Name="Private"
 			>
 			<File
+				RelativePath="..\..\..\lib\Spin\Private\atomicPrimitives.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Private\atomicPrimitives.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Private\BakeryCounter.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Private\BakeryCounter.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Private\ConnectionHandler.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Private\ConnectionHandler.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Private\CountedEvent.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Private\CountedEvent.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Private\get_observationadapter_type.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\lib\Spin\Private\Grammar.h"
 				>
 			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Private\Logger.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Private\Logger.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Private\ObservationAdapter.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Private\ObservationAdapter.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Private\ScopedLock.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Private\yield.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Private\yield.h"
+				>
+			</File>
 		</Filter>
+		<Filter
+			Name="Servers"
+			>
+			<File
+				RelativePath="..\..\..\lib\Spin\Servers\SimpleServer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Servers\SSLServer.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Details"
+			>
+			<File
+				RelativePath="..\..\..\lib\Spin\Details\prologue.h"
+				>
+			</File>
+		</Filter>
+		<File
+			RelativePath="..\..\..\lib\Spin\Server.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\lib\Spin\Server.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
