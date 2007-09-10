@@ -7,7 +7,7 @@ namespace Spin
 {
 	namespace Private
 	{
-		struct ObservationAdapter
+		class ObservationAdapter
 		{
 		public :
 			virtual ACE_HANDLE getHandle() const = 0;

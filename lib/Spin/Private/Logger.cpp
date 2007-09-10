@@ -51,6 +51,11 @@ namespace Spin
 			{ /* ignore */ }
 		}
 
+		/*static */Logger * Logger::getInstance()
+		{
+			return instance__;
+		}
+
 		/*static */void Logger::setInstance(Logger * logger)
 		{
 			instance__ = logger;

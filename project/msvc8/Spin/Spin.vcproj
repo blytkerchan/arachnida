@@ -263,6 +263,18 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="Handlers"
+			>
+			<File
+				RelativePath="..\..\..\lib\Spin\Handlers\NewConnectionHandler.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Handlers\NewConnectionHandler.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath="..\..\..\lib\Spin\Server.cpp"
 			>

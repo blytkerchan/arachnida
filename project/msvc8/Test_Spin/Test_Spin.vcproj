@@ -222,6 +222,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\tests\Spin\Logger.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\tests\Spin\Logger.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\tests\Spin\main.cpp"
 			>
 		</File>

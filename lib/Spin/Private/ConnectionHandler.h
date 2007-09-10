@@ -11,7 +11,7 @@ namespace Spin
 {
 	namespace Private
 	{
-		struct ObservationAdapter;
+		class ObservationAdapter;
 		class ConnectionHandler
 		{
 		public :
@@ -22,15 +22,14 @@ namespace Spin
 			template < typename Observer >
 			void attach(Observer observer, int reason = read__)
 			{
-				return attach_(get_observationadapter_type< Observer >::type(observer), int reason);
+				return attach_(get_observationadapter_type< Observer >::type(observer), reason);
 			}
 
 			template < typename Observer >
 			void detach(Observer observer, int reason = read__ | write__ | exception__)
 			{
-				return detach_(get_observationadapter_type< Observer >::type(observer), int reason);
+				return detach_(get_observationadapter_type< Observer >::type(observer), reason);
 			}
-
 
 		private :
 			struct Data;
