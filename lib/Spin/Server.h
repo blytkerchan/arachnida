@@ -1,6 +1,8 @@
 #ifndef _spin_server_h
 #define _spin_server_h
 
+#include "Details/prologue.h"
+#include <string>
 #include <boost/cstdint.hpp>
 
 class ACE_SOCK_Acceptor;
@@ -11,10 +13,10 @@ namespace Spin
 	{
 		class NewConnectionHandler;
 	}
-	class Server
+	class SPIN_API Server
 	{
 	public :
-		Server(boost::uint32_t address_to_bind, boost::uint16_t port_to_bind, Handlers::NewConnectionHandler * new_connection_handler = 0);
+		Server(const std::string & address_to_bind, boost::uint16_t port_to_bind, Handlers::NewConnectionHandler * new_connection_handler = 0);
 		~Server();
 
 		void setNewConnectionHandler(Handlers::NewConnectionHandler * new_connection_handler);

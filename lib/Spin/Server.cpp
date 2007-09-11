@@ -55,13 +55,13 @@ namespace Spin
 		}
 	}
 
-	Server::Server(boost::uint32_t address_to_bind, boost::uint16_t port_to_bind, Handlers::NewConnectionHandler * new_connection_handler/* = 0*/)
+	Server::Server(const std::string & address_to_bind, boost::uint16_t port_to_bind, Handlers::NewConnectionHandler * new_connection_handler/* = 0*/)
 		: server_socket_(0),
 		  observer_(0),
 		  new_connection_handler_lock_(0),
 		  new_connection_handler_(0)
 	{
-		std::auto_ptr< ACE_SOCK_Acceptor > server_socket(new ACE_SOCK_Acceptor(ACE_INET_Addr(port_to_bind, address_to_bind), 0, PF_INET));
+		std::auto_ptr< ACE_SOCK_Acceptor > server_socket(new ACE_SOCK_Acceptor(ACE_INET_Addr(port_to_bind, address_to_bind.c_str()), 0, PF_INET));
 		std::auto_ptr< ObservationHelper > observer(new ObservationHelper(this));
 		std::auto_ptr< ACE_Thread_Mutex > new_connection_handler_lock(new ACE_Thread_Mutex);
 		observer_ = observer.get();

@@ -233,6 +233,14 @@
 			RelativePath="..\..\..\tests\Spin\main.cpp"
 			>
 		</File>
+		<File
+			RelativePath="..\..\..\tests\Spin\Server.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\tests\Spin\Server.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
