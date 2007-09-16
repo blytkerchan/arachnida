@@ -1,6 +1,7 @@
 #ifndef _spin_handlers_newconnectionhandler_h
 #define _spin_handlers_newconnectionhandler_h
 
+#include "../Details/prologue.h"
 #include <memory>
 
 class ACE_SOCK_Stream;
@@ -8,7 +9,7 @@ namespace Spin
 {
 	namespace Handlers
 	{
-		class NewConnectionHandler
+		class SPIN_API NewConnectionHandler
 		{
 		public :
 			virtual ~NewConnectionHandler();

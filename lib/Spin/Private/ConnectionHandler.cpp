@@ -31,7 +31,10 @@ namespace Spin
 
 			Data()
 			{
-				sync_pipe_.open();
+				if (sync_pipe_.open(0/* no buffer */) != 0)
+					throw std::runtime_error("Failed to open synchronization pipe (internal)");
+				else
+				{ /* all is well */ }
 			}
 
 			ReadObservers read_observers_;
@@ -70,6 +73,7 @@ namespace Spin
 
 		void ConnectionHandler::attach_(ObservationAdapter * observer, int reason)
 		{
+//			Logger::debug("ConnectionHandler", "in attach_", stringify("(%p,%d)", observer, reason));
 			bool shared_set_changed(false);
 			if (reason & read__)
 			{
@@ -103,6 +107,7 @@ namespace Spin
 
 		void ConnectionHandler::detach_(ObservationAdapter * observer, int reason)
 		{
+//			Logger::debug("ConnectionHandler", "in detach_", stringify("(%p,%d)", observer, reason));
 			bool shared_set_changed(false);
 			ACE_HANDLE handle(observer->getHandle());
 			if (reason & read__)
@@ -171,6 +176,7 @@ namespace Spin
 			while (1)
 			{
 				// prepare to sync
+				Logger::debug("ConnectionHandler", "starting sync - switching");
 				data_->sync_event_.switch_();
 				{
 					ScopedLock lock(data_->read_observers_lock_);
@@ -185,6 +191,7 @@ namespace Spin
 					private_exception_observers = data_->exception_observers_;
 				}
 				// done syncing
+				Logger::debug("ConnectionHandler", "done syncing - signalling");
 				data_->sync_event_.signal();
 				// local sync starts here
 				{
@@ -213,6 +220,7 @@ namespace Spin
 				width = write_handles.num_set() > width ? write_handles.num_set() : width;
 				width = exception_handles.num_set() > width ? exception_handles.num_set() : width;
 				int select_retval(ACE::select(width, &read_handles, &write_handles, &exception_handles));
+				Logger::debug("ConnectionHandler", "select returned", stringify("return value %d", select_retval));
 				switch (select_retval)
 				{
 				case -1 :
@@ -269,12 +277,20 @@ namespace Spin
 					// flush the sync pipe
 					if (read_handles.is_set(data_->sync_pipe_.read_handle()))
 					{
-						char flush[64];
-						ssize_t recv_retval(0);
-						do 
-						{
-							recv_retval = data_->sync_pipe_.recv(flush, 64);
-						} while(recv_retval == 64);
+						/*
+						 * we only read one character at a time, to avoid 
+						 * a race condition in which a thread waiting to 
+						 * detach the final socket is never released from 
+						 * its wait because we don't loop through the loop 
+						 * again.
+						 * Though this is unlikely to happen in real life, 
+						 * it will occasionally deadlock our test cases,
+						 * which have instances of the Server class with a
+						 * very short life-span.
+						 */
+						char flush;
+						int rv(data_->sync_pipe_.recv(&flush, 1));	// we can safely ignore the return value here
+						assert(rv == 1);
 					}
 					else
 					{ /* nothing to read here */ }
