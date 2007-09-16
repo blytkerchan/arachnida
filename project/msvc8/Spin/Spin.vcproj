@@ -235,6 +235,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\lib\Spin\Private\WOE32.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\lib\Spin\Private\yield.cpp"
 				>
 			</File>

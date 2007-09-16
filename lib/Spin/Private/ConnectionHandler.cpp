@@ -29,6 +29,11 @@ namespace Spin
 			typedef std::map< ACE_HANDLE, ObservationAdapter* > WriteObservers;
 			typedef std::map< ACE_HANDLE, ObservationAdapter* > ExceptionObservers;
 
+			Data()
+			{
+				sync_pipe_.open();
+			}
+
 			ReadObservers read_observers_;
 			ACE_Thread_Mutex read_observers_lock_;
 			WriteObservers write_observers_;
@@ -212,9 +217,20 @@ namespace Spin
 				{
 				case -1 :
 					if (consecutive_error_count++ >= 3)
+					{
 						Logger::fatalError("ConnectionHandler", "Three or more consecutive errors occurred during normal operation - aborting", strerror(errno));
+						exit(1);
+					}
+#ifdef _WIN32
+					else if (errno == WSAEINVAL)
+					{
+						Logger::fatalError("ConnectionHandler", "There is an invalid handle among my handle set - this is a BUG!");
+						exit(1);	// find a way to recover from this (e.g. scan the validity of all handles, reset the sync pipe, etc.
+					}
+#endif
 					else
 						Logger::error("ConnectionHandler", "A presumably recoverable error occurred during normal operation", strerror(errno));
+					break;
 				case 0 :
 					Logger::warning("ConnectionHandler", "Spurious wake-up during normal operation.");
 					break;
