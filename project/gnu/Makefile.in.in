@@ -1,4 +1,4 @@
-LIBRARIES := Depends
+LIBRARIES := Spin
 INSTALL_LIBRARIES := 
 PROGRAMS := 
 MODULES := $(LIBRARIES) $(PROGRAMS)
@@ -32,7 +32,7 @@ LIBTOOL=@LIBTOOL@
 HAVE_PTHREAD_SIGMASK=@HAVE_PTHREAD_SIGMASK@
 # flags
 CFLAGS=@CFLAGS@
-CXXFLAGS=@CXXFLAGS@ @DEFS@ 
+CXXFLAGS=@CXXFLAGS@ @DEFS@ -D_REENTRANT
 CPPFLAGS=@CPPFLAGS@
 LDFLAGS=@LDFLAGS@
 # directories
@@ -52,7 +52,7 @@ INSTALL_DATA=@INSTALL_DATA@
 EXEEXT=@EXEEXT@
 
 # look for include files in each of the modules:
-CFLAGS += -g -Wall -Werror -Wno-unused-label -I. -I$(srcdir) @DEFS@
+CFLAGS += -g -Wall -Werror -Wno-unused-label -I. -I$(srcdir) @DEFS@ -D_REENTRANT
 LDFLAGS += -g
 # extra libs if required
 LIBS := @LIBS@
@@ -71,6 +71,7 @@ include $(srcdir)/project/gnu/macros.mk
 # include the description of each module
 -include $(patsubst %,$(srcdir)/%/module.mk,$(MODULE_DIRS))
 -include $(srcdir)/tests/*/*/module.mk
+-include $(srcdir)/tests/*/module.mk
 
 # $(foreach mod,$(MODULES),$(eval $(call OBJ_template,$(mod))))
 
