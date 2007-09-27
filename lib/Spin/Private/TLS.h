@@ -10,7 +10,7 @@ namespace Spin
 		public :
 			// this is a copiable opaque handle much in the same way as Windoze' HANDLE
 			struct Key
-			{ void * unused_ };
+			{ void * unused_; };
 
 			//! Get the instance of the singleton
 			static TLS & getInstance();
@@ -18,7 +18,7 @@ namespace Spin
 			Key acquireKey();
 			void releaseKey(const Key & key);
 			void setValue(const Key & key, void * value);
-			void * getValue_p() const;
+			void * getValue(const Key & key) const;
 
 		private :
 			TLS();

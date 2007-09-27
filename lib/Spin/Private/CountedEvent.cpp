@@ -32,11 +32,11 @@ namespace Spin
 		void CountedEvent::wait()
 		{
 #if !HAVE_ATOMIC_PRIMITIVES
-			rwlock_.acquire_read()
+			rwlock_.acquire_read();
 #endif
 			int current(current_);
 #if !HAVE_ATOMIC_PRIMITIVES
-			rwlock_.release()
+			rwlock_.release();
 #endif
 #if HAVE_ATOMIC_PRIMITIVES
 			atomicIncrement(wait_count_[current]);
@@ -50,7 +50,7 @@ namespace Spin
 			boost::uint32_t count(fetchAndDecrement(wait_count_[current]));
 #else
 			lock_.acquire();
-			boost::uint32_t count(((wait_count_[current])--);
+			boost::uint32_t count(((wait_count_[current])--));
 			lock_.release();
 #endif
 			if (count == 1)
@@ -64,7 +64,7 @@ namespace Spin
 #if !HAVE_ATOMIC_PRIMITIVES
 			rwlock_.acquire_read();
 			int current(current_);
-			rwlock_.release()
+			rwlock_.release();
 			lock_.acquire();
 			boost::uint32_t wait_count(wait_count_[!current]);
 			lock_.release();
@@ -81,7 +81,7 @@ namespace Spin
 		void CountedEvent::switch_()
 		{
 #if !HAVE_ATOMIC_PRIMITIVES
-			rwlock_.acquire_read()
+			rwlock_.acquire_read();
 #endif
 			int current(current_);
 			while (wait_count_[!current])
