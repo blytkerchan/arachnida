@@ -2,7 +2,7 @@
 #include <boost/static_assert.hpp>
 #if !defined(__GNUC__) && defined(_WIN32)
 #	include <Windows.h>
-#else if !defined (__GNUC__)
+#elif !defined (__GNUC__)
 #	error "This file should not be compiled here"
 #endif
 
@@ -16,27 +16,25 @@ namespace Spin
 			BOOST_STATIC_ASSERT(sizeof(volatile boost::uint32_t) == sizeof(volatile LONG));
 			InterlockedIncrement((volatile LONG*)&u32);
 #elif defined(__GNUC__)
-			volatile boost::uint32_t * target(&u32);
-			asm("lock incl (%1)"
-				: "=m" (*target)
-				: "r" (target) );
+			asm("lock incl (%[input])"
+				: [output] "=m" (u32)
+				: [input] "r" (&u32));
 #endif
 		}
 
 		void atomicAdd(volatile boost::uint32_t & u32, boost::uint32_t val)
 		{
+			volatile boost::uint32_t * target(&u32);
 #if !defined(__GNUC__) && defined(_WIN32)
 			// get a pointer to the target
-			volatile boost::uint32_t * target(&u32);
 			// put the address of the target in ECX
 			__asm mov ecx, DWORD PTR [target]
 			__asm mov eax, val
 			__asm lock add DWORD PTR [ecx], eax
 #elif defined(__GNUC__)
-			volatile boost::uint32_t * target(&u32);
-			asm("lock add (%2), (%1)"
-				: "=m" (*target)
-				: "r" (val) );
+			asm("lock add %[input], %[output]"
+				: [output] "=m" (*target)
+				: "m" (&u32), [input] "r" (val) );
 #endif
 		}
 
@@ -71,9 +69,16 @@ done :
 #elif defined(__GNUC__)
 			int rv;
 
-			asm("movl %1, %%eax; lock cmpxchg %4, %3;jz __eq; movl %%eax, %1; movl $-1, %0; jmp __done; __eq: xor %0, %0; __done:"
-				: "=r" (rv), "=r" (*(void**)exp)
-				: "1" (*(void**)exp/*_ptr*/), "m" (*(void**)tar/*_ptr*/), "r" (val/*src_ptr*/)
+			asm("movl %[target], %%eax;\n\t"
+			    "lock cmpxchg %[source], %[target_location];\n\t"
+			    "jz __eq;\n\t"
+			    "movl %%eax, %[target];\n\t"
+			    "movl $-1, %[retval];\n\t"
+			    "jmp __done;\n\t"
+			    "__eq: xor %[retval], %[retval];\n\t"
+			    "__done:\n\t"
+				: [retval] "=r" (rv), [target] "=r" (*(void**)exp)
+				: "1" (*(void**)exp/*_ptr*/), [target_location] "m" (*(void**)expp/*_ptr*/), [source] "r" (val/*src_ptr*/)
 				: "%eax");
 
 			if (rv)
@@ -92,9 +97,9 @@ done :
 			__asm lock xchg DWORD PTR [eax], ebx
 
 #elif defined(__GNUC__)
-			asm("lock xchgl %2, (%1)"
-				: "=m" (targetp)
-				: "1" (targetp), "r" (value)
+			asm("lock xchgl %[value], %[output]"
+				: [output] "=m" (*targetp)
+				: [value] "r" (value)
 				);
 #endif
 		}

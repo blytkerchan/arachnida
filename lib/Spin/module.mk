@@ -1,14 +1,12 @@
 # the library
 Spin_SRC =					\
 	Private/BakeryCounter.cpp		\
-	Private/ConnectionHandler.cpp		\
 	Private/CountedEvent.cpp		\
 	Private/Logger.cpp			\
-	Private/ObservationAdapter.cpp		\
 	Private/atomicPrimitives.cpp		\
 	Private/yield.cpp			\
-	Handlers/NewConnectionHandler.cpp	\
-	Server.cpp
+	Private/TLS.cpp				\
+	Private/OpenSSL.cpp
 
 
 Spin_INSTALL_HEADERS += $(filter-out Private/%, $(wildcard *.h) $(wildcard */*.h))

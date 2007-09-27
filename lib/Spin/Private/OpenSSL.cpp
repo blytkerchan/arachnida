@@ -8,13 +8,87 @@ extern "C" {
 #endif
 #include <cassert>
 #include <vector>
-#include <boost/threads/mutex.hpp>
+#include <loki/ScopeGuard.h>
+#if defined(_WIN32) && ! defined(__CYGWIN__)
+#include <Windows.h>
+#else
+extern "C" {
+#include <pthread.h>
+}
+#define USING_PTHREADS
+#endif
 
 namespace
 {
+	struct Lock
+	{
+		Lock()
+		{
+			init_();
+		}
+
+		~Lock()
+		{
+			fini_();
+		}
+
+#if defined(USING_PTHREADS)
+		void lock()
+		{
+			pthread_mutex_lock(&lock_);
+		}
+
+		void unlock()
+		{
+			pthread_mutex_unlock(&lock_);
+		}
+#else
+		void lock()
+		{
+			EnterCriticalSection(&lock_);
+		}
+
+		void unlock()
+		{
+			LeaveCriticalSection(&lock_);
+		}
+#endif
+
+	private :
+		// Neither CopyConstructible nor Assignable
+		Lock(const Lock & lock);
+		Lock & operator=(Lock lock);
+
+#if defined(USING_PTHREADS)
+		void init_()
+		{
+			pthread_mutex_init(&lock_, 0);
+		}
+
+		void fini_()
+		{
+			pthread_mutex_destroy(&lock_);
+		}
+
+		::pthread_mutex_t lock_;
+#else
+		void init_()
+		{
+			InitializeCriticalSection(&lock_);
+		}
+
+		void fini_()
+		{
+			DeleteCriticalSection(&lock_);
+		}
+
+		CRITICAL_SECTION lock_;
+#endif
+	};
+
 	static struct OpenSSLInitializer
 	{
-		typedef std::vector< boost::recursive_mutex * > Locks_;
+		typedef std::vector< Lock * > Locks_;
 		OpenSSLInitializer()
 			: locks_(::CRYPTO_num_locks())
 		{
@@ -23,7 +97,7 @@ namespace
 			Loki::ScopeGuard cleanup_guard = Loki::MakeGuard(&cleanup);
 			for (Locks_::iterator curr(locks_.begin()); curr != locks_.end(); ++curr)
 			{
-				*curr = new boost::recursive_mutex;
+				*curr = new Lock;
 			}
 			cleanup_guard.Dismiss();
 			CRYPTO_set_locking_callback(lock);
@@ -36,14 +110,14 @@ namespace
 
 		static void lock(int mode, int lock_id, const char * file, int line)
 		{
-			assert(lock_id < locks_.size());
+			assert(lock_id < instance__->locks_.size());
 			if (mode & CRYPTO_LOCK)
 			{
-				locks_[lock_id].lock();
+				instance__->locks_[lock_id]->lock();
 			}
 			else
 			{
-				locks_[lock_id].unlock()
+				instance__->locks_[lock_id]->unlock();
 			}
 		}
 
@@ -51,7 +125,7 @@ namespace
 		{
 			if (instance__)
 			{
-				for (Locks_::iterator curr(locks_.begin()); curr != locks_.end(); ++curr)
+				for (Locks_::iterator curr(instance__->locks_.begin()); curr != instance__->locks_.end(); ++curr)
 				{
 					delete *curr;
 					*curr = 0;
