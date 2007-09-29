@@ -4,7 +4,7 @@
 #include "../Details/prologue.h"
 #include <boost/cstdint.hpp>
 #include <boost/static_assert.hpp>
-#include <ace/Thread_Mutex.h>
+#include <boost/thread/mutex.hpp>
 
 namespace Spin
 {
@@ -37,7 +37,7 @@ namespace Spin
 
 			Counter_ counter_;
 #if !HAVE_ATOMIC_PRIMITIVES
-			ACE_Thread_Mutex lock_;
+			boost::mutex lock_;
 #endif
 		};
 	}

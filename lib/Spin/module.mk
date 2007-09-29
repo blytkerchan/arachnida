@@ -1,7 +1,6 @@
 # the library
 Spin_SRC =					\
 	Private/BakeryCounter.cpp		\
-	Private/CountedEvent.cpp		\
 	Private/Logger.cpp			\
 	Private/atomicPrimitives.cpp		\
 	Private/yield.cpp			\

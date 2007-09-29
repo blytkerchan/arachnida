@@ -1,5 +1,4 @@
 #include "BakeryCounter.h"
-#include <ace/Atomic_Op.h>
 #if HAVE_ATOMIC_PRIMITIVES
 #include "atomicPrimitives.h"
 #endif
@@ -22,9 +21,8 @@ namespace Spin
 			BOOST_STATIC_ASSERT(client_counter__ == 0);
 			atomicIncrement(counter_.u32_);
 #else
-			lock_.acquire();
+			boost::mutex::scoped_lock lock(lock_);
 			++(counter_.u16_[client_counter__]);
-			lock_.release();
 #endif
 		}
 
@@ -34,9 +32,8 @@ namespace Spin
 			BOOST_STATIC_ASSERT(baker_counter__ == 1);
 			atomicAdd(counter_.u32_, 0x00010000);
 #else
-			lock_.acquire();
+			boost::mutex::scoped_lock lock(lock_);
 			++(counter_.u16_[baker_counter__]);
-			lock_.release();
 #endif
 		}
 	}
