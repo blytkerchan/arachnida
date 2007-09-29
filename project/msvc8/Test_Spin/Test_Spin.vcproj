@@ -173,30 +173,6 @@
 	<References>
 	</References>
 	<Files>
-		<Filter
-			Name="Private"
-			>
-			<File
-				RelativePath="..\..\..\tests\Spin\Private\Grammar.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-		</Filter>
 		<File
 			RelativePath="..\..\..\tests\Spin\atomicPrimitives.cpp"
 			>
@@ -214,14 +190,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\tests\Spin\CountedEvent.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\Spin\CountedEvent.h"
-			>
-		</File>
-		<File
 			RelativePath="..\..\..\tests\Spin\Logger.cpp"
 			>
 		</File>
@@ -231,14 +199,6 @@
 		</File>
 		<File
 			RelativePath="..\..\..\tests\Spin\main.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\Spin\Server.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\Spin\Server.h"
 			>
 		</File>
 	</Files>

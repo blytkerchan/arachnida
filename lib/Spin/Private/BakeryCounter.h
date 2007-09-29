@@ -36,9 +36,6 @@ namespace Spin
 			BOOST_STATIC_ASSERT(sizeof(Counter_) == sizeof(boost::uint32_t));
 
 			Counter_ counter_;
-#if !HAVE_ATOMIC_PRIMITIVES
-			boost::mutex lock_;
-#endif
 		};
 	}
 }

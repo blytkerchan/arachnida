@@ -1,6 +1,7 @@
 /* This file contains support code for using the OpenSSL library in a threaded environment - and to simply use it at all. */
 #define OPENSSL_THREAD_DEFINES
 extern "C" {
+#include <openssl/ssl.h>
 #include <openssl/crypto.h>
 }
 #if !defined(OPENSSL_THREADS)
@@ -17,6 +18,8 @@ extern "C" {
 }
 #define USING_PTHREADS
 #endif
+#include "TLS.h"
+#include "atomicPrimitives.h"
 
 namespace
 {
@@ -90,7 +93,9 @@ namespace
 	{
 		typedef std::vector< Lock * > Locks_;
 		OpenSSLInitializer()
-			: locks_(::CRYPTO_num_locks())
+			: locks_(::CRYPTO_num_locks()),
+			  tls_key_(Spin::Private::TLS::getInstance().acquireKey(free_)),
+			  next_thread_id_(0)
 		{
 			assert(instance__ == 0);
 			instance__ = this;
@@ -100,17 +105,20 @@ namespace
 				*curr = new Lock;
 			}
 			cleanup_guard.Dismiss();
-			CRYPTO_set_locking_callback(lock);
+			::CRYPTO_set_locking_callback(lock);
+			::SSL_library_init(); // always returns 1 so it is safe to discard this value - according to the doc
 		}
 
 		~OpenSSLInitializer()
 		{
 			cleanup();
+			Spin::Private::TLS::getInstance().releaseKey(tls_key_);
 		}
 
 		static void lock(int mode, int lock_id, const char * file, int line)
 		{
-			assert(lock_id < instance__->locks_.size());
+			assert(lock_id >= 0);
+			assert(static_cast< std::size_t >(lock_id) < instance__->locks_.size());
 			if (mode & CRYPTO_LOCK)
 			{
 				instance__->locks_[lock_id]->lock();
@@ -135,7 +143,29 @@ namespace
 			{ /* no instance - nothing to clean up */ }
 		}
 
+		static void free_(void * p)
+		{
+			delete (unsigned long*)p;
+		}
+
+		static unsigned long getThreadId()
+		{
+			unsigned long retval;
+			Spin::Private::TLS & tls(Spin::Private::TLS::getInstance());
+			void * val(tls.getValue(instance__->tls_key_));
+			if (!val)
+			{
+				retval = Spin::Private::fetchAndIncrement(instance__->next_thread_id_);
+				tls.setValue(instance__->tls_key_, new unsigned long(retval));
+			}
+			else
+				retval = *((unsigned long *)(val));
+			return retval;
+		}
+
 		Locks_ locks_;
+		Spin::Private::TLS::Key tls_key_;
+		unsigned long next_thread_id_;
 
 		static OpenSSLInitializer * instance__;
 	} openssl_initializer__;
