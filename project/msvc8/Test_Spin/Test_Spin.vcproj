@@ -174,31 +174,31 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\..\..\tests\Spin\atomicPrimitives.cpp"
+			RelativePath="..\..\..\tests\lib\Spin\atomicPrimitives.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\tests\Spin\atomicPrimitives.h"
+			RelativePath="..\..\..\tests\lib\Spin\atomicPrimitives.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\tests\Spin\BakeryCounter.cpp"
+			RelativePath="..\..\..\tests\lib\Spin\BakeryCounter.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\tests\Spin\BakeryCounter.h"
+			RelativePath="..\..\..\tests\lib\Spin\BakeryCounter.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\tests\Spin\Logger.cpp"
+			RelativePath="..\..\..\tests\lib\Spin\Logger.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\tests\Spin\Logger.h"
+			RelativePath="..\..\..\tests\lib\Spin\Logger.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\tests\Spin\main.cpp"
+			RelativePath="..\..\..\tests\lib\Spin\main.cpp"
 			>
 		</File>
 	</Files>

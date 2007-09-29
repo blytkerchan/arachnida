@@ -1,5 +1,6 @@
 #include "Logger.h"
 #include <Spin/Private/Logger.h>
+#include <stdexcept>
 
 namespace Tests
 {
