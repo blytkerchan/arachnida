@@ -148,24 +148,24 @@ namespace
 			delete (unsigned long*)p;
 		}
 
-		static unsigned long getThreadId()
+		static boost::uint32_t getThreadId()
 		{
-			unsigned long retval;
+			boost::uint32_t retval(0);
 			Spin::Private::TLS & tls(Spin::Private::TLS::getInstance());
 			void * val(tls.getValue(instance__->tls_key_));
 			if (!val)
 			{
 				retval = Spin::Private::fetchAndIncrement(instance__->next_thread_id_);
-				tls.setValue(instance__->tls_key_, new unsigned long(retval));
+				tls.setValue(instance__->tls_key_, new boost::uint32_t(retval));
 			}
 			else
-				retval = *((unsigned long *)(val));
+				retval = *((boost::uint32_t *)(val));
 			return retval;
 		}
 
 		Locks_ locks_;
 		Spin::Private::TLS::Key tls_key_;
-		unsigned long next_thread_id_;
+		volatile boost::uint32_t next_thread_id_;
 
 		static OpenSSLInitializer * instance__;
 	} openssl_initializer__;

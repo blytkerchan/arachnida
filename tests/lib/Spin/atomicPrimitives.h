@@ -14,6 +14,7 @@ namespace Tests
 				CPPUNIT_TEST_SUITE( atomicPrimitives );
 				CPPUNIT_TEST(tryIncrement);
 				CPPUNIT_TEST(tryAdd);
+				CPPUNIT_TEST(tryFetchAndIncrement);
 				CPPUNIT_TEST(tryFetchAndDecrement);
 				CPPUNIT_TEST(tryAtomicSet);
 				CPPUNIT_TEST_SUITE_END();
@@ -25,6 +26,7 @@ namespace Tests
 			protected:
 				void tryIncrement();
 				void tryAdd();
+				void tryFetchAndIncrement();
 				void tryFetchAndDecrement();
 				void tryAtomicSet();
 			private:

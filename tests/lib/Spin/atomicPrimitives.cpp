@@ -29,6 +29,14 @@ namespace Tests
 				CPPUNIT_ASSERT(u32 == 8732);
 			}
 
+			void atomicPrimitives::tryFetchAndIncrement()
+			{
+				volatile boost::uint32_t u32(0);
+				boost::uint32_t val(::Spin::Private::fetchAndIncrement(u32));
+				CPPUNIT_ASSERT(val == 0);
+				CPPUNIT_ASSERT(u32 == boost::uint32_t(1));
+			}
+
 			void atomicPrimitives::tryFetchAndDecrement()
 			{
 				volatile boost::uint32_t u32(0);

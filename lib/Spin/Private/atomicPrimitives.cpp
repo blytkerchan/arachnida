@@ -40,12 +40,12 @@ namespace Spin
 
 		SPIN_API boost::uint32_t fetchAndIncrement(volatile boost::uint32_t & u32)
 		{
+#if !defined(__GNUC__) && defined(_WIN32)
 retry :
 			volatile boost::uint32_t exp(u32);
 			volatile boost::uint32_t * u32p(&u32);
 			volatile boost::uint32_t * expp(&exp);
 			volatile boost::uint32_t val(exp + 1);
-#if !defined(__GNUC__) && defined(_WIN32)
 
 			// put the address of the expected value in %eax
 			__asm mov eax, DWORD PTR [expp]
@@ -67,35 +67,35 @@ done :
 
 			return exp;
 #elif defined(__GNUC__)
-			int rv;
+			volatile boost::uint32_t * u32_p(&u32);
+			boost::uint32_t retval;
 
-			asm("movl %[target], %%eax;\n\t"
-				"lock cmpxchg %[source], %[target_location];\n\t"
-				"jz 0f;\n\t"
-				"movl %%eax, %[target];\n\t"
-				"xorl %[retval], %[retval];\n\t"
-				"jmp 1f;\n\t"
-				"0: movl $1, %[retval];\n\t"
-				"1:\n\t"
-				: [retval] "=r" (rv), [target] "=r" (*(void**)exp)
-				: "1" (*(void**)exp/*_ptr*/), [target_location] "m" (*(void**)expp/*_ptr*/), [source] "r" (val/*src_ptr*/)
+			asm(
+				"pushl %%ebx\n\t"
+				"0:\n\t"
+				"movl (%[input]), %%eax\n\t"
+				"movl %%eax, %%ebx\n\t"
+				"incl %%ebx\n\t"
+				"lock cmpxchg %%ebx, (%[input])\n\t"
+				"jnz 0b\n\t"
+				"movl %%eax, %[retval]\n\t"
+				"popl %%ebx\n\t"
+				: [retval] "=r" (retval), [target] "=m" (*u32_p)
+				: [input] "r" (u32_p)
 				: "%eax");
 
-			if (rv)
-				goto retry;
-			else
-				return exp;
+			return retval;
 #endif
 		}
 
 		SPIN_API boost::uint32_t fetchAndDecrement(volatile boost::uint32_t & u32)
 		{
+#if !defined(__GNUC__) && defined(_WIN32)
 retry :
 			volatile boost::uint32_t exp(u32);
 			volatile boost::uint32_t * u32p(&u32);
 			volatile boost::uint32_t * expp(&exp);
 			volatile boost::uint32_t val(exp - 1);
-#if !defined(__GNUC__) && defined(_WIN32)
 
 			// put the address of the expected value in %eax
 			__asm mov eax, DWORD PTR [expp]
@@ -117,24 +117,24 @@ done :
 
 			return exp;
 #elif defined(__GNUC__)
-			int rv;
+			volatile boost::uint32_t * u32_p(&u32);
+			boost::uint32_t retval;
 
-			asm("movl %[target], %%eax;\n\t"
-				"lock cmpxchg %[source], %[target_location];\n\t"
-				"jz 0f;\n\t"
-				"movl %%eax, %[target];\n\t"
-				"xorl %[retval], %[retval];\n\t"
-				"jmp 1f;\n\t"
-				"0: movl $1, %[retval];\n\t"
-				"1:\n\t"
-				: [retval] "=r" (rv), [target] "=r" (*(void**)exp)
-				: "1" (*(void**)exp/*_ptr*/), [target_location] "m" (*(void**)expp/*_ptr*/), [source] "r" (val/*src_ptr*/)
+			asm(
+				"pushl %%ebx\n\t"
+				"0:\n\t"
+				"movl (%[input]), %%eax\n\t"
+				"movl %%eax, %%ebx\n\t"
+				"decl %%ebx\n\t"
+				"lock cmpxchg %%ebx, (%[input])\n\t"
+				"jnz 0b\n\t"
+				"movl %%eax, %[retval]\n\t"
+				"popl %%ebx\n\t"
+				: [retval] "=r" (retval), [target] "=m" (*u32_p)
+				: [input] "r" (u32_p)
 				: "%eax");
 
-			if (rv)
-				goto retry;
-			else
-				return exp;
+			return retval;
 #endif
 		}
 
