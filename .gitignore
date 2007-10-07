@@ -1,0 +1,15 @@
+.build
+Makefile.in
+aclocal.m4
+autom4te.cache
+bootstrap.pl
+config.guess
+config.sub
+configure
+configure.ac
+install-sh
+*~
+ltmain.sh
+*.ncb
+*.suo
+*.vcproj.*.user
