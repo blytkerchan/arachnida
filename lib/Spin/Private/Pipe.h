@@ -17,7 +17,7 @@ namespace Spin
 			int getReadDescriptor() const { return fds_[0]; }
 			int getWriteDescriptor() const { return fds_[1]; }
 
-			void read(void * buffer, std::size_t count);
+			std::size_t read(void * buffer, std::size_t count);
 			void write(const void * buffer, std::size_t count);
 
 		private :
