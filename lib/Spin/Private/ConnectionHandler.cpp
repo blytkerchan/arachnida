@@ -11,6 +11,22 @@
 
 namespace 
 {
+	struct DoneCountingPred
+	{
+		DoneCountingPred(boost::uint16_t target_count, Spin::Private::BakeryCounter & counter)
+			: target_count_(target_count),
+			  counter_(counter)
+		{ /* no-op */ }
+
+		bool operator()() const
+		{
+			return counter_.getBakerCounter() == target_count_;
+		}
+
+		boost::uint16_t target_count_;
+		Spin::Private::BakeryCounter & counter_;
+	};
+
 	template < typename Pair, typename OpType >
 	struct apply_to_1st_impl_
 	{
@@ -99,20 +115,15 @@ namespace Spin
 
 		void ConnectionHandler::detach( int file_descriptor )
 		{
-			bool do_wait(false);
+			CallbacksLock_::scoped_lock lock(callbacks_lock_);
+			Callbacks_::iterator where(std::find_if(callbacks_.begin(), callbacks_.end(), apply_to_first< Callbacks_::value_type >(std::bind2nd(std::equal_to< int >(), file_descriptor))));
+			if (where != callbacks_.end())
 			{
-				CallbacksLock_::scoped_lock lock(callbacks_lock_);
-				Callbacks_::iterator where(std::find_if(callbacks_.begin(), callbacks_.end(), apply_to_first< Callbacks_::value_type >(std::bind2nd(std::equal_to< int >(), file_descriptor))));
-				if (where != callbacks_.end())
-				{
-					callbacks_.erase(where);
-					notifyThread_();
-					do_wait = true;
-				}
-				else
-				{ /* no-op */ }
-			} // end the scope of the scoped lock
-			if (do_wait) wait4Update_();
+				callbacks_.erase(where);
+				notifyThread_();
+			}
+			else
+			{ /* no-op */ }
 		}
 
 		ConnectionHandler::ConnectionHandler()
@@ -153,16 +164,53 @@ namespace Spin
 						highest_fd_seen = std::max(highest_fd_seen, curr->first);
 					}
 				} // end of scope for lock
-				
+				int sync_pipe_read_descriptor(sync_pipe_.getReadDescriptor());
+				FD_SET(sync_pipe_read_descriptor, &read_fds);
+				highest_fd_seen = std::max(highest_fd_seen, sync_pipe_read_descriptor);
+				int select_result(::select(highest_fd_seen, &read_fds, &write_fds, &exc_fds, 0));
+				if (select_result <= 0)
+				{
+					std::string error_message;
+					switch (WSAGetLastError())
+					{
+					case WSANOTINITIALISED : error_message = "A successful WSAStartup call must occur before using this function."; break;
+					case WSAEFAULT : error_message = "The Windows Sockets implementation was unable to allocate needed resources for its internal operations, or the readfds, writefds, exceptfds, or timeval parameters are not part of the user address space."; break;
+					case WSAENETDOWN : error_message = "The network subsystem has failed."; break;
+					case WSAEINVAL : error_message = "The time-out value is not valid, or all three descriptor parameters were null."; break;
+					case WSAEINTR : error_message = "A blocking Windows Socket 1.1 call was canceled through WSACancelBlockingCall."; break;
+					case WSAEINPROGRESS : error_message = "A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function."; break;
+					case WSAENOTSOCK : error_message = "One of the descriptor sets contains an entry that is not a socket."; break;
+					default : error_message = "Unknown error"; break;
+					}
+				}
+				else
+				{
+					CallbacksLock_::scoped_lock lock(callbacks_lock_);
+					for (Callbacks_::const_iterator curr(callbacks_.begin()); curr != callbacks_.end(); ++curr)
+					{
+						if (FD_ISSET(curr->first, &read_fds))
+						{
+							(curr->second)();
+						}
+						else
+						{ /* fd not set */ }
+					}
+				}
+				if (FD_ISSET(sync_pipe_read_descriptor, &read_fds))
+				{
+					// consume the bytes put in the pipe
+					char buffer[64];
+					std::size_t bytes_read_from_sync_pipe(sync_pipe_.read(buffer, sizeof(buffer)));
+				}
+				else
+				{ /* not notified */ }
 			}
 		}
 
 		void ConnectionHandler::notifyThread_()
 		{
-		}
-
-		void ConnectionHandler::wait4Update_()
-		{
+			char sync(0);
+			sync_pipe_.write(&sync, 1);
 		}
 	}
 }

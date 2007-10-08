@@ -10,6 +10,10 @@ typedef struct bio_st BIO;
 namespace boost { namespace filesystem { class path; } }
 namespace Spin
 {
+	namespace Handlers
+	{
+		class NewConnectionHandler;
+	}
 	class SPIN_API Listener
 	{
 	public :
@@ -18,6 +22,9 @@ namespace Spin
 		~Listener();
 
 		Connection accept();
+
+		void setNewConnectionHandler(Handlers::NewConnectionHandler & handler);
+		void clearNewConnectionHandler();
 
 	private :
 		// Neither CopyConstructible nor Assignable
@@ -28,7 +35,10 @@ namespace Spin
 		BIO * createBIO_(const std::string & local_address);
 		BIO * createSSLBIO_(const boost::filesystem::path & server_cert_filename, const std::string & local_address);
 
+		void onNewConnection_();
+
 		BIO * bio_;
+		Handlers::NewConnectionHandler * new_connection_handler_;
 	};
 }
 

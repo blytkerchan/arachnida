@@ -1,6 +1,7 @@
 #include "Listener.h"
 #include <cassert>
 #include <boost/format.hpp>
+#include <boost/bind.hpp>
 #include <boost/filesystem/path.hpp>
 #include <loki/ScopeGuard.h>
 extern "C" {
@@ -8,17 +9,22 @@ extern "C" {
 #include <openssl/ssl.h>
 }
 #include "Connection.h"
+#include "Private/ConnectionHandler.h"
+#include "Handlers/NewConnectionHandler.h"
 
 namespace Spin
 {
 	Listener::Listener(Details::Address local_address, boost::uint16_t local_port)
-		: bio_(0)
+		: bio_(0),
+		  new_connection_handler_(0)
 	{
 		bio_ = createBIO_(constructLocalAddress_(local_address, local_port));
 		assert(bio_); // should have thrown otherwise
 	}
 
 	Listener::Listener(const boost::filesystem::path & server_cert_filename, Details::Address local_address, boost::uint16_t local_port)
+		: bio_(0),
+		  new_connection_handler_(0)
 	{
 		bio_ = createSSLBIO_(server_cert_filename, constructLocalAddress_(local_address, local_port));
 		assert(bio_); // should have thrown otherwise
@@ -41,7 +47,30 @@ namespace Spin
 		{ /* connection accepted OK */ }
 		BIO * cbio(BIO_pop(bio_));
 		assert(cbio);
+		SSL * ssl(0);
+		BIO_get_ssl(cbio, &ssl);
+		if (ssl)
+		{
+			if (BIO_do_handshake(cbio) <= 0)
+				throw std::runtime_error("Error during SSL handshake");
+			else
+			{ /* all is well - carry on */ }
+		}
+		else
+		{ /* not an SSL BIO - no handshake to do */ }
 		return Connection(cbio);
+	}
+
+	void Listener::setNewConnectionHandler(Handlers::NewConnectionHandler & handler)
+	{
+		new_connection_handler_ = &handler;
+		Private::ConnectionHandler::getInstance().attach(BIO_get_fd(bio_, 0), boost::bind(&Listener::onNewConnection_, this));
+	}
+
+	void Listener::clearNewConnectionHandler()
+	{
+		Private::ConnectionHandler::getInstance().detach(BIO_get_fd(bio_, 0));
+		new_connection_handler_ = 0;
 	}
 
 	std::string Listener::constructLocalAddress_(Details::Address local_address, boost::uint16_t local_port)
@@ -150,6 +179,14 @@ namespace Spin
 		{ /* all is well */ }
 		ssl_context_guard.Dismiss();
 		return accept_bio;
+	}
+
+	void Listener::onNewConnection_()
+	{
+		if (new_connection_handler_)
+			(*new_connection_handler_)(accept());
+		else
+		{ /* no new connection handler set */ }
 	}
 }
 

@@ -5,6 +5,9 @@
 #include <vector>
 #include <boost/function.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/thread/condition.hpp>
+#include "Pipe.h"
+#include "BakeryCounter.h"
 
 namespace boost
 {
@@ -17,7 +20,7 @@ namespace Spin
 		class ConnectionHandler
 		{
 		public :
-			typedef boost::function< void(int) > NotificationCallback;
+			typedef boost::function< void(/*int*/) > NotificationCallback;
 
 			static ConnectionHandler & getInstance();
 
@@ -36,12 +39,12 @@ namespace Spin
 
 			void workerThreadFunc_();
 			void notifyThread_();
-			void wait4Update_();
 
 			Callbacks_ callbacks_;
 			CallbacksLock_ callbacks_lock_;
 			volatile bool done_;
 			boost::thread * worker_thread_;
+			Pipe sync_pipe_;
 		};
 	}
 }

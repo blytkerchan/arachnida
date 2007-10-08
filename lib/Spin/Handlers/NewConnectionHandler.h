@@ -7,6 +7,7 @@
 class ACE_SOCK_Stream;
 namespace Spin
 {
+	class Connection;
 	namespace Handlers
 	{
 		class SPIN_API NewConnectionHandler
@@ -14,14 +15,14 @@ namespace Spin
 		public :
 			virtual ~NewConnectionHandler();
 
-			NewConnectionHandler & operator()(std::auto_ptr< ACE_SOCK_Stream > & new_connection)
+			NewConnectionHandler & operator()(const Connection & connection)
 			{
-				handleNewConnection(new_connection);
+				handleNewConnection(connection);
 				return *this;
 			}
 
 		protected :
-			virtual void handleNewConnection(std::auto_ptr< ACE_SOCK_Stream > & new_connection) = 0;
+			virtual void handleNewConnection(const Connection & connection) = 0;
 		};
 	}
 }
