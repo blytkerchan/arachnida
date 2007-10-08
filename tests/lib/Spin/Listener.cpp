@@ -5,15 +5,17 @@ namespace Tests
 {
 	namespace Spin
 	{
-		namespace Private
+		CPPUNIT_TEST_SUITE_REGISTRATION(Listener);
+
+		void Listener::setUp()
+		{ /* no-op */ }
+
+		void Listener::tearDown()
+		{ /* no-op */ }
+
+		void Listener::tryCreateInstance()
 		{
-			CPPUNIT_TEST_SUITE_REGISTRATION(Listener);
-
-			void Listener::setUp()
-			{ /* no-op */ }
-
-			void Listener::tearDown()
-			{ /* no-op */ }
+			::Spin::Listener listener(0, 4096);
 		}
 	}
 }

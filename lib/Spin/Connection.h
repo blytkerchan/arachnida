@@ -10,6 +10,7 @@ typedef struct bio_st BIO;
 namespace Spin
 {
 	class Connector;
+	class Listener;
 	class SPIN_API Connection
 	{
 	public :
@@ -44,6 +45,7 @@ namespace Spin
 		mutable ::BIO * bio_;
 
 		friend class Connector; // for construction
+		friend class Listener; // for construction
 	};
 }
 

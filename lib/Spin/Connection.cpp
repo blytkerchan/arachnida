@@ -108,25 +108,25 @@ read_entry_point:
 		return std::make_pair(bytes_read_into_buffer, reason);
 	}
 
-	std::string Connection::getLocalAddress() const
-	{
-		return std::string();
-	}
+	//std::string Connection::getLocalAddress() const
+	//{
+	//	return std::string();
+	//}
 
-	boost::uint16_t Connection::getLocalPort() const
-	{
-		return 0;
-	}
+	//boost::uint16_t Connection::getLocalPort() const
+	//{
+	//	return 0;
+	//}
 
-	std::string Connection::getRemoteAddress() const
-	{
-		return std::string();
-	}
+	//std::string Connection::getRemoteAddress() const
+	//{
+	//	return std::string();
+	//}
 
-	boost::uint16_t Connection::getRemotePort() const
-	{
-		return 0;
-	}
+	//boost::uint16_t Connection::getRemotePort() const
+	//{
+	//	return 0;
+	//}
 
 	bool Connection::usesSSL() const
 	{

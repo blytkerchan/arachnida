@@ -4,13 +4,15 @@
 #include "Details/prologue.h"
 #include <boost/cstdint.hpp>
 #include "Connection.h"
+#include "Details/Address.h"
 
+typedef struct bio_st BIO;
 namespace Spin
 {
 	class SPIN_API Listener
 	{
 	public :
-		Listener(boost::uint32_t local_address, boost::uint16_t local_port, bool use_ssl = false);
+		Listener(Details::Address local_address, boost::uint16_t local_port);
 		~Listener();
 
 		Connection accept();
@@ -19,6 +21,12 @@ namespace Spin
 		// Neither CopyConstructible nor Assignable
 		Listener(const Listener&);
 		Listener & operator=(const Listener&);
+
+		BIO * createBIO_(const std::string & local_address);
+
+		// BIO * createSSLBIO_(const std::string & local_address,  const std::string & server_certificate_file); // see BIO_f_ssl(3)
+
+		BIO * bio_;
 	};
 }
 
