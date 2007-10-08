@@ -35,7 +35,8 @@ namespace Tests
 				boost::tie(byte_count, reason) = connection.read(buffer);
 				CPPUNIT_ASSERT(reason & ::Spin::Connection::should_retry__);
 				buffer.resize(byte_count);
-				std::cout << std::endl << std::string(buffer.begin(), buffer.end()) << std::endl;
+				// when we get here, Google will have closed the connection
+				CPPUNIT_ASSERT_THROW(connection.read(buffer), std::runtime_error);
 			}
 
 			void Connector::tryCreateHTTPSConnectionToGoogle()
@@ -51,7 +52,8 @@ namespace Tests
 				boost::tie(byte_count, reason) = connection.read(buffer);
 				CPPUNIT_ASSERT(reason & ::Spin::Connection::should_retry__);
 				buffer.resize(byte_count);
-				std::cout << std::endl << std::string(buffer.begin(), buffer.end()) << std::endl;
+				// when we get here, Google will have closed the connection
+				CPPUNIT_ASSERT_THROW(connection.read(buffer), std::runtime_error);
 			}
 		}
 	}
