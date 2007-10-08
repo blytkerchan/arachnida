@@ -11,6 +11,7 @@ namespace Tests
 		{
 			CPPUNIT_TEST_SUITE( Listener );
 			CPPUNIT_TEST( tryCreateInstance );
+			CPPUNIT_TEST( tryAccept );
 			CPPUNIT_TEST_SUITE_END();
 
 		public:
@@ -19,6 +20,7 @@ namespace Tests
 
 		protected:
 			void tryCreateInstance();
+			void tryAccept();
 
 		private:
 		};
