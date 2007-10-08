@@ -107,6 +107,10 @@ namespace
 			cleanup_guard.Dismiss();
 			::CRYPTO_set_locking_callback(lock);
 			::SSL_library_init(); // always returns 1 so it is safe to discard this value - according to the doc
+			::ERR_load_CRYPTO_strings();
+			::ERR_load_SSL_strings();
+			::OpenSSL_add_all_algorithms();
+			// FIXME: should we seed the PRNG here?
 		}
 
 		~OpenSSLInitializer()

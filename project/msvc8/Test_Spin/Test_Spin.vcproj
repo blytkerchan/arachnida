@@ -17,8 +17,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="c:\cvstempo1\src\Spin\project\msvc8\Spin.sln\Debug\Win32\"
-			IntermediateDirectory="c:\cvstempo1\p_\src\Spin\project\msvc8\Spin.sln\Test_Spin\Debug\Win32\"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
 			>
@@ -187,6 +187,30 @@
 		</File>
 		<File
 			RelativePath="..\..\..\tests\lib\Spin\BakeryCounter.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\tests\lib\Spin\Connection.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\tests\lib\Spin\Connection.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\tests\lib\Spin\Connector.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\tests\lib\Spin\Connector.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\tests\lib\Spin\Listener.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\tests\lib\Spin\Listener.h"
 			>
 		</File>
 		<File
