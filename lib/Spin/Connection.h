@@ -32,12 +32,6 @@ namespace Spin
 
 		std::pair< std::size_t, int > read(std::vector< char > & buffer);
 
-		std::string getLocalAddress() const;
-		boost::uint16_t getLocalPort() const;
-
-		std::string getRemoteAddress() const;
-		boost::uint16_t getRemotePort() const;
-
 		bool usesSSL() const;
 
 	private :
