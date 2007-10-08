@@ -7,12 +7,14 @@
 #include "Details/Address.h"
 
 typedef struct bio_st BIO;
+namespace boost { namespace filesystem { class path; } }
 namespace Spin
 {
 	class SPIN_API Listener
 	{
 	public :
 		Listener(Details::Address local_address, boost::uint16_t local_port);
+		Listener(const boost::filesystem::path & server_cert_filename, Details::Address local_address, boost::uint16_t local_port);
 		~Listener();
 
 		Connection accept();
@@ -22,9 +24,9 @@ namespace Spin
 		Listener(const Listener&);
 		Listener & operator=(const Listener&);
 
+		std::string constructLocalAddress_(Details::Address local_address, boost::uint16_t local_port);
 		BIO * createBIO_(const std::string & local_address);
-
-		// BIO * createSSLBIO_(const std::string & local_address,  const std::string & server_certificate_file); // see BIO_f_ssl(3)
+		BIO * createSSLBIO_(const boost::filesystem::path & server_cert_filename, const std::string & local_address);
 
 		BIO * bio_;
 	};
