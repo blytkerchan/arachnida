@@ -13,3 +13,15 @@ ltmain.sh
 *.ncb
 *.suo
 *.vcproj.*.user
+*.obj
+*.htm
+*.manifest
+*.res
+*.idb
+*.dep
+*.dll
+*.exp
+*.ilk
+*.exe
+*.pdb
+*.lib
