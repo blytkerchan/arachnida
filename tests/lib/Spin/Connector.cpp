@@ -36,6 +36,7 @@ namespace Tests
 				CPPUNIT_ASSERT(reason & ::Spin::Connection::should_retry__);
 				buffer.resize(byte_count);
 				// when we get here, Google will have closed the connection
+				std::cerr << std::string(buffer.begin(), buffer.end()) << std::endl;
 				CPPUNIT_ASSERT_THROW(connection.read(buffer), std::runtime_error);
 			}
 

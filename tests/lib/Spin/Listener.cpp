@@ -5,6 +5,7 @@
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <loki/ScopeGuard.h>
+#include <Windows.h>
 
 extern boost::filesystem::path cert_path__;
 
@@ -30,6 +31,31 @@ namespace Tests
 				}
 
 			private :
+				std::auto_ptr< ::Spin::Connection > connection_;
+			};
+
+			class NewConnectionHandler2 : public ::Spin::Handlers::NewConnectionHandler
+			{
+			public :
+				NewConnectionHandler2(::Spin::Listener & listener)
+					: listener_(listener)
+				{ /* no-op */ }
+
+				::Spin::Connection getConnection()
+				{
+					CPPUNIT_ASSERT(connection_.get());
+					return ::Spin::Connection(*connection_);
+				}
+
+			protected :
+				/*virtual */void handleNewConnection(const ::Spin::Connection & connection)
+				{
+					connection_.reset(new ::Spin::Connection(connection));
+					listener_.clearNewConnectionHandler();
+				}
+
+			private :
+				::Spin::Listener & listener_;
 				std::auto_ptr< ::Spin::Connection > connection_;
 			};
 		}
@@ -69,6 +95,22 @@ namespace Tests
 			listener.setNewConnectionHandler(handler);
 			Loki::ScopeGuard attachment_handler = Loki::MakeObjGuard(listener, &::Spin::Listener::clearNewConnectionHandler);
 			::Spin::Connection connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4098, true));
+			::Spin::Connection accepted_connection(handler.getConnection());
+			connection_out.write("Hello, world!");
+			std::vector< char > buffer;
+			std::pair< std::size_t, int > results(accepted_connection.read(buffer));
+			buffer.resize(results.first);
+			CPPUNIT_ASSERT(std::string(buffer.begin(), buffer.end()) == "Hello, world!");
+		}
+
+		void Listener::tryAsyncAcceptAndDetach()
+		{
+			::Spin::Listener listener(0, 4099);
+			NewConnectionHandler2 handler(listener);
+			listener.setNewConnectionHandler(handler);
+			Loki::ScopeGuard attachment_handler = Loki::MakeObjGuard(listener, &::Spin::Listener::clearNewConnectionHandler);
+			::Spin::Connection connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4099));
+			Sleep(1000);
 			::Spin::Connection accepted_connection(handler.getConnection());
 			connection_out.write("Hello, world!");
 			std::vector< char > buffer;

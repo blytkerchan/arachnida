@@ -2,9 +2,9 @@
 #define _spin_private_connectionhandler_h
 
 #include <utility>
-#include <vector>
+#include <list>
 #include <boost/function.hpp>
-#include <boost/thread/mutex.hpp>
+#include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include "Pipe.h"
 #include "BakeryCounter.h"
@@ -31,8 +31,8 @@ namespace Spin
 			ConnectionHandler(const ConnectionHandler&);
 			ConnectionHandler & operator=(const ConnectionHandler&);
 
-			typedef std::vector< std::pair< int /* file_descriptor */, NotificationCallback /* callback */ > > Callbacks_;
-			typedef boost::mutex CallbacksLock_;
+			typedef std::list< std::pair< int /* file_descriptor */, NotificationCallback /* callback */ > > Callbacks_;
+			typedef boost::recursive_mutex CallbacksLock_;
 
 			ConnectionHandler();
 			~ConnectionHandler();

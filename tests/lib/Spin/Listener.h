@@ -13,6 +13,7 @@ namespace Tests
 			CPPUNIT_TEST( tryCreateInstance );
 			CPPUNIT_TEST( tryAccept );
 			CPPUNIT_TEST( tryAcceptSSL );
+			CPPUNIT_TEST( tryAsyncAcceptAndDetach );
 			CPPUNIT_TEST_SUITE_END();
 
 		public:
@@ -23,6 +24,7 @@ namespace Tests
 			void tryCreateInstance();
 			void tryAccept();
 			void tryAcceptSSL();
+			void tryAsyncAcceptAndDetach();
 
 		private:
 		};
