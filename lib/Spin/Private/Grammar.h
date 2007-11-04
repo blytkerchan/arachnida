@@ -7,7 +7,8 @@ namespace Spin
 {
 	namespace Private
 	{
-		struct Grammar : boost::spirit::grammar< Grammar >
+		template < typename Derived >
+		struct Grammar : boost::spirit::grammar< Derived >
 		{
 			struct HexAdapter
 			{
@@ -3598,7 +3599,6 @@ namespace Spin
 				boost::spirit::rule< Scanner > relativeURI_;
 				boost::spirit::rule< Scanner > rel_path_;
 				boost::spirit::rule< Scanner > rel_segment_;
-				boost::spirit::rule< Scanner > target_;
 			};
 		};
 	}

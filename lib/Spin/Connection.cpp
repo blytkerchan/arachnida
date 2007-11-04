@@ -5,11 +5,16 @@ extern "C" {
 }
 #include <cassert>
 #include <climits>
+#include <Windows.h>
+#include <boost/bind.hpp>
+#include "Private/ConnectionHandler.h"
+#include "Handlers/NewDataHandler.h"
 
 namespace Spin
 {
 	Connection::Connection(const Connection & connection)
-		: bio_(connection.bio_)
+		: bio_(connection.bio_),
+		  data_handler_(0)
 	{
 		connection.bio_ = 0;
 	}
@@ -108,26 +113,6 @@ read_entry_point:
 		return std::make_pair(bytes_read_into_buffer, reason);
 	}
 
-	//std::string Connection::getLocalAddress() const
-	//{
-	//	return std::string();
-	//}
-
-	//boost::uint16_t Connection::getLocalPort() const
-	//{
-	//	return 0;
-	//}
-
-	//std::string Connection::getRemoteAddress() const
-	//{
-	//	return std::string();
-	//}
-
-	//boost::uint16_t Connection::getRemotePort() const
-	//{
-	//	return 0;
-	//}
-
 	bool Connection::usesSSL() const
 	{
 		SSL * ssl(0);
@@ -135,8 +120,41 @@ read_entry_point:
 		return ssl != 0;
 	}
 
+	void Connection::setNewDataHandler(Handlers::NewDataHandler & handler)
+	{
+		data_handler_ = &handler;
+		Private::ConnectionHandler::getInstance().attach(BIO_get_fd(bio_, 0), boost::bind(&Connection::onDataReady_, this));
+	}
+
+	void Connection::clearNewDataHandler()
+	{
+		Private::ConnectionHandler::getInstance().detach(BIO_get_fd(bio_, 0));
+		data_handler_ = 0;
+	}
+
+	Details::Address Connection::getPeerAddress() const
+	{
+		if (!bio_)
+			throw std::logic_error("No connection");
+		else
+		{ /* carry on */ }
+		int socket_fd(::BIO_get_fd(bio_, 0));
+		::sockaddr_in peer_addr;
+		int peer_addr_size(sizeof(peer_addr));
+		::getpeername(socket_fd, (::sockaddr*)&peer_addr, &peer_addr_size);
+		return Details::Address(peer_addr.sin_addr.s_addr);
+	}
+
 	Connection::Connection(::BIO * bio)
 		: bio_(bio)
 	{ /* no-op */ }
+
+	void Connection::onDataReady_()
+	{
+		if (data_handler_)
+			(*data_handler_)();
+		else
+		{ /* no-op */ }
+	}
 }
 

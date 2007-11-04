@@ -2,6 +2,8 @@
 #include <Spin/Listener.h>
 #include <Spin/Connector.h>
 #include <Spin/Handlers/NewConnectionHandler.h>
+#include <Spin/Handlers/HTTPConnectionHandler.h>
+#include <Spin/Handlers/HTTPRequestHandler.h>
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <loki/ScopeGuard.h>
@@ -117,6 +119,17 @@ namespace Tests
 			std::pair< std::size_t, int > results(accepted_connection.read(buffer));
 			buffer.resize(results.first);
 			CPPUNIT_ASSERT(std::string(buffer.begin(), buffer.end()) == "Hello, world!");
+		}
+
+		void Listener::tryAcceptWithHTTPHandler()
+		{
+			::Spin::Listener listener(0, 4100);
+			::Spin::Handlers::HTTPRequestHandler request_handler;
+			::Spin::Handlers::HTTPConnectionHandler handler(request_handler);
+			listener.setNewConnectionHandler(handler);
+			Loki::ScopeGuard attachment_handler = Loki::MakeObjGuard(listener, &::Spin::Listener::clearNewConnectionHandler);
+			::Spin::Connection connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4100));
+			Sleep(1000);
 		}
 	}
 }

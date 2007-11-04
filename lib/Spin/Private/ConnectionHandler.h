@@ -20,7 +20,7 @@ namespace Spin
 		class ConnectionHandler
 		{
 		public :
-			typedef boost::function< void(/*int*/) > NotificationCallback;
+			typedef boost::function< void() > NotificationCallback;
 
 			static ConnectionHandler & getInstance();
 

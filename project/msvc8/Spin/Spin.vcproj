@@ -223,6 +223,18 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\lib\Spin\Private\RequestGrammar.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Private\RequestParser.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Private\RequestParser.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\lib\Spin\Private\TLS.cpp"
 				>
 			</File>
@@ -254,16 +266,52 @@
 				RelativePath="..\..\..\lib\Spin\Details\prologue.h"
 				>
 			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Details\Request.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Handlers"
 			>
+			<File
+				RelativePath="..\..\..\lib\Spin\Handlers\HTTPConnectionHandler.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Handlers\HTTPConnectionHandler.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Handlers\HTTPDataHandler.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Handlers\HTTPDataHandler.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Handlers\HTTPRequestHandler.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Handlers\HTTPRequestHandler.h"
+				>
+			</File>
 			<File
 				RelativePath="..\..\..\lib\Spin\Handlers\NewConnectionHandler.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\..\lib\Spin\Handlers\NewConnectionHandler.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Handlers\NewDataHandler.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Handlers\NewDataHandler.h"
 				>
 			</File>
 		</Filter>

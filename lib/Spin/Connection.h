@@ -5,12 +5,17 @@
 #include <string>
 #include <vector>
 #include <boost/cstdint.hpp>
+#include "Details/Address.h"
 
 typedef struct bio_st BIO;
 namespace Spin
 {
 	class Connector;
 	class Listener;
+	namespace Handlers
+	{
+		class NewDataHandler;
+	}
 	class SPIN_API Connection
 	{
 	public :
@@ -35,14 +40,21 @@ namespace Spin
 
 		bool usesSSL() const;
 
+		void setNewDataHandler(Handlers::NewDataHandler & handler);
+		void clearNewDataHandler();
+
+		Details::Address getPeerAddress() const;
+
 	private :
 		enum { default_read_block_size__ = 4096 };
 		// Not Assignable
 		Connection & operator=(const Connection&);
 
 		Connection(::BIO * bio);
+		void onDataReady_();
 
 		mutable ::BIO * bio_;
+		Handlers::NewDataHandler * data_handler_;
 
 		friend class Connector; // for construction
 		friend class Listener; // for construction
