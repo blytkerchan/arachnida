@@ -2,6 +2,7 @@
 extern "C" {
 #include <openssl/bio.h>
 #include <openssl/ssl.h>
+#include <openssl/err.h>
 }
 #include <boost/format.hpp>
 #include <loki/ScopeGuard.h>
@@ -32,7 +33,11 @@ namespace Spin
 	{
 		::SSL_CTX * ssl_context = ::SSL_CTX_new(::SSLv23_client_method());
 		if (!ssl_context)
-			throw std::runtime_error("failed to allocate SSL context"); // HERE be more eloquent
+		{
+		        unsigned long error_code(ERR_get_error());
+			int reason_code(ERR_GET_REASON(error_code));
+
+		}
 		else
 		{ /* all is well */ }
 		Loki::ScopeGuard ssl_context_guard = Loki::MakeGuard(SSL_CTX_free, ssl_context);

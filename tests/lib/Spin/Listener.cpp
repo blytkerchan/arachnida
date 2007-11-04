@@ -5,7 +5,14 @@
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <loki/ScopeGuard.h>
+#if defined(_WIN32) && ! defined(__CYGWIN__)
 #include <Windows.h>
+#else
+extern "C" {
+#include <unistd.h>
+}
+#define Sleep(t) sleep((t) / 1000)
+#endif
 
 extern boost::filesystem::path cert_path__;
 
