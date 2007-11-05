@@ -21,7 +21,7 @@ CPPFLAGS += -I$(srcdir)/lib
 	mv $*.tab.h $*.h
 
 define LINK_LIBRARY_template
-$(1) : $(2) ; $$(LIBTOOL) --mode=link $$(CXX) -o $$@ $$^ $$(LDFLAGS)
+$(1) : $(2) ; $$(LIBTOOL) --mode=link $$(CXX) -o $$@ $$^ $$(LDFLAGS) $(3)
 endef
 
 define LINK_BINARY_template

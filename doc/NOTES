@@ -1,0 +1,6 @@
+== Don't link libSpin statically ==
+libSpin depends on the constructors of a few private, static objects for its
+initialization. As these objects aren't referenced anywhere in the code, you
+cannot link libSpin statically without losing those objects and the
+initialization they perform. I.e. *all* of the library must be linked in in
+order for libSpin to work.

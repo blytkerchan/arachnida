@@ -1,8 +1,14 @@
 #include "ConnectionHandler.h"
 #if defined(_WIN32) && ! defined(__CYGWIN__)
 #include <WinSock2.h>
+#define ON_WINDOZE
 #else
-#error "Not implemented here yet"
+#include <cerrno>
+extern "C" {
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
+}
 #endif
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
@@ -72,7 +78,7 @@ namespace
 	{
 		return apply_to_2nd_impl_< Pair, OpType >(op);
 	}
-
+#if 0
 	template < typename Tuple, typename OpType, int n >
 	struct apply_to_nth_impl_
 	{
@@ -95,6 +101,7 @@ namespace
 	{
 		return apply_to_nth_impl_< Tuple, OpType, n >(op);
 	}
+#endif
 }
 namespace Spin
 {
@@ -171,6 +178,7 @@ namespace Spin
 				if (select_result <= 0)
 				{
 					std::string error_message;
+#ifdef ON_WINDOZE
 					switch (WSAGetLastError())
 					{
 					case WSANOTINITIALISED : error_message = "A successful WSAStartup call must occur before using this function."; break;
@@ -182,6 +190,16 @@ namespace Spin
 					case WSAENOTSOCK : error_message = "One of the descriptor sets contains an entry that is not a socket."; break;
 					default : error_message = "Unknown error"; break;
 					}
+#else
+					switch (errno)
+					{
+					case EBADF : error_message = "One or more of the file descriptor sets specified a file descriptor that is not a valid open file descriptor."; break;
+					case EINTR : error_message = "The function was interrupted before any of the selected events occurred and before the timeout interval expired."; break; // If SA_RESTART has been set for the interrupting signal, it is implementation-defined whether the function restarts or returns with [EINTR].
+					case EINVAL : error_message = "An invalid timeout interval was specified OR The nfds argument is less than 0 or greater than FD_SETSIZE OR One of the specified file descriptors refers to a STREAM or multiplexer that is linked (directly or indirectly) downstream from a multiplexer."; break;
+					default : error_message = "Unknown error"; break;
+					}
+#endif
+					// HERE!! log this error_message
 				}
 				else
 				{

@@ -1,4 +1,5 @@
 #include "Connection.h"
+#include <stdexcept>
 extern "C" {
 #include <openssl/bio.h>
 #include <openssl/ssl.h>

@@ -2,6 +2,7 @@
 #include <Spin/Connector.h>
 #include <Spin/Connection.h>
 #include <boost/tuple/tuple.hpp>
+#include <stdexcept>
 
 namespace Tests
 {
@@ -37,7 +38,16 @@ namespace Tests
 				buffer.resize(byte_count);
 				// when we get here, Google will have closed the connection
 				std::cerr << std::string(buffer.begin(), buffer.end()) << std::endl;
-				CPPUNIT_ASSERT_THROW(connection.read(buffer), std::runtime_error);
+				bool caught(false);
+				try
+				{
+					connection.read(buffer);
+				}
+				catch (const std::runtime_error &)
+				{
+					caught = true;
+				}
+				CPPUNIT_ASSERT(caught);
 			}
 
 			void Connector::tryCreateHTTPSConnectionToGoogle()
@@ -54,7 +64,16 @@ namespace Tests
 				CPPUNIT_ASSERT(reason & ::Spin::Connection::should_retry__);
 				buffer.resize(byte_count);
 				// when we get here, Google will have closed the connection
-				CPPUNIT_ASSERT_THROW(connection.read(buffer), std::runtime_error);
+				bool caught(false);
+				try
+				{
+					connection.read(buffer);
+				}
+				catch (const std::runtime_error &)
+				{
+					caught = true;
+				}
+				CPPUNIT_ASSERT(caught);
 			}
 		}
 	}

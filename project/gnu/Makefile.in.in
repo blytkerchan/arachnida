@@ -3,6 +3,7 @@ INSTALL_LIBRARIES :=
 PROGRAMS := 
 MODULES := $(LIBRARIES) $(PROGRAMS)
 MODULE_DIRS := $(patsubst %,lib/%,$(LIBRARIES)) $(patsubst %,bin/%,$(PROGRAMS))
+DEBUGGER=gdb
 
 all : real_all
 
@@ -129,5 +130,5 @@ check : all $(CHECK_DEPS)
 	for i in $(CHECK_DEPS); do $(LIBTOOL) --mode=execute ./$$i; done
 
 debug : all $(CHECK_DEPS)
-	for i in $(CHECK_DEPS); do $(LIBTOOL) --mode=execute gdb ./$$i; done
+	for i in $(CHECK_DEPS); do $(LIBTOOL) --mode=execute $(DEBUGGER) ./$$i; done
 
