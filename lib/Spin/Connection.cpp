@@ -15,7 +15,7 @@ namespace Spin
 {
 	Connection::Connection(const Connection & connection)
 		: bio_(connection.bio_),
-		  data_handler_(0)
+		  data_handler_(connection.data_handler_)
 	{
 		connection.bio_ = 0;
 	}
@@ -147,7 +147,8 @@ read_entry_point:
 	}
 
 	Connection::Connection(::BIO * bio)
-		: bio_(bio)
+		: bio_(bio),
+		  data_handler_(0)
 	{ /* no-op */ }
 
 	void Connection::onDataReady_()

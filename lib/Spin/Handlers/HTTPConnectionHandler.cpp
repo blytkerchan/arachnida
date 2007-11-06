@@ -10,19 +10,23 @@ namespace Spin
 	{
 		struct HTTPConnectionHandler::Data
 		{
+			Data(HTTPRequestHandler & request_handler)
+				: data_handler_(request_handler)
+			{ /* no-op */ }
+
 			/* WARNING: declaration order is important here: the connections 
-			 * must be destroyed before the data handlers are. The reason 
-			 * for this is simple: the connections use the data handlers 
-			 * and won't know when they've been destroyed (we're not using
+			 * must be destroyed before the data handler is. The reason 
+			 * for this is simple: the connections use the data handler 
+			 * and won't know when it's been destroyed (we're not using
 			 * weak pointers here) so we must guarantee that they stay alive
 			 * at least as long as the connections do. Declaration order and
 			 * language semantics does that for us. */
-			std::list< HTTPDataHandler > data_handlers_;
+			HTTPDataHandler data_handler_;
 			boost::ptr_list< Connection > connections_;
 		};
 
 		HTTPConnectionHandler::HTTPConnectionHandler(HTTPRequestHandler & request_handler)
-			: data_(new Data),
+			: data_(new Data(request_handler)),
 			  request_handler_(request_handler)
 		{ /* no-op */ }
 
@@ -62,11 +66,7 @@ namespace Spin
 			 * because the connection handler won't tell it which connection
 			 * is ready to receive data. */
 			std::auto_ptr< Connection > connection_p(new Connection(connection));
-			{
-				HTTPDataHandler data_handler(request_handler_);
-				data_->data_handlers_.push_back(data_handler);
-			}
-			connection_p->setNewDataHandler(data_->data_handlers_.back());
+			connection_p->setNewDataHandler(data_->data_handler_);
 			data_->connections_.push_back(connection_p.release());
 		}
 
