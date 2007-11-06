@@ -153,7 +153,7 @@ read_entry_point:
 	void Connection::onDataReady_()
 	{
 		if (data_handler_)
-			(*data_handler_)();
+			(*data_handler_)(*this);
 		else
 		{ /* no-op */ }
 	}

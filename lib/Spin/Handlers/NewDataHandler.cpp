@@ -4,7 +4,7 @@ namespace Spin
 {
 	namespace Handlers
 	{
-		NewDataHandler::~NewDataHandler()
+		/*virtual */NewDataHandler::~NewDataHandler()
 		{ /* no-op */ }
 	}
 }

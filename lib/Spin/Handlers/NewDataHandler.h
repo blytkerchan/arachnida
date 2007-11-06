@@ -5,20 +5,21 @@
 
 namespace Spin
 {
+	class Connection;
 	namespace Handlers
 	{
 		class SPIN_API NewDataHandler
 		{
 		public :
-			const NewDataHandler & operator()() const
+			const NewDataHandler & operator()(Connection & connection) const
 			{
-				onDataReady();
+				onDataReady(connection);
 				return *this;
 			}
 
 		protected :
-			~NewDataHandler();
-			virtual void onDataReady() const throw() = 0;
+			virtual ~NewDataHandler();
+			virtual void onDataReady(Connection & connection) const throw() = 0;
 		};
 	}
 }

@@ -10,8 +10,15 @@ namespace Spin
 	{
 		struct HTTPConnectionHandler::Data
 		{
-			boost::ptr_list< Connection > connections_;
+			/* WARNING: declaration order is important here: the connections 
+			 * must be destroyed before the data handlers are. The reason 
+			 * for this is simple: the connections use the data handlers 
+			 * and won't know when they've been destroyed (we're not using
+			 * weak pointers here) so we must guarantee that they stay alive
+			 * at least as long as the connections do. Declaration order and
+			 * language semantics does that for us. */
 			std::list< HTTPDataHandler > data_handlers_;
+			boost::ptr_list< Connection > connections_;
 		};
 
 		HTTPConnectionHandler::HTTPConnectionHandler(HTTPRequestHandler & request_handler)

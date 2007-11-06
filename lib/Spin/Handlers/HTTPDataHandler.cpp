@@ -4,7 +4,7 @@ namespace Spin
 {
 	namespace Handlers
 	{
-		/*virtual */void HTTPDataHandler::onDataReady() const throw()/* = 0*/
+		/*virtual */void HTTPDataHandler::onDataReady(Connection & connection) const throw()/* = 0*/
 		{
 
 		}

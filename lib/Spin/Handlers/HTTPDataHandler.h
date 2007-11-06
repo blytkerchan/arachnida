@@ -17,7 +17,7 @@ namespace Spin
 			{ /* no-op */ }
 
 		protected :
-			/*virtual */void onDataReady() const throw()/* = 0*/;
+			/*virtual */void onDataReady(Connection & connection) const throw()/* = 0*/;
 
 		private :
 			HTTPRequestHandler & request_handler_;
