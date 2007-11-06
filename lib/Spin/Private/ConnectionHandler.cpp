@@ -44,7 +44,7 @@ namespace
 
 		result_type operator()(const Pair & pair) const
 		{
-			return op_(pair.first);
+			return op_(boost::tuples::get<0>(pair));
 		}
 
 		OpType op_;
@@ -116,7 +116,7 @@ namespace Spin
 		void ConnectionHandler::attach( int file_descriptor, NotificationCallback callback )
 		{
 			CallbacksLock_::scoped_lock lock(callbacks_lock_);
-			callbacks_.push_back(std::make_pair(file_descriptor, callback));
+			callbacks_.push_back(boost::make_tuple(file_descriptor, callback, pending_attachment__));
 			notifyThread_();
 		}
 
@@ -126,8 +126,19 @@ namespace Spin
 			Callbacks_::iterator where(std::find_if(callbacks_.begin(), callbacks_.end(), apply_to_first< Callbacks_::value_type >(std::bind2nd(std::equal_to< int >(), file_descriptor))));
 			if (where != callbacks_.end())
 			{
-				callbacks_.erase(where);
+				boost::tuples::get<2>(*where) = pending_detachment__;
 				notifyThread_();
+#if HAVE_BOOST_THREADID && HAVE_BOOST_THIS_THREAD
+				/* hypothetical code */
+				if (worker_thread_id_ != boost::this_thread::get_id())
+#else
+				if (worker_thread_id_ != GetCurrentThreadId())
+#endif
+				do 
+				{
+					callbacks_cond_.wait(lock);
+				} while(boost::tuples::get<2>(*where) != detached__);
+				callbacks_.erase(where);
 			}
 			else
 			{ /* no-op */ }
@@ -156,6 +167,13 @@ namespace Spin
 			fd_set write_fds;
 			fd_set exc_fds;
 
+#if HAVE_BOOST_THREADID && HAVE_BOOST_THIS_THREAD
+			/* hypothetical code */
+			worker_thread_id_ = boost::this_thread::get_id();
+#else
+			worker_thread_id_ = GetCurrentThreadId();
+#endif
+
 			while (!done_)
 			{
 				FD_ZERO(&read_fds);
@@ -165,12 +183,23 @@ namespace Spin
 				int highest_fd_seen(0);
 				{
 					CallbacksLock_::scoped_lock lock(callbacks_lock_);
-					for (Callbacks_::const_iterator curr(callbacks_.begin()); curr != callbacks_.end(); ++curr)
+					for (Callbacks_::iterator curr(callbacks_.begin()); curr != callbacks_.end(); ++curr)
 					{
-						FD_SET(curr->first, &read_fds);
-						highest_fd_seen = std::max(highest_fd_seen, curr->first);
+						if (boost::tuples::get<2>(*curr) == pending_attachment__ || boost::tuples::get<2>(*curr) == attached__)
+						{
+							FD_SET(boost::tuples::get<0>(*curr), &read_fds);
+							highest_fd_seen = std::max(highest_fd_seen, boost::tuples::get<0>(*curr));
+							boost::tuples::get<2>(*curr) = attached__;
+						}
+						else if (boost::tuples::get<2>(*curr) == pending_detachment__)
+						{
+							boost::tuples::get<2>(*curr) = detached__;
+						}
+						else
+						{ /* ignore this one altogether */ }
 					}
 				} // end of scope for lock
+				callbacks_cond_.notify_all();
 				int sync_pipe_read_descriptor(sync_pipe_.getReadDescriptor());
 				FD_SET(sync_pipe_read_descriptor, &read_fds);
 				highest_fd_seen = std::max(highest_fd_seen, sync_pipe_read_descriptor);
@@ -208,8 +237,8 @@ namespace Spin
 					CallbacksToCall callbacks_to_call;
 					for (Callbacks_::const_iterator curr(callbacks_.begin()); curr != callbacks_.end(); ++curr)
 					{
-						if (FD_ISSET(curr->first, &read_fds))
-							callbacks_to_call.push_back(curr->second);
+						if (FD_ISSET(boost::tuples::get<0>(*curr), &read_fds))
+							callbacks_to_call.push_back(boost::tuples::get<1>(*curr));
 						else
 						{ /* fd not set */ }
 					}
