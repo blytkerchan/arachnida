@@ -232,19 +232,29 @@ namespace Spin
 				}
 				else
 				{
-					CallbacksLock_::scoped_lock lock(callbacks_lock_);
 					typedef std::list< NotificationCallback > CallbacksToCall;
 					CallbacksToCall callbacks_to_call;
-					for (Callbacks_::const_iterator curr(callbacks_.begin()); curr != callbacks_.end(); ++curr)
 					{
-						if (FD_ISSET(boost::tuples::get<0>(*curr), &read_fds))
-							callbacks_to_call.push_back(boost::tuples::get<1>(*curr));
-						else
-						{ /* fd not set */ }
-					}
-					// we keep the lock so a detaching thread won't think it will never be called again (unless it's in the worker thread that it's being detached)
+						CallbacksLock_::scoped_lock lock(callbacks_lock_);
+						for (Callbacks_::const_iterator curr(callbacks_.begin()); curr != callbacks_.end(); ++curr)
+						{
+							if (FD_ISSET(boost::tuples::get<0>(*curr), &read_fds))
+								callbacks_to_call.push_back(boost::tuples::get<1>(*curr));
+							else
+							{ /* fd not set */ }
+						}
+					} // lock ends here
 					for (CallbacksToCall::const_iterator curr(callbacks_to_call.begin()); curr != callbacks_to_call.end(); ++curr)
-						(*curr)();
+					{
+						try
+						{
+							(*curr)();
+						}
+						catch (...)
+						{
+							// FIXME: do something: log an error message, tag the connection as useless - anything!
+						}
+					}
 				}
 				if (FD_ISSET(sync_pipe_read_descriptor, &read_fds))
 				{
