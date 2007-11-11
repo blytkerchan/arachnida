@@ -4,6 +4,7 @@
 #include "Details/prologue.h"
 #include <string>
 #include <vector>
+#include <boost/any.hpp>
 #include <boost/cstdint.hpp>
 #include "Details/Address.h"
 
@@ -40,13 +41,16 @@ namespace Spin
 
 		bool usesSSL() const;
 
+		static unsigned long Connection::allocateAttribute();
+		boost::any & Connection::getAttribute(unsigned long index);
+
 		void setNewDataHandler(Handlers::NewDataHandler & handler);
 		void clearNewDataHandler();
 
 		Details::Address getPeerAddress() const;
 
 	private :
-		enum { default_read_block_size__ = 4096 };
+		enum { default_read_block_size__ = 4096, max_attribute_count__ = 8 };
 		// Not Assignable
 		Connection & operator=(const Connection&);
 
@@ -55,6 +59,9 @@ namespace Spin
 
 		mutable ::BIO * bio_;
 		Handlers::NewDataHandler * data_handler_;
+		std::vector< boost::any > attributes_;
+
+		static unsigned long next_attribute_index__;
 
 		friend class Connector; // for construction
 		friend class Listener; // for construction

@@ -8,14 +8,18 @@ extern "C" {
 #include <climits>
 #include <Windows.h>
 #include <boost/bind.hpp>
+#include "Private/atomicPrimitives.h"
 #include "Private/ConnectionHandler.h"
 #include "Handlers/NewDataHandler.h"
 
 namespace Spin
 {
+	/*static */unsigned long Connection::next_attribute_index__(0);
+
 	Connection::Connection(const Connection & connection)
 		: bio_(connection.bio_),
-		  data_handler_(connection.data_handler_)
+		  data_handler_(connection.data_handler_),
+		  attributes_(connection.attributes_)
 	{
 		connection.bio_ = 0;
 	}
@@ -121,6 +125,22 @@ read_entry_point:
 		return ssl != 0;
 	}
 
+	/*static */unsigned long Connection::allocateAttribute()
+	{
+		unsigned long retval(Private::fetchAndIncrement(next_attribute_index__));
+		if (retval >= max_attribute_count__)
+			retval = 0xFFFFFFFF;
+		else
+		{ /* attributes not exhausted */ }
+		return retval;
+	}
+
+	boost::any & Connection::getAttribute(unsigned long index)
+	{
+		assert(index < max_attribute_count__);
+		return attributes_[index];
+	}
+
 	void Connection::setNewDataHandler(Handlers::NewDataHandler & handler)
 	{
 		data_handler_ = &handler;
@@ -148,7 +168,8 @@ read_entry_point:
 
 	Connection::Connection(::BIO * bio)
 		: bio_(bio),
-		  data_handler_(0)
+		  data_handler_(0),
+		  attributes_(max_attribute_count__)
 	{ /* no-op */ }
 
 	void Connection::onDataReady_()
