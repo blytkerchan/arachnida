@@ -136,6 +136,7 @@ namespace Tests
 			listener.setNewConnectionHandler(handler);
 			Loki::ScopeGuard attachment_handler = Loki::MakeObjGuard(listener, &::Spin::Listener::clearNewConnectionHandler);
 			::Spin::Connection connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4100));
+			connection_out.write("GET / HTTP/1.1\n\r\n\r");
 			Sleep(1000);
 		}
 	}
