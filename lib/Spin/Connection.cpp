@@ -6,11 +6,15 @@ extern "C" {
 }
 #include <cassert>
 #include <climits>
+#include "Private/atomicPrimitives.h"
 
 namespace Spin
 {
+	/*static */unsigned long Connection::next_attribute_index__(0);
+
 	Connection::Connection(const Connection & connection)
-		: bio_(connection.bio_)
+		: bio_(connection.bio_),
+		  attributes_(connection.attributes_)
 	{
 		connection.bio_ = 0;
 	}
@@ -109,26 +113,6 @@ read_entry_point:
 		return std::make_pair(bytes_read_into_buffer, reason);
 	}
 
-	//std::string Connection::getLocalAddress() const
-	//{
-	//	return std::string();
-	//}
-
-	//boost::uint16_t Connection::getLocalPort() const
-	//{
-	//	return 0;
-	//}
-
-	//std::string Connection::getRemoteAddress() const
-	//{
-	//	return std::string();
-	//}
-
-	//boost::uint16_t Connection::getRemotePort() const
-	//{
-	//	return 0;
-	//}
-
 	bool Connection::usesSSL() const
 	{
 		SSL * ssl(0);
@@ -136,8 +120,25 @@ read_entry_point:
 		return ssl != 0;
 	}
 
+	/*static */unsigned long Connection::allocateAttribute()
+	{
+		unsigned long retval(Private::fetchAndIncrement(next_attribute_index__));
+		if (retval >= max_attribute_count__)
+			retval = 0xFFFFFFFF;
+		else
+		{ /* attributes not exhausted */ }
+		return retval;
+	}
+
+	boost::any & Connection::getAttribute(unsigned long index)
+	{
+		assert(index < max_attribute_count__);
+		return attributes_[index];
+	}
+
 	Connection::Connection(::BIO * bio)
-		: bio_(bio)
+		: bio_(bio),
+		  attributes_(max_attribute_count__)
 	{ /* no-op */ }
 }
 

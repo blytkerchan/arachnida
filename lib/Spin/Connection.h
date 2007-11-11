@@ -4,6 +4,7 @@
 #include "Details/prologue.h"
 #include <string>
 #include <vector>
+#include <boost/any.hpp>
 #include <boost/cstdint.hpp>
 
 typedef struct bio_st BIO;
@@ -35,14 +36,21 @@ namespace Spin
 
 		bool usesSSL() const;
 
+		// returns 0xffffffff if none could be allocated
+		static unsigned long allocateAttribute();
+		boost::any & getAttribute(unsigned long index);
+
 	private :
-		enum { default_read_block_size__ = 4096 };
+		enum { default_read_block_size__ = 4096, max_attribute_count__ = 8 };
+
 		// Not Assignable
 		Connection & operator=(const Connection&);
 
 		Connection(::BIO * bio);
 
 		mutable ::BIO * bio_;
+		std::vector< boost::any > attributes_;
+		static unsigned long next_attribute_index__;
 
 		friend class Connector; // for construction
 		friend class Listener; // for construction
