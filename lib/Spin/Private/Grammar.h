@@ -458,7 +458,7 @@ namespace Spin
 					Content_Language_
 									= str_p("Content-Language") >> ':' >> ((*LWS_ >> language_tag_ >> *LWS_) % ',')
 									;
-					Content_Length_	= str_p("Content-Length") >> ';' >> +DIGIT_
+					Content_Length_	= str_p("Content-Length") >> ':' >> +DIGIT_
 									;
 					Content_Location_
 									= str_p("Content-Location") >> ':' >> (absoluteURI_ | relativeURI_)

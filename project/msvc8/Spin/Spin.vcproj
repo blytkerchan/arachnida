@@ -223,18 +223,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\lib\Spin\Private\RequestGrammar.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\lib\Spin\Private\RequestParser.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\lib\Spin\Private\RequestParser.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\lib\Spin\Private\TLS.cpp"
 				>
 			</File>

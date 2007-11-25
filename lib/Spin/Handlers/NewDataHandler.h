@@ -19,7 +19,7 @@ namespace Spin
 
 		protected :
 			virtual ~NewDataHandler();
-			virtual void onDataReady(Connection & connection) const throw() = 0;
+			virtual void onDataReady(Connection & connection) const = 0;
 		};
 	}
 }
