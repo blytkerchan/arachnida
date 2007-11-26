@@ -32,6 +32,7 @@ namespace Spin
 
 	Listener::~Listener()
 	{
+		clearNewConnectionHandler();
 		if (bio_)
 			BIO_free(bio_);
 		else
@@ -69,8 +70,13 @@ namespace Spin
 
 	void Listener::clearNewConnectionHandler()
 	{
-		Private::ConnectionHandler::getInstance().detach(BIO_get_fd(bio_, 0));
-		new_connection_handler_ = 0;
+		if (new_connection_handler_)
+		{
+			Private::ConnectionHandler::getInstance().detach(BIO_get_fd(bio_, 0));
+			new_connection_handler_ = 0;
+		}
+		else
+		{ /* nothing to clear */ }
 	}
 
 	std::string Listener::constructLocalAddress_(Details::Address local_address, boost::uint16_t local_port)

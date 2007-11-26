@@ -26,6 +26,7 @@ namespace Spin
 
 	Connection::~Connection()
 	{
+		clearNewDataHandler();
 		if (bio_)
 			::BIO_free_all(bio_);
 		else
@@ -149,8 +150,13 @@ read_entry_point:
 
 	void Connection::clearNewDataHandler()
 	{
-		Private::ConnectionHandler::getInstance().detach(BIO_get_fd(bio_, 0));
-		data_handler_ = 0;
+		if (data_handler_)
+		{
+			Private::ConnectionHandler::getInstance().detach(BIO_get_fd(bio_, 0));
+			data_handler_ = 0;
+		}
+		else
+		{ /* nothing to clear */ }
 	}
 
 	Details::Address Connection::getPeerAddress() const

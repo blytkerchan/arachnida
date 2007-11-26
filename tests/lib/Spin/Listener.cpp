@@ -1,6 +1,7 @@
 #include "Listener.h"
 #include <Spin/Listener.h>
 #include <Spin/Connector.h>
+#include <Spin/Details/Request.h>
 #include <Spin/Handlers/NewConnectionHandler.h>
 #include <Spin/Handlers/HTTPConnectionHandler.h>
 #include <Spin/Handlers/HTTPRequestHandler.h>
@@ -132,8 +133,8 @@ namespace Tests
 		{
 			::Spin::Listener listener(0, 4100);
 			::Spin::Handlers::HTTPRequestHandler request_handler;
-			::Spin::Handlers::HTTPConnectionHandler handler(request_handler);
-			listener.setNewConnectionHandler(handler);
+			::Spin::Handlers::HTTPConnectionHandler connection_handler(request_handler);
+			listener.setNewConnectionHandler(connection_handler);
 			Loki::ScopeGuard attachment_handler = Loki::MakeObjGuard(listener, &::Spin::Listener::clearNewConnectionHandler);
 			::Spin::Connection connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4100));
 			connection_out.write(
@@ -142,7 +143,12 @@ namespace Tests
 				"\r\n"
 				"01234567"
 				);
-			Sleep(1000);
+			boost::shared_ptr< ::Spin::Details::Request > request(request_handler.getNextRequest());
+			CPPUNIT_ASSERT(request->method_ == "GET");
+			CPPUNIT_ASSERT(request->url_ == "/");
+			CPPUNIT_ASSERT(request->protocol_and_version_ == "HTTP/1.1");
+			CPPUNIT_ASSERT(request->body_.size() == 8);
+			CPPUNIT_ASSERT(std::string(request->body_.begin(), request->body_.end()) == "01234567");
 		}
 	}
 }
