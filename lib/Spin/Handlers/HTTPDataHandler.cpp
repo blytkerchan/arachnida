@@ -1,7 +1,9 @@
 #include "HTTPDataHandler.h"
 #include <cassert>
+#include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/tuple/tuple.hpp>
+#include "HTTPRequestHandler.h"
 #include "../Connection.h"
 #include "../Details/Request.h"
 
@@ -216,7 +218,33 @@ namespace Spin
 				/* When we get here, we don't know whether the request has a body.
 				 * If it does, there is a Content-Length header among the headers
 				 * that will contain the size of the body. */
-
+				Details::Request::HeaderFields::const_iterator curr(request->header_fields_.begin());
+				Details::Request::HeaderFields::const_iterator end(request->header_fields_.end());
+				while (curr != end && curr->name_ != "Content-Length") ++curr;
+				if (curr != end)
+				{
+					std::size_t body_size(boost::lexical_cast< std::size_t >(curr->value_));
+					std::vector< char >::iterator whence(where);
+					/* When we get here, the "where" and "whence" iterators should both be 
+					 * at the start of the body. We will advance "whence" to the end of the
+					 * body - which should be within the bounds of the buffer. */
+					assert(std::distance(whence, buffer.end()) > 0);
+					if (std::size_t(std::distance(whence, buffer.end())) < body_size)
+					{
+						/* Everything we need isn't there.. */
+					}
+					else
+						std::advance(whence, body_size);
+					assert(request->body_.empty());
+					request->body_.insert(request->body_.end(), where, whence);
+					where = whence;
+				}
+				else
+				{ /* request does not have a body */ }
+				request_handler_.handle(request);
+				/* Now, if whence is not at the end of the buffer, more requests may be 
+				 * in the buffer. We need to handle those. */
+				assert(where == buffer.end()); // HERE!! handle these
 			}
 			else
 			{ /* HERE!! store whatever we have in the connection attributes */ }

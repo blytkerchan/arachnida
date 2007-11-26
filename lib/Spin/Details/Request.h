@@ -18,6 +18,7 @@ namespace Spin
 				std::string name_;
 				std::string value_;
 			};
+			typedef std::list< Header > HeaderFields;
 
 			Request(Connection & connection, const std::string & method, const std::string & url, const std::string & protocol_and_version)
 				: connection_(connection),
@@ -30,7 +31,7 @@ namespace Spin
 			std::string method_;
 			std::string url_;
 			std::string protocol_and_version_;
-			std::list< Header > header_fields_;
+			HeaderFields header_fields_;
 			std::vector< char > body_;
 		};
 	}
