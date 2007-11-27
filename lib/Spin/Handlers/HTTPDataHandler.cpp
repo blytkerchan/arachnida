@@ -174,6 +174,8 @@ namespace Spin
 			boost::any & connection_attribute(connection.getAttribute(attribute_index__));
 			boost::shared_ptr< Details::Request > request;
 			std::vector< char >::iterator where;
+			bool end_of_headers_found(false);
+after_connection_attributes_are_got:
 			do 
 			{
 				if (connection_attribute.empty() /* no existing attribute */)
@@ -184,7 +186,7 @@ namespace Spin
 				else
 				{
 					std::vector< char > temp_buffer;
-					boost::tie( request, temp_buffer ) = boost::any_cast< std::pair< boost::shared_ptr< Details::Request >, std::vector< char > > >(connection_attribute);
+					boost::tie( request, temp_buffer, end_of_headers_found ) = boost::any_cast< boost::tuple< boost::shared_ptr< Details::Request >, std::vector< char >, bool > >(connection_attribute);
 					buffer.insert(buffer.begin(), temp_buffer.begin(), temp_buffer.end());
 					/* connection_attribute.clear(); ==> */ boost::any a; connection_attribute.swap(a);
 					where = buffer.begin();
@@ -196,7 +198,6 @@ namespace Spin
 			 * returns), the requests consists of only the header. If we find only one, 
 			 * there is a header before the end of the request, and there might be a 
 			 * body. */
-			bool end_of_headers_found(false);
 			do
 			{
 				std::vector< char >::iterator whence(where);
@@ -247,10 +248,19 @@ namespace Spin
 				request_handler_.handle(request);
 				/* Now, if whence is not at the end of the buffer, more requests may be 
 				 * in the buffer. We need to handle those. */
-				assert(where == buffer.end()); // HERE!! handle these
+				if (where != buffer.end())
+				{
+					connection_attribute = boost::make_tuple(boost::shared_ptr< Details::Request >(), std::vector< char >(where, buffer.end()), false);
+					buffer.clear();
+					goto after_connection_attributes_are_got;
+				}
+				else
+				{ /* done */ }
 			}
 			else
-			{ /* HERE!! store whatever we have in the connection attributes */ }
+			{
+				connection_attribute = boost::make_tuple(request, std::vector< char >(where, buffer.end()), end_of_headers_found);
+			}
 		}
 
 		/*static */void HTTPDataHandler::initStaticMembers()

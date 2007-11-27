@@ -169,5 +169,31 @@ namespace Tests
 			CPPUNIT_ASSERT(request->protocol_and_version_ == "HTTP/1.1");
 			CPPUNIT_ASSERT(request->body_.empty());
 		}
+
+		void Listener::tryAcceptWithHTTPHandler03()
+		{
+			::Spin::Listener listener(0, 4102);
+			::Spin::Handlers::HTTPRequestHandler request_handler;
+			::Spin::Handlers::HTTPConnectionHandler connection_handler(request_handler);
+			listener.setNewConnectionHandler(connection_handler);
+			Loki::ScopeGuard attachment_handler = Loki::MakeObjGuard(listener, &::Spin::Listener::clearNewConnectionHandler);
+			::Spin::Connection connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4102));
+			connection_out.write(
+				"GET /index.html HTTP/1.1\r\n"
+				"\r\n"
+				"GET /images/logo.png HTTP/1.1\r\n"
+				"\r\n"
+				);
+			boost::shared_ptr< ::Spin::Details::Request > request(request_handler.getNextRequest());
+			CPPUNIT_ASSERT(request->method_ == "GET");
+			CPPUNIT_ASSERT(request->url_ == "/index.html");
+			CPPUNIT_ASSERT(request->protocol_and_version_ == "HTTP/1.1");
+			CPPUNIT_ASSERT(request->body_.empty());
+			request = request_handler.getNextRequest();
+			CPPUNIT_ASSERT(request->method_ == "GET");
+			CPPUNIT_ASSERT(request->url_ == "/images/logo.png");
+			CPPUNIT_ASSERT(request->protocol_and_version_ == "HTTP/1.1");
+			CPPUNIT_ASSERT(request->body_.empty());
+		}
 	}
 }
