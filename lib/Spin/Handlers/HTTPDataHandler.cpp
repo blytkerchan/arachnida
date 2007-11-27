@@ -106,7 +106,6 @@ namespace Spin
 				if (colon == end) throw std::runtime_error("Invalid header field");
 				std::string name(chomp(begin, colon));
 				++colon;
-				if (colon == end) throw std::runtime_error("Empty header field");
 				std::string value(chomp(colon, end));
 				return std::make_pair(name, value);
 			}
