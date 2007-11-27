@@ -211,7 +211,10 @@ namespace Spin
 					where = whence;
 				}
 				else // we have all of the header
+				{
+					where = whence;
 					end_of_headers_found = true;
+				}
 			} while (!end_of_headers_found && where != buffer.end());
 			if (end_of_headers_found)
 			{

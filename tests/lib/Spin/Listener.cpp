@@ -129,7 +129,7 @@ namespace Tests
 			CPPUNIT_ASSERT(std::string(buffer.begin(), buffer.end()) == "Hello, world!");
 		}
 
-		void Listener::tryAcceptWithHTTPHandler()
+		void Listener::tryAcceptWithHTTPHandler01()
 		{
 			::Spin::Listener listener(0, 4100);
 			::Spin::Handlers::HTTPRequestHandler request_handler;
@@ -138,17 +138,36 @@ namespace Tests
 			Loki::ScopeGuard attachment_handler = Loki::MakeObjGuard(listener, &::Spin::Listener::clearNewConnectionHandler);
 			::Spin::Connection connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4100));
 			connection_out.write(
-				"GET / HTTP/1.1\r\n"
+				"POST / HTTP/1.1\r\n"
 				"Content-Length: 8\r\n"
 				"\r\n"
 				"01234567"
 				);
 			boost::shared_ptr< ::Spin::Details::Request > request(request_handler.getNextRequest());
-			CPPUNIT_ASSERT(request->method_ == "GET");
+			CPPUNIT_ASSERT(request->method_ == "POST");
 			CPPUNIT_ASSERT(request->url_ == "/");
 			CPPUNIT_ASSERT(request->protocol_and_version_ == "HTTP/1.1");
 			CPPUNIT_ASSERT(request->body_.size() == 8);
 			CPPUNIT_ASSERT(std::string(request->body_.begin(), request->body_.end()) == "01234567");
+		}
+
+		void Listener::tryAcceptWithHTTPHandler02()
+		{
+			::Spin::Listener listener(0, 4101);
+			::Spin::Handlers::HTTPRequestHandler request_handler;
+			::Spin::Handlers::HTTPConnectionHandler connection_handler(request_handler);
+			listener.setNewConnectionHandler(connection_handler);
+			Loki::ScopeGuard attachment_handler = Loki::MakeObjGuard(listener, &::Spin::Listener::clearNewConnectionHandler);
+			::Spin::Connection connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4101));
+			connection_out.write(
+				"GET / HTTP/1.1\r\n"
+				"\r\n"
+				);
+			boost::shared_ptr< ::Spin::Details::Request > request(request_handler.getNextRequest());
+			CPPUNIT_ASSERT(request->method_ == "GET");
+			CPPUNIT_ASSERT(request->url_ == "/");
+			CPPUNIT_ASSERT(request->protocol_and_version_ == "HTTP/1.1");
+			CPPUNIT_ASSERT(request->body_.empty());
 		}
 	}
 }

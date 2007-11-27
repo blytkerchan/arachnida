@@ -14,7 +14,8 @@ namespace Tests
 			CPPUNIT_TEST( tryAccept );
 			CPPUNIT_TEST( tryAcceptSSL );
 			CPPUNIT_TEST( tryAsyncAcceptAndDetach );
-			CPPUNIT_TEST( tryAcceptWithHTTPHandler );
+			CPPUNIT_TEST( tryAcceptWithHTTPHandler01 );
+			CPPUNIT_TEST( tryAcceptWithHTTPHandler02 );
 			CPPUNIT_TEST_SUITE_END();
 
 		public:
@@ -26,7 +27,8 @@ namespace Tests
 			void tryAccept();
 			void tryAcceptSSL();
 			void tryAsyncAcceptAndDetach();
-			void tryAcceptWithHTTPHandler();
+			void tryAcceptWithHTTPHandler01();
+			void tryAcceptWithHTTPHandler02();
 
 		private:
 		};
