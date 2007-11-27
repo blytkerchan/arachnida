@@ -59,6 +59,7 @@ namespace Spin
 			template < typename Iterator >
 			Iterator findHeaderEnd(Iterator where, const Iterator & whence)
 			{
+				Iterator from_where(where);
 				/* The end of a header in HTTP is at a new line followed by a non-whitespace 
 				 * character or the end of the buffer. If the newline is followed by a 
 				 * non-newline whitespace character, the header value continues on the next 
@@ -71,7 +72,13 @@ namespace Spin
 					++where;
 				// now, if we're at the end of the buffer or at a non-whitespace character, we're at the end of the header
 				if (where == whence || !isIgnorableWhiteSpace(*where))
+				{
+					/* In order to know whether this was the last header, we need to count the number of newline characters 
+					 * at the end of the header field, for which we have to back up through the newline characters. */
+					while ((where != from_where) && ((where - 1) != from_where) && isNewLine(*(where - 1)))
+						--where;
 					return where;
+				}
 				else // keep looking
 					return findHeaderEnd(where, whence);
 			}
