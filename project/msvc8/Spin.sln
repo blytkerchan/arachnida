@@ -8,6 +8,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test_Spin", "Test_Spin\Test
 		{F747D8ED-2A5E-4968-AA90-0497A4546B9F} = {F747D8ED-2A5E-4968-AA90-0497A4546B9F}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Mesothelae", "Mesothelae\Mesothelae.vcproj", "{E4B1E4D5-EF00-4FC7-94AD-E89C62B36005}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F747D8ED-2A5E-4968-AA90-0497A4546B9F} = {F747D8ED-2A5E-4968-AA90-0497A4546B9F}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -22,6 +27,10 @@ Global
 		{BE589F03-C422-4DA1-BF64-425D49F25E2A}.Debug|Win32.Build.0 = Debug|Win32
 		{BE589F03-C422-4DA1-BF64-425D49F25E2A}.Release|Win32.ActiveCfg = Release|Win32
 		{BE589F03-C422-4DA1-BF64-425D49F25E2A}.Release|Win32.Build.0 = Release|Win32
+		{E4B1E4D5-EF00-4FC7-94AD-E89C62B36005}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E4B1E4D5-EF00-4FC7-94AD-E89C62B36005}.Debug|Win32.Build.0 = Debug|Win32
+		{E4B1E4D5-EF00-4FC7-94AD-E89C62B36005}.Release|Win32.ActiveCfg = Release|Win32
+		{E4B1E4D5-EF00-4FC7-94AD-E89C62B36005}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
