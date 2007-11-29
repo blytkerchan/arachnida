@@ -305,6 +305,7 @@ after_connection_attributes_are_got:
 				Details::Request::HeaderFields::const_iterator curr(request->header_fields_.begin());
 				Details::Request::HeaderFields::const_iterator end(request->header_fields_.end());
 				while (curr != end && curr->name_ != "Content-Length") ++curr;
+				bool complete_body_found(false);
 				if (curr != end)
 				{
 					std::size_t body_size(boost::lexical_cast< std::size_t >(curr->value_));
@@ -312,30 +313,37 @@ after_connection_attributes_are_got:
 					/* When we get here, the "where" and "whence" iterators should both be 
 					 * at the start of the body. We will advance "whence" to the end of the
 					 * body - which should be within the bounds of the buffer. */
-					assert(std::distance(whence, buffer.end()) > 0);
 					if (std::size_t(std::distance(whence, buffer.end())) < body_size)
 					{
-						/* Everything we need isn't there.. */
+						connection_attribute = boost::make_tuple(request, std::vector< char >(where, buffer.end()), end_of_headers_found);
 					}
 					else
+					{
 						std::advance(whence, body_size);
-					assert(request->body_.empty());
-					request->body_.insert(request->body_.end(), where, whence);
-					where = whence;
+						assert(request->body_.empty());
+						request->body_.insert(request->body_.end(), where, whence);
+						where = whence;
+						complete_body_found = true;
+					}
 				}
 				else
-				{ /* request does not have a body */ }
-				request_handler_.handle(request);
-				/* Now, if whence is not at the end of the buffer, more requests may be 
-				 * in the buffer. We need to handle those. */
-				if (where != buffer.end())
+				{ /* request does not have a body */
+					complete_body_found = true;
+				}
+				if (complete_body_found)
 				{
-					connection_attribute = boost::make_tuple(boost::shared_ptr< Details::Request >(), std::vector< char >(where, buffer.end()), false);
-					buffer.clear();
-					goto after_connection_attributes_are_got;
+					request_handler_.handle(request);
+					/* Now, if whence is not at the end of the buffer, more requests may be 
+					 * in the buffer. We need to handle those. */
+					if (where != buffer.end())
+					{
+						connection_attribute = boost::make_tuple(boost::shared_ptr< Details::Request >(), std::vector< char >(where, buffer.end()), false);
+						buffer.clear();
+						goto after_connection_attributes_are_got;
+					}
+					else
+					{ /* done */ }
 				}
-				else
-				{ /* done */ }
 			}
 			else
 			{
