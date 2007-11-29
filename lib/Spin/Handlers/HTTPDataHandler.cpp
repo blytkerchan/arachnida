@@ -86,7 +86,6 @@ namespace Spin
 			template < typename Iterator >
 			bool moreHeaders(Iterator where, const Iterator & whence)
 			{
-				if (where == whence) return false;
 				unsigned long cr(0);
 				unsigned long lf(0);
 				assert(std::distance(where, whence) < 0xFFFFFFFF); // fits in an unsigned long
@@ -163,7 +162,7 @@ namespace Spin
 			boost::call_once(initStaticMembers, once_flag__);
 		}
 
-		/*virtual */void HTTPDataHandler::onDataReady(Connection & connection) const/* = 0*/
+		/*virtual */void HTTPDataHandler::onDataReady(Connection & connection) const
 		{
 			// get any pending data from the connection
 			std::vector< char > buffer;
@@ -212,10 +211,20 @@ after_connection_attributes_are_got:
 				{
 					where = whence;
 					whence = findHeaderEnd(where, buffer.end());
-					Details::Request::Header header;
-					boost::tie(header.name_, header.value_) = splitHeader(where, whence);
-					request->header_fields_.push_back(header);
-					where = whence;
+					if (where != whence)
+					{
+						Details::Request::Header header;
+						boost::tie(header.name_, header.value_) = splitHeader(where, whence);
+						request->header_fields_.push_back(header);
+						where = whence;
+					}
+					else
+					{	/* we're at the end of the current buffer, but more headers are still
+						 * to come. We'll break out of the loop (where will be at buffer.end()
+						 * so this will happen automatically) and store what we currently know
+						 * about the request in the connection attributes (the end of the headers
+						 * will not have been found, so this will happen automatically as well) */
+					}
 				}
 				else // we have all of the header
 				{

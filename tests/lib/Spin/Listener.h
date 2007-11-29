@@ -18,6 +18,7 @@ namespace Tests
 			CPPUNIT_TEST( tryAcceptWithHTTPHandler02 );
 			CPPUNIT_TEST( tryAcceptWithHTTPHandler03 );
 			CPPUNIT_TEST( tryAcceptWithHTTPHandler04 );
+			CPPUNIT_TEST( tryAcceptWithHTTPHandler05 );
 			CPPUNIT_TEST_SUITE_END();
 
 		public:
@@ -33,6 +34,7 @@ namespace Tests
 			void tryAcceptWithHTTPHandler02();
 			void tryAcceptWithHTTPHandler03();
 			void tryAcceptWithHTTPHandler04();
+			void tryAcceptWithHTTPHandler05();
 
 		private:
 		};
