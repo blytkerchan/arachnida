@@ -15,7 +15,7 @@ namespace Spin
 		{
 			bool isIgnorableWhiteSpace(char c)
 			{
-				return c == 8 || c == 10 || c == 13 || c == 32;
+				return c == 9 || c == 10 || c == 13 || c == 32;
 			}
 
 			std::string ltrim(const std::string & s)
@@ -57,33 +57,6 @@ namespace Spin
 			}
 
 			template < typename Iterator >
-			Iterator findHeaderEnd(Iterator where, const Iterator & whence)
-			{
-				Iterator from_where(where);
-				/* The end of a header in HTTP is at a new line followed by a non-whitespace 
-				 * character or the end of the buffer. If the newline is followed by a 
-				 * non-newline whitespace character, the header value continues on the next 
-				 * line. */
-
-				while (where != whence && !isNewLine(*where))
-					++where;
-				// at the newline or at the end of the buffer. Advance through the newlines
-				while (where != whence && isNewLine(*where))
-					++where;
-				// now, if we're at the end of the buffer or at a non-whitespace character, we're at the end of the header
-				if (where == whence || !isIgnorableWhiteSpace(*where))
-				{
-					/* In order to know whether this was the last header, we need to count the number of newline characters 
-					 * at the end of the header field, for which we have to back up through the newline characters. */
-					while ((where != from_where) && ((where - 1) != from_where) && isNewLine(*(where - 1)))
-						--where;
-					return where;
-				}
-				else // keep looking
-					return findHeaderEnd(where, whence);
-			}
-
-			template < typename Iterator >
 			bool moreHeaders(Iterator where, const Iterator & whence)
 			{
 				unsigned long cr(0);
@@ -95,6 +68,70 @@ namespace Spin
 					if (*where == 10) ++lf;
 				}
 				return !(cr >= 2 || lf >= 2);
+			}
+
+			template < typename Iterator >
+			Iterator backupThroughNewlines(Iterator begin, Iterator where)
+			{
+				while ((where != begin) && ((where - 1) != begin) && isNewLine(*(where - 1)))
+					--where;
+				return where;
+			}
+
+			template < typename Iterator >
+			Iterator findHeaderEnd(Iterator from_where, Iterator where, const Iterator & whence)
+			{
+				/* The end of a header in HTTP is at a new line followed by a non-whitespace 
+				 * character or the end of the buffer. If the newline is followed by a 
+				 * non-newline whitespace character, the header value continues on the next 
+				 * line. */
+
+				while (where != whence && !isNewLine(*where))
+					++where;
+				// at the newline or at the end of the buffer. Advance through the newlines
+				while (where != whence && isNewLine(*where))
+					++where;
+
+				/* Now, if we're at a non-whitespace character, we're at the end of the header.
+				 * If we're at a whitespace character, we are not at the end of the header and 
+				 * we can keep on looking. If we're at the end of the buffer, we need to do a bit
+				 * more pondering to see whether we know if we're at the end of the header or not... */
+				if (where != whence && !isIgnorableWhiteSpace(*where))
+				{
+					/* In order to know whether this was the last header, we need to count the
+					 * number of newline characters at the end of the header field, for which
+					 * we have to back up through the newline characters. */
+					return backupThroughNewlines(from_where, where);
+				}
+				else if (where != whence && isIgnorableWhiteSpace(*where)) // keep looking
+					return findHeaderEnd(from_where, where, whence);
+				else
+				{
+					assert(where == whence);
+					/* We're at the end of the buffer. There is only one way to know whether or not 
+					 * we are at the end of the header: we are *certainly* at the end of the header
+					 * if we're at the end of all headers. Otherwise, we don't know whether we're at 
+					 * the end of the header or not, as the next line might start with ignorable 
+					 * white space. */
+					where = backupThroughNewlines(from_where, where);
+					if (!moreHeaders(where, whence))
+					{
+						/* there are no more headers to come, so "where" is at the end of the current header */
+						return where;
+					}
+					else
+					{ /* there might be more headers to come, and therefore there might be a line to 
+					   * come that starts with ignorable white space, which would make it part of the 
+					   * current header. Bummer, but we'll have to return from_where. */
+						return from_where;
+					}
+				}
+			}
+
+			template < typename Iterator >
+			Iterator findHeaderEnd(Iterator where, const Iterator & whence)
+			{
+				return findHeaderEnd(where, where, whence);
 			}
 
 			template < typename Iterator >
@@ -203,6 +240,7 @@ after_connection_attributes_are_got:
 			 * returns), the requests consists of only the header. If we find only one, 
 			 * there is a header before the end of the request, and there might be a 
 			 * body. */
+			bool end_of_buffer_found(false);
 			do
 			{
 				std::vector< char >::iterator whence(where);
@@ -220,10 +258,12 @@ after_connection_attributes_are_got:
 					}
 					else
 					{	/* we're at the end of the current buffer, but more headers are still
-						 * to come. We'll break out of the loop (where will be at buffer.end()
-						 * so this will happen automatically) and store what we currently know
+						 * to come. We'll break out of the loop (by setting end_of_buffer_found, 
+						 * in some corner-cases, where will not be at buffer.end() but we will 
+						 * still have found the end of the buffer) and store what we currently know
 						 * about the request in the connection attributes (the end of the headers
-						 * will not have been found, so this will happen automatically as well) */
+						 * will not have been found, so this will happen automatically) */
+						end_of_buffer_found = true;
 					}
 				}
 				else // we have all of the header
@@ -231,7 +271,7 @@ after_connection_attributes_are_got:
 					where = whence;
 					end_of_headers_found = true;
 				}
-			} while (!end_of_headers_found && where != buffer.end());
+			} while (!end_of_headers_found && where != buffer.end() && !end_of_buffer_found);
 			if (end_of_headers_found)
 			{
 				/* When we get here, we don't know whether the request has a body.
