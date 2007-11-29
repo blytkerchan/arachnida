@@ -156,15 +156,21 @@ namespace Spin
 			template < typename Iterator, typename Method >
 			std::pair< boost::shared_ptr< Details::Request >, Iterator > extractHeader(Connection & connection, const std::map< std::string, Method > & supported_methods, Iterator curr, const Iterator & end)
 			{
+				Iterator begin(curr);
 				/* The first line of an HTTP request consists of the method, the URL of 
 				 * whatever is requested and the protocol and version. Some broken 
-				 * implementations may send white spaces (characters 10, 13 or 32) before
+				 * implementations may send white spaces (characters 9, 10, 13 or 32) before
 				 * sending the request method, so we will skip those if need be. */
 				std::vector< char >::iterator where(curr);
 				// ignore leading white space
 				where = advanceThroughIgnorableWhiteSpace(where, end);
 				std::vector< char >::iterator whence(where);
 				whence = advanceUntilIgnorableWhiteSpace(whence, end);
+				// if we're at the end of the buffer already, we do not have the entire method string.
+				if (whence == end)
+					return std::make_pair(boost::shared_ptr< Details::Request >(), begin);
+				else
+				{ /* carry on */ }
 				// the request method is now in [where,whence)
 				std::string method(where, whence);
 				if (supported_methods.find(method) == supported_methods.end())
@@ -173,10 +179,20 @@ namespace Spin
 				{ /* carry on to get the URL */ }
 				where = advanceThroughIgnorableWhiteSpace(whence, end);
 				whence = advanceUntilIgnorableWhiteSpace(where, end);
+				// if we're at the end of the buffer, we do not have the entire URL
+				if (whence == end)
+					return std::make_pair(boost::shared_ptr< Details::Request >(), begin);
+				else
+				{ /* carry on */ }
 				// the URL is now in [where, whence)
 				std::string url(where, whence);
 				where = advanceThroughIgnorableWhiteSpace(whence, end);
 				whence = advanceUntilIgnorableWhiteSpace(where, end);
+				// if we're at the end of the buffer, we do not have the entire protocol and version
+				if (whence == end)
+					return std::make_pair(boost::shared_ptr< Details::Request >(), begin);
+				else
+				{ /* carry on */ }
 				// the protocol and version is now in [where, whence)
 				std::string protocol_and_version(where, whence);
 				// there are only two protocol strings we support: HTTP/1.0 and HTTP/1.1
@@ -223,6 +239,15 @@ after_connection_attributes_are_got:
 				if (connection_attribute.empty() /* no existing attribute */)
 				{	// parse the request, as it is new
 					boost::tie(request, where) = extractHeader(connection, supported_methods__, buffer.begin(), buffer.end());
+					if (!request && where == buffer.begin())
+					{
+						/* the extraction errored out because the first line was incomplete. 
+						 * If this is the case, we will store whatever we got in the connection 
+						 * attributes and return. */
+						break;
+					}
+					else
+					{ /* all is well */ }
 					assert(request || where == buffer.end());
 				}
 				else
@@ -241,7 +266,7 @@ after_connection_attributes_are_got:
 			 * there is a header before the end of the request, and there might be a 
 			 * body. */
 			bool end_of_buffer_found(false);
-			do
+			if (request) do
 			{
 				std::vector< char >::iterator whence(where);
 				whence = advanceThroughIgnorableWhiteSpace(whence, buffer.end());

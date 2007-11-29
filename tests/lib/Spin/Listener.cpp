@@ -508,5 +508,121 @@ namespace Tests
 			CPPUNIT_ASSERT(where->value_ == "keep-alive");
 			++where;
 		}
+
+		void Listener::tryAcceptWithHTTPHandler10()
+		{
+			::Spin::Listener listener(0, 4108);
+			::Spin::Handlers::HTTPRequestHandler request_handler;
+			::Spin::Handlers::HTTPConnectionHandler connection_handler(request_handler);
+			listener.setNewConnectionHandler(connection_handler);
+			Loki::ScopeGuard attachment_handler = Loki::MakeObjGuard(listener, &::Spin::Listener::clearNewConnectionHandler);
+			::Spin::Connection connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4108));
+			connection_out.write(
+				"GET /index.html HTTP/1.1"
+				);
+			Sleep(1000);
+			connection_out.write(
+				"\r\n"
+				"User-Agent: test\r\n"
+				"Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5\r\n"
+				"Accept-Language: en-us,en;q=0\r\n"
+				"Accept-Encoding: gzip,\r\n"
+				"\tdeflate\r\n"
+				"Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7\r\n"
+				"Keep-Alive: 300\r\n"
+				"Connection: keep-alive\r\n"
+				"\r\n"
+				);
+			boost::shared_ptr< ::Spin::Details::Request > request(request_handler.getNextRequest());
+			CPPUNIT_ASSERT(request->method_ == "GET");
+			CPPUNIT_ASSERT(request->url_ == "/index.html");
+			CPPUNIT_ASSERT(request->protocol_and_version_ == "HTTP/1.1");
+			CPPUNIT_ASSERT(request->body_.empty());
+			CPPUNIT_ASSERT(request->header_fields_.size() == 7);
+			::Spin::Details::Request::HeaderFields::const_iterator where(request->header_fields_.begin());
+			CPPUNIT_ASSERT(where->name_ == "User-Agent");
+			CPPUNIT_ASSERT(where->value_ == "test");
+			++where;
+			CPPUNIT_ASSERT(where->name_ == "Accept");
+			CPPUNIT_ASSERT(where->value_ == "text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5");
+			++where;
+			CPPUNIT_ASSERT(where->name_ == "Accept-Language");
+			CPPUNIT_ASSERT(where->value_ == "en-us,en;q=0");
+			++where;
+			CPPUNIT_ASSERT(where->name_ == "Accept-Encoding");
+			CPPUNIT_ASSERT(where->value_ == "gzip,\r\n\tdeflate");
+			++where;
+			CPPUNIT_ASSERT(where->name_ == "Accept-Charset");
+			CPPUNIT_ASSERT(where->value_ == "ISO-8859-1,utf-8;q=0.7,*;q=0.7");
+			++where;
+			CPPUNIT_ASSERT(where->name_ == "Keep-Alive");
+			CPPUNIT_ASSERT(where->value_ == "300");
+			++where;
+			CPPUNIT_ASSERT(where->name_ == "Connection");
+			CPPUNIT_ASSERT(where->value_ == "keep-alive");
+			++where;
+		}
+
+		void Listener::tryAcceptWithHTTPHandler11()
+		{
+			::Spin::Listener listener(0, 4109);
+			::Spin::Handlers::HTTPRequestHandler request_handler;
+			::Spin::Handlers::HTTPConnectionHandler connection_handler(request_handler);
+			listener.setNewConnectionHandler(connection_handler);
+			Loki::ScopeGuard attachment_handler = Loki::MakeObjGuard(listener, &::Spin::Listener::clearNewConnectionHandler);
+			::Spin::Connection connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4109));
+			connection_out.write(
+				"G"
+				);
+			Sleep(1000);
+			connection_out.write(
+				"ET /index"
+				);
+			Sleep(1000);
+			connection_out.write(
+				".html HTT"
+				);
+			Sleep(1000);
+			connection_out.write(
+				"P/1.1\r\n"
+				"User-Agent: test\r\n"
+				"Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5\r\n"
+				"Accept-Language: en-us,en;q=0\r\n"
+				"Accept-Encoding: gzip,\r\n"
+				"\tdeflate\r\n"
+				"Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7\r\n"
+				"Keep-Alive: 300\r\n"
+				"Connection: keep-alive\r\n"
+				"\r\n"
+				);
+			boost::shared_ptr< ::Spin::Details::Request > request(request_handler.getNextRequest());
+			CPPUNIT_ASSERT(request->method_ == "GET");
+			CPPUNIT_ASSERT(request->url_ == "/index.html");
+			CPPUNIT_ASSERT(request->protocol_and_version_ == "HTTP/1.1");
+			CPPUNIT_ASSERT(request->body_.empty());
+			CPPUNIT_ASSERT(request->header_fields_.size() == 7);
+			::Spin::Details::Request::HeaderFields::const_iterator where(request->header_fields_.begin());
+			CPPUNIT_ASSERT(where->name_ == "User-Agent");
+			CPPUNIT_ASSERT(where->value_ == "test");
+			++where;
+			CPPUNIT_ASSERT(where->name_ == "Accept");
+			CPPUNIT_ASSERT(where->value_ == "text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5");
+			++where;
+			CPPUNIT_ASSERT(where->name_ == "Accept-Language");
+			CPPUNIT_ASSERT(where->value_ == "en-us,en;q=0");
+			++where;
+			CPPUNIT_ASSERT(where->name_ == "Accept-Encoding");
+			CPPUNIT_ASSERT(where->value_ == "gzip,\r\n\tdeflate");
+			++where;
+			CPPUNIT_ASSERT(where->name_ == "Accept-Charset");
+			CPPUNIT_ASSERT(where->value_ == "ISO-8859-1,utf-8;q=0.7,*;q=0.7");
+			++where;
+			CPPUNIT_ASSERT(where->name_ == "Keep-Alive");
+			CPPUNIT_ASSERT(where->value_ == "300");
+			++where;
+			CPPUNIT_ASSERT(where->name_ == "Connection");
+			CPPUNIT_ASSERT(where->value_ == "keep-alive");
+			++where;
+		}
 	}
 }
