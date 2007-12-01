@@ -305,6 +305,34 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="Exceptions"
+			>
+			<File
+				RelativePath="..\..\..\lib\Spin\Exceptions\HTTP.h"
+				>
+			</File>
+			<Filter
+				Name="HTTP"
+				>
+				<File
+					RelativePath="..\..\..\lib\Spin\Exceptions\HTTP\InvalidHeader.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\lib\Spin\Exceptions\HTTP\InvalidHeader.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\lib\Spin\Exceptions\HTTP\UnsupportedProtocol.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\lib\Spin\Exceptions\HTTP\UnsupportedProtocol.h"
+					>
+				</File>
+			</Filter>
+		</Filter>
 		<File
 			RelativePath="..\..\..\lib\Spin\Connection.cpp"
 			>

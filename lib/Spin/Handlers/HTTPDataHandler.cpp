@@ -6,6 +6,7 @@
 #include "HTTPRequestHandler.h"
 #include "../Connection.h"
 #include "../Details/Request.h"
+#include "../Exceptions/HTTP.h"
 
 namespace Spin
 {
@@ -146,7 +147,7 @@ namespace Spin
 			std::pair< std::string, std::string > splitHeader(Iterator begin, const Iterator & end)
 			{
 				Iterator colon(std::find(begin, end, ':'));
-				if (colon == end) throw std::runtime_error("Invalid header field");
+				if (colon == end) throw Exceptions::HTTP::InvalidHeader(begin, end);
 				std::string name(chomp(begin, colon));
 				++colon;
 				std::string value(chomp(colon, end));
@@ -197,7 +198,7 @@ namespace Spin
 				std::string protocol_and_version(where, whence);
 				// there are only two protocol strings we support: HTTP/1.0 and HTTP/1.1
 				if (protocol_and_version != "HTTP/1.0" && protocol_and_version != "HTTP/1.1")
-					throw std::runtime_error("Unsupported protocol");
+					throw Exceptions::HTTP::UnsupportedProtocol(protocol_and_version.begin(), protocol_and_version.end());
 				else
 				{ /* carry on */ }
 
