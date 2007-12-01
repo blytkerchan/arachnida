@@ -32,7 +32,8 @@ namespace Spin
 			ConnectionHandler(const ConnectionHandler&);
 			ConnectionHandler & operator=(const ConnectionHandler&);
 
-			typedef std::list< boost::tuple< int /* file_descriptor */, NotificationCallback /* callback */, AttachmentState_ /* state */ > > Callbacks_;
+			typedef boost::tuple< int /* file_descriptor */, NotificationCallback /* callback */, AttachmentState_ /* state */ > Callback_;
+			typedef std::list< Callback_ > Callbacks_;
 			typedef boost::recursive_mutex CallbacksLock_;
 
 			ConnectionHandler();

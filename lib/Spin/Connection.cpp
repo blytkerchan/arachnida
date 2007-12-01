@@ -19,9 +19,11 @@ namespace Spin
 	Connection::Connection(const Connection & connection)
 		: bio_(connection.bio_),
 		  data_handler_(connection.data_handler_),
-		  attributes_(connection.attributes_)
+		  attributes_(connection.attributes_),
+		  status_(connection.status_)
 	{
 		connection.bio_ = 0;
+		connection.status_ |= done__;
 	}
 
 	Connection::~Connection()
@@ -36,6 +38,13 @@ namespace Spin
 	std::pair< std::size_t, int > Connection::write(const std::vector< char > & data)
 	{
 		assert(data.size() < INT_MAX);
+		if (status_ != good__)
+		{
+			status_ |= error__;
+			throw std::runtime_error("Connection no longer usable");
+		}
+		else
+		{ /* all is well */ }
 		int written(0);
 		int reason(no_error__);
 
@@ -47,7 +56,10 @@ namespace Spin
 			else if (written < static_cast< int >(data.size()))
 			{
 				if (!BIO_should_retry(bio_))
+				{
+					status_ = done__;
 					throw std::runtime_error("Permanent error - sorry it didn't work out");
+				}
 				else
 				{ /* non-permanent error */ }
 				reason |= should_retry__;
@@ -71,6 +83,14 @@ namespace Spin
 
 	std::pair< std::size_t, int > Connection::read(std::vector< char > & buffer)
 	{
+		if (status_ != good__)
+		{
+			status_ |= error__;
+			throw std::runtime_error("Connection no longer usable");
+		}
+		else
+		{ /* all is well */ }
+
 		std::size_t bytes_read_into_buffer(0);
 		int reason(no_error__);
 		bool continue_until_retry(false);
@@ -90,7 +110,10 @@ read_entry_point:
 		{
 			bytes_read_into_buffer += bytes_read;
 			if (!BIO_should_retry(bio_) && bytes_read <= 0)
+			{
+				status_ = done__;
 				throw std::runtime_error("Permanent error - sorry it didn't work out");
+			}
 			else
 			{
 				reason |= should_retry__;
@@ -161,7 +184,7 @@ read_entry_point:
 
 	Details::Address Connection::getPeerAddress() const
 	{
-		if (!bio_)
+		if (!bio_ || status_ != good__)
 			throw std::logic_error("No connection");
 		else
 		{ /* carry on */ }
@@ -175,12 +198,13 @@ read_entry_point:
 	Connection::Connection(::BIO * bio)
 		: bio_(bio),
 		  data_handler_(0),
-		  attributes_(max_attribute_count__)
+		  attributes_(max_attribute_count__),
+		  status_(good__)
 	{ /* no-op */ }
 
 	void Connection::onDataReady_()
 	{
-		if (data_handler_)
+		if (data_handler_ && status_ == good__)
 			(*data_handler_)(*this);
 		else
 		{ /* no-op */ }

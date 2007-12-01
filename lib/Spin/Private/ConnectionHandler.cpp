@@ -78,7 +78,7 @@ namespace
 	{
 		return apply_to_2nd_impl_< Pair, OpType >(op);
 	}
-#if 0
+
 	template < typename Tuple, typename OpType, int n >
 	struct apply_to_nth_impl_
 	{
@@ -90,7 +90,7 @@ namespace
 
 		result_type operator()(Tuple tuple) const
 		{
-			return op_(get< n >(tuple));
+			return op_(boost::tuples::get< n >(tuple));
 		}
 
 		OpType op_;
@@ -101,7 +101,6 @@ namespace
 	{
 		return apply_to_nth_impl_< Tuple, OpType, n >(op);
 	}
-#endif
 }
 namespace Spin
 {
@@ -232,27 +231,42 @@ namespace Spin
 				}
 				else
 				{
-					typedef std::list< NotificationCallback > CallbacksToCall;
+					typedef std::list< boost::tuples::tuple< int, NotificationCallback > > CallbacksToCall;
 					CallbacksToCall callbacks_to_call;
 					{
 						CallbacksLock_::scoped_lock lock(callbacks_lock_);
-						for (Callbacks_::const_iterator curr(callbacks_.begin()); curr != callbacks_.end(); ++curr)
+						Callbacks_::const_iterator begin(callbacks_.begin());
+						for (Callbacks_::const_iterator curr(begin); curr != callbacks_.end(); ++curr)
 						{
 							if (FD_ISSET(boost::tuples::get<0>(*curr), &read_fds))
-								callbacks_to_call.push_back(boost::tuples::get<1>(*curr));
+								callbacks_to_call.push_back(boost::make_tuple(boost::tuples::get<0>(*curr), boost::tuples::get<1>(*curr)));
 							else
 							{ /* fd not set */ }
 						}
 					} // lock ends here
+					typedef std::list< int > CallbacksToRemove;
+					CallbacksToRemove callbacks_to_remove;
 					for (CallbacksToCall::const_iterator curr(callbacks_to_call.begin()); curr != callbacks_to_call.end(); ++curr)
 					{
 						try
 						{
-							(*curr)();
+							(boost::tuples::get<1>(*curr))();
 						}
 						catch (...)
 						{
-							// FIXME: do something: log an error message, tag the connection as useless - anything!
+							callbacks_to_remove.push_back(boost::tuples::get<0>(*curr));
+						}
+					}
+					if (!callbacks_to_remove.empty())
+					{
+						CallbacksLock_::scoped_lock lock(callbacks_lock_);
+						for (CallbacksToRemove::const_iterator curr(callbacks_to_remove.begin()); curr != callbacks_to_remove.end(); ++curr)
+						{
+							Callbacks_::iterator where(std::find_if(callbacks_.begin(), callbacks_.end(), apply_to_nth< Callbacks_::value_type, 0 >(std::bind2nd(std::equal_to< int >(), *curr))));
+							if (where != callbacks_.end())
+								boost::tuples::get<2>(*where) = pending_detachment__;
+							else
+							{ /* The callback is no longer there anyway */ }
 						}
 					}
 				}

@@ -20,6 +20,12 @@ namespace Spin
 	class SPIN_API Connection
 	{
 	public :
+		enum Status
+		{
+			good__			= 0,
+			error__			= 1,
+			done__			= 2
+		};
 		enum Reason
 		{
 			no_error__		= 0,			// no errors, all is well
@@ -49,6 +55,11 @@ namespace Spin
 
 		Details::Address getPeerAddress() const;
 
+		int getStatus() const
+		{
+			return status_;
+		}
+
 	private :
 		enum { default_read_block_size__ = 4096, max_attribute_count__ = 8 };
 		// Not Assignable
@@ -60,6 +71,7 @@ namespace Spin
 		mutable ::BIO * bio_;
 		Handlers::NewDataHandler * data_handler_;
 		std::vector< boost::any > attributes_;
+		mutable int status_;
 
 		static unsigned long next_attribute_index__;
 
