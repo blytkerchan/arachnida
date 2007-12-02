@@ -324,6 +324,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\lib\Spin\Exceptions\HTTP\UnknownMethod.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\lib\Spin\Exceptions\HTTP\UnknownMethod.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\lib\Spin\Exceptions\HTTP\UnsupportedProtocol.cpp"
 					>
 				</File>

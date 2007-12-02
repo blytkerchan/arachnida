@@ -175,7 +175,7 @@ namespace Spin
 				// the request method is now in [where,whence)
 				std::string method(where, whence);
 				if (supported_methods.find(method) == supported_methods.end())
-					throw std::runtime_error("Unknown method");
+					throw Exceptions::HTTP::UnknownMethod(where, whence);
 				else
 				{ /* carry on to get the URL */ }
 				where = advanceThroughIgnorableWhiteSpace(whence, end);

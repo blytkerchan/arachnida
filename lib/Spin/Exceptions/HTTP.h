@@ -22,6 +22,7 @@ namespace Spin
 
 #include "HTTP/InvalidHeader.h"
 #include "HTTP/UnsupportedProtocol.h"
+#include "HTTP/UnknownMethod.h"
 
 #endif
 
