@@ -309,7 +309,19 @@
 			Name="Exceptions"
 			>
 			<File
+				RelativePath="..\..\..\lib\Spin\Exceptions\Connection.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\lib\Spin\Exceptions\HTTP.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Exceptions\Socket.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Exceptions\Socket.h"
 				>
 			</File>
 			<Filter
@@ -337,6 +349,26 @@
 				</File>
 				<File
 					RelativePath="..\..\..\lib\Spin\Exceptions\HTTP\UnsupportedProtocol.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Connection"
+				>
+				<File
+					RelativePath="..\..\..\lib\Spin\Exceptions\Connection\BindFailure.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\lib\Spin\Exceptions\Connection\BindFailure.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\lib\Spin\Exceptions\Connection\ListenFailure.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\lib\Spin\Exceptions\Connection\ListenFailure.h"
 					>
 				</File>
 			</Filter>
