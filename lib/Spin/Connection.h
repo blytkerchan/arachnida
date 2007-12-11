@@ -6,6 +6,7 @@
 #include <vector>
 #include <boost/any.hpp>
 #include <boost/cstdint.hpp>
+#include <boost/function.hpp>
 #include "Details/Address.h"
 
 typedef struct bio_st BIO;
@@ -20,6 +21,8 @@ namespace Spin
 	class SPIN_API Connection
 	{
 	public :
+		typedef boost::function< void() > OnErrorCallback;
+
 		enum Status
 		{
 			good__			= 0,
@@ -50,7 +53,7 @@ namespace Spin
 		static unsigned long Connection::allocateAttribute();
 		boost::any & Connection::getAttribute(unsigned long index);
 
-		void setNewDataHandler(Handlers::NewDataHandler & handler);
+		void setNewDataHandler(Handlers::NewDataHandler & handler, OnErrorCallback on_error_callback = OnErrorCallback());
 		void clearNewDataHandler();
 
 		Details::Address getPeerAddress() const;

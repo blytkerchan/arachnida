@@ -112,10 +112,10 @@ namespace Spin
 			return instance__;
 		}
 
-		void ConnectionHandler::attach( int file_descriptor, NotificationCallback callback )
+		void ConnectionHandler::attach( int file_descriptor, NotificationCallback on_select_callback, NotificationCallback on_error_callback/* = NotificationCallback()*/ )
 		{
 			CallbacksLock_::scoped_lock lock(callbacks_lock_);
-			callbacks_.push_back(boost::make_tuple(file_descriptor, callback, pending_attachment__));
+			callbacks_.push_back(boost::make_tuple(file_descriptor, on_select_callback, on_error_callback, pending_attachment__));
 			notifyThread_();
 		}
 
@@ -125,7 +125,7 @@ namespace Spin
 			Callbacks_::iterator where(std::find_if(callbacks_.begin(), callbacks_.end(), apply_to_first< Callbacks_::value_type >(std::bind2nd(std::equal_to< int >(), file_descriptor))));
 			if (where != callbacks_.end())
 			{
-				boost::tuples::get<2>(*where) = pending_detachment__;
+				boost::tuples::get<3>(*where) = pending_detachment__;
 				notifyThread_();
 #if HAVE_BOOST_THREADID && HAVE_BOOST_THIS_THREAD
 				/* hypothetical code */
@@ -136,7 +136,7 @@ namespace Spin
 				do 
 				{
 					callbacks_cond_.wait(lock);
-				} while(boost::tuples::get<2>(*where) != detached__);
+				} while(boost::tuples::get<3>(*where) != detached__);
 				callbacks_.erase(where);
 			}
 			else
@@ -184,15 +184,15 @@ namespace Spin
 					CallbacksLock_::scoped_lock lock(callbacks_lock_);
 					for (Callbacks_::iterator curr(callbacks_.begin()); curr != callbacks_.end(); ++curr)
 					{
-						if (boost::tuples::get<2>(*curr) == pending_attachment__ || boost::tuples::get<2>(*curr) == attached__)
+						if (boost::tuples::get<3>(*curr) == pending_attachment__ || boost::tuples::get<3>(*curr) == attached__)
 						{
 							FD_SET(boost::tuples::get<0>(*curr), &read_fds);
 							highest_fd_seen = std::max(highest_fd_seen, boost::tuples::get<0>(*curr));
-							boost::tuples::get<2>(*curr) = attached__;
+							boost::tuples::get<3>(*curr) = attached__;
 						}
-						else if (boost::tuples::get<2>(*curr) == pending_detachment__)
+						else if (boost::tuples::get<3>(*curr) == pending_detachment__)
 						{
-							boost::tuples::get<2>(*curr) = detached__;
+							boost::tuples::get<3>(*curr) = detached__;
 						}
 						else
 						{ /* ignore this one altogether */ }
@@ -264,7 +264,13 @@ namespace Spin
 						{
 							Callbacks_::iterator where(std::find_if(callbacks_.begin(), callbacks_.end(), apply_to_nth< Callbacks_::value_type, 0 >(std::bind2nd(std::equal_to< int >(), *curr))));
 							if (where != callbacks_.end())
-								boost::tuples::get<2>(*where) = pending_detachment__;
+							{
+								boost::tuples::get<3>(*where) = pending_detachment__;
+								if (!boost::tuples::get<2>(*where).empty())
+									boost::tuples::get<2>(*where)();
+								else
+								{ /* no on-error callback to call */ }
+							}
 							else
 							{ /* The callback is no longer there anyway */ }
 						}

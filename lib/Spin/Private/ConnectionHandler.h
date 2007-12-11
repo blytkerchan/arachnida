@@ -24,7 +24,7 @@ namespace Spin
 
 			static ConnectionHandler & getInstance();
 
-			void attach( int file_descriptor, NotificationCallback callback );
+			void attach( int file_descriptor, NotificationCallback on_select_callback, NotificationCallback on_error_callback = NotificationCallback() );
 			void detach( int file_descriptor );
 
 		private :
@@ -32,7 +32,7 @@ namespace Spin
 			ConnectionHandler(const ConnectionHandler&);
 			ConnectionHandler & operator=(const ConnectionHandler&);
 
-			typedef boost::tuple< int /* file_descriptor */, NotificationCallback /* callback */, AttachmentState_ /* state */ > Callback_;
+			typedef boost::tuple< int /* file_descriptor */, NotificationCallback /* on_select_callback */, NotificationCallback /* on_error_callback */, AttachmentState_ /* state */ > Callback_;
 			typedef std::list< Callback_ > Callbacks_;
 			typedef boost::recursive_mutex CallbacksLock_;
 

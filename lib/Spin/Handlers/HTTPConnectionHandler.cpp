@@ -1,5 +1,7 @@
 #include "HTTPConnectionHandler.h"
+#include <boost/bind.hpp>
 #include <boost/ptr_container/ptr_list.hpp>
+#include <boost/lambda/lambda.hpp>
 #include "HTTPDataHandler.h"
 #include "../Connection.h"
 #include "../Details/Address.h"
@@ -8,8 +10,28 @@ namespace Spin
 {
 	namespace Handlers
 	{
+		namespace
+		{
+			template < typename Container >
+			struct ErrorHandler
+			{
+				ErrorHandler(Container & container)
+					: container_(container)
+				{}
+
+				void operator()(Connection * connection) const
+				{
+					container_.erase_if(&boost::lambda::_1 == connection);
+				}
+
+				Container & container_;
+			};
+		}
+
 		struct HTTPConnectionHandler::Data
 		{
+			typedef boost::ptr_list< Connection > Connections_;
+
 			Data(HTTPRequestHandler & request_handler)
 				: data_handler_(request_handler)
 			{ /* no-op */ }
@@ -22,7 +44,7 @@ namespace Spin
 			 * at least as long as the connections do. Declaration order and
 			 * language semantics does that for us. */
 			HTTPDataHandler data_handler_;
-			boost::ptr_list< Connection > connections_;
+			Connections_ connections_;
 		};
 
 		HTTPConnectionHandler::HTTPConnectionHandler(HTTPRequestHandler & request_handler)
@@ -66,7 +88,7 @@ namespace Spin
 			 * because the connection handler won't tell it which connection
 			 * is ready to receive data. */
 			std::auto_ptr< Connection > connection_p(new Connection(connection));
-			connection_p->setNewDataHandler(data_->data_handler_);
+			connection_p->setNewDataHandler(data_->data_handler_, boost::bind<void>(ErrorHandler< Data::Connections_ >(data_->connections_), connection_p.get()));
 			data_->connections_.push_back(connection_p.release());
 		}
 

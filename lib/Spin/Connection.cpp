@@ -166,10 +166,10 @@ read_entry_point:
 		return attributes_[index];
 	}
 
-	void Connection::setNewDataHandler(Handlers::NewDataHandler & handler)
+	void Connection::setNewDataHandler(Handlers::NewDataHandler & handler, OnErrorCallback on_error_callback/* = OnErrorCallback()*/)
 	{
 		data_handler_ = &handler;
-		Private::ConnectionHandler::getInstance().attach(BIO_get_fd(bio_, 0), boost::bind(&Connection::onDataReady_, this));
+		Private::ConnectionHandler::getInstance().attach(BIO_get_fd(bio_, 0), boost::bind(&Connection::onDataReady_, this), on_error_callback);
 	}
 
 	void Connection::clearNewDataHandler()
