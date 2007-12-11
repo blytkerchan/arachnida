@@ -22,6 +22,9 @@ namespace Spin
 
 #include "Connection/BindFailure.h"
 #include "Connection/ListenFailure.h"
+#include "Connection/UnusableConnection.h"
+#include "Connection/MethodNotImplemented.h"
+#include "Connection/ConnectionClosed.h"
 
 #endif
 

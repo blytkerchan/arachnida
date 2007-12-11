@@ -11,6 +11,7 @@ extern "C" {
 #include "Private/atomicPrimitives.h"
 #include "Private/ConnectionHandler.h"
 #include "Handlers/NewDataHandler.h"
+#include "Exceptions/Connection.h"
 
 namespace Spin
 {
@@ -41,7 +42,7 @@ namespace Spin
 		if (status_ != good__)
 		{
 			status_ |= error__;
-			throw std::runtime_error("Connection no longer usable");
+			throw Exceptions::Connection::UnusableConnection();
 		}
 		else
 		{ /* all is well */ }
@@ -52,13 +53,13 @@ namespace Spin
 		{
 			written = ::BIO_write(bio_, &(data[0]), data.size());
 			if (written == -2)
-				throw std::logic_error("Method not implemented on this BIO");
+				throw Exceptions::Connection::MethodNotImplemented();
 			else if (written < static_cast< int >(data.size()))
 			{
 				if (!BIO_should_retry(bio_))
 				{
 					status_ = done__;
-					throw std::runtime_error("Permanent error - sorry it didn't work out");
+					throw Exceptions::Connection::ConnectionClosed();
 				}
 				else
 				{ /* non-permanent error */ }
@@ -80,13 +81,13 @@ namespace Spin
 
 		return std::make_pair(written, reason);
 	}
-
+	
 	std::pair< std::size_t, int > Connection::read(std::vector< char > & buffer)
 	{
 		if (status_ != good__)
 		{
 			status_ |= error__;
-			throw std::runtime_error("Connection no longer usable");
+			throw Exceptions::Connection::UnusableConnection();
 		}
 		else
 		{ /* all is well */ }
@@ -112,7 +113,7 @@ read_entry_point:
 			if (!BIO_should_retry(bio_) && bytes_read <= 0)
 			{
 				status_ = done__;
-				throw std::runtime_error("Permanent error - sorry it didn't work out");
+				throw Exceptions::Connection::ConnectionClosed();
 			}
 			else
 			{

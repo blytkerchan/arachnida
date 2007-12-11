@@ -217,6 +217,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\lib\Spin\Private\OpenSSL.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\lib\Spin\Private\Pipe.cpp"
 				>
 			</File>
@@ -324,6 +328,14 @@
 				RelativePath="..\..\..\lib\Spin\Exceptions\Socket.h"
 				>
 			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Exceptions\SSL.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Exceptions\SSL.h"
+				>
+			</File>
 			<Filter
 				Name="HTTP"
 				>
@@ -364,11 +376,47 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\lib\Spin\Exceptions\Connection\ConnectionClosed.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\lib\Spin\Exceptions\Connection\ListenFailure.cpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\..\lib\Spin\Exceptions\Connection\ListenFailure.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\lib\Spin\Exceptions\Connection\MethodNotImplemented.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\lib\Spin\Exceptions\Connection\UnusableConnection.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="SSL"
+				>
+				<File
+					RelativePath="..\..\..\lib\Spin\Exceptions\SSL\ConnectionError.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\lib\Spin\Exceptions\SSL\ConnectionSocketCreationFailure.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\lib\Spin\Exceptions\SSL\ContextAllocationError.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\lib\Spin\Exceptions\SSL\HandshakeError.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\lib\Spin\Exceptions\SSL\SSLPointerLocationError.h"
 					>
 				</File>
 			</Filter>
