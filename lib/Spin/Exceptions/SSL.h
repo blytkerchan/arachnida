@@ -67,8 +67,14 @@ namespace Spin
 	}
 }
 
+#include "SSL/AcceptError.h"
+#include "SSL/AcceptSetupError.h"
+#include "SSL/AcceptSocketAllocationError.h"
 #include "SSL/ContextAllocationError.h"
 #include "SSL/ConnectionSocketCreationFailure.h"
+#include "SSL/ServerSocketAllocationError.h"
+#include "SSL/SSLContextAllocationError.h"
+#include "SSL/SSLContextSetupError.h"
 #include "SSL/SSLPointerLocationError.h"
 #include "SSL/ConnectionError.h"
 #include "SSL/HandshakeError.h"

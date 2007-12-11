@@ -10,9 +10,7 @@ namespace Spin
 	{
 		/*virtual */const char * SSLProtocolError::what() throw()
 		{
-			const char * filename(0);
-			int line(0);
-			::ERR_get_error_line(&filename, &line);
+			return std::runtime_error::what();
 		}
 	}
 }

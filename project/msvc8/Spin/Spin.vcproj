@@ -400,6 +400,18 @@
 				Name="SSL"
 				>
 				<File
+					RelativePath="..\..\..\lib\Spin\Exceptions\SSL\AcceptError.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\lib\Spin\Exceptions\SSL\AcceptSetupError.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\lib\Spin\Exceptions\SSL\AcceptSocketAllocationError.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\lib\Spin\Exceptions\SSL\ConnectionError.h"
 					>
 				</File>
@@ -413,6 +425,18 @@
 				</File>
 				<File
 					RelativePath="..\..\..\lib\Spin\Exceptions\SSL\HandshakeError.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\lib\Spin\Exceptions\SSL\ServerSocketAllocationError.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\lib\Spin\Exceptions\SSL\SSLContextAllocationError.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\lib\Spin\Exceptions\SSL\SSLContextSetupError.h"
 					>
 				</File>
 				<File

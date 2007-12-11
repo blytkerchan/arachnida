@@ -2,8 +2,7 @@
 #include <Spin/Connector.h>
 #include <Spin/Connection.h>
 #include <boost/tuple/tuple.hpp>
-#include <stdexcept>
-
+#include <Spin/Exceptions/Connection.h>
 namespace Tests
 {
 	namespace Spin
@@ -43,7 +42,7 @@ namespace Tests
 				{
 					connection.read(buffer);
 				}
-				catch (const std::runtime_error &)
+				catch (const ::Spin::Exceptions::Connection::ConnectionClosed &)
 				{
 					caught = true;
 				}
@@ -69,7 +68,7 @@ namespace Tests
 				{
 					connection.read(buffer);
 				}
-				catch (const std::runtime_error &)
+				catch (const ::Spin::Exceptions::Connection::ConnectionClosed &)
 				{
 					caught = true;
 				}

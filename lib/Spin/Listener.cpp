@@ -10,7 +10,9 @@ extern "C" {
 }
 #include "Connection.h"
 #include "Private/ConnectionHandler.h"
+#include "Private/OpenSSL.h"
 #include "Handlers/NewConnectionHandler.h"
+#include "Exceptions/SSL.h"
 
 namespace Spin
 {
@@ -42,20 +44,14 @@ namespace Spin
 	Connection Listener::accept()
 	{
 		/* Wait for incoming connection */
-		if (BIO_do_accept(bio_) <= 0)
-			throw std::runtime_error("Error accepting connection");
-		else
-		{ /* connection accepted OK */ }
+		SPIN_PRIVATE_OPENSSL_EXEC(, BIO_do_accept(bio_) > 0, Exceptions::SSL::AcceptError);
 		BIO * cbio(BIO_pop(bio_));
 		assert(cbio);
 		SSL * ssl(0);
 		BIO_get_ssl(cbio, &ssl);
 		if (ssl)
 		{
-			if (BIO_do_handshake(cbio) <= 0)
-				throw std::runtime_error("Error during SSL handshake");
-			else
-			{ /* all is well - carry on */ }
+			SPIN_PRIVATE_OPENSSL_EXEC(, BIO_do_handshake(cbio) > 0, Exceptions::SSL::HandshakeError);
 		}
 		else
 		{ /* not an SSL BIO - no handshake to do */ }
@@ -108,65 +104,35 @@ namespace Spin
 	{
 		std::vector< char > b(local_address.begin(), local_address.end());
 		b.push_back(0);
-		BIO * bio(BIO_new_accept(&(b[0])));
-		if (!bio)
-			throw std::bad_alloc();
-		else
-		{ /* carry on */ }
-
+		SPIN_PRIVATE_OPENSSL_EXEC(BIO * bio(BIO_new_accept(&(b[0]))), bio, Exceptions::SSL::AcceptSocketAllocationError);
 		// First call to BIO_accept() sets up accept BIO
-		if(BIO_do_accept(bio) <= 0)
-			throw std::runtime_error("Error setting up accept");
-		else
-		{ /* all is well */ }
+		SPIN_PRIVATE_OPENSSL_EXEC(, BIO_do_accept(bio) > 0, Exceptions::SSL::AcceptSetupError);
 		return bio;
 	}
 
 	BIO * Listener::createSSLBIO_(const boost::filesystem::path & server_cert_filename, const std::string & local_address)
 	{
-		SSL_CTX * ssl_context(SSL_CTX_new(SSLv23_server_method()));
-		if (!ssl_context)
-			throw std::bad_alloc();
-		else
-		{ /* all is well */ }
+		SPIN_PRIVATE_OPENSSL_EXEC(SSL_CTX * ssl_context(SSL_CTX_new(SSLv23_server_method())), ssl_context, Exceptions::SSL::SSLContextAllocationError);
 		Loki::ScopeGuard ssl_context_guard = Loki::MakeGuard(SSL_CTX_free, ssl_context);
 
-		if (!SSL_CTX_use_certificate_file(ssl_context, server_cert_filename.string().c_str(), SSL_FILETYPE_PEM) ||
-			!SSL_CTX_use_PrivateKey_file(ssl_context, server_cert_filename.string().c_str(), SSL_FILETYPE_PEM) ||
-			!SSL_CTX_check_private_key(ssl_context))
-			throw std::runtime_error("Error setting up SSL_CTX");
-		else
-		{ /* all is well so far */ }
+		SPIN_PRIVATE_OPENSSL_EXEC(, SSL_CTX_use_certificate_file(ssl_context, server_cert_filename.string().c_str(), SSL_FILETYPE_PEM) && SSL_CTX_use_PrivateKey_file(ssl_context, server_cert_filename.string().c_str(), SSL_FILETYPE_PEM) && SSL_CTX_check_private_key(ssl_context), Exceptions::SSL::SSLContextSetupError);
 
 		/* HERE!!
 		 * Might do other things here like setting verify locations and
 		 * DH and/or RSA temporary key callbacks		*/
 
 		// New SSL BIO setup as server
-		BIO * ssl_bio(BIO_new_ssl(ssl_context, 0));
-		if (!ssl_bio)
-			throw std::bad_alloc();
-		else
-		{ /* all is well */ }
+		SPIN_PRIVATE_OPENSSL_EXEC(BIO * ssl_bio(BIO_new_ssl(ssl_context, 0)), ssl_bio, Exceptions::SSL::ServerSocketAllocationError);
 		Loki::ScopeGuard ssl_bio_guard = Loki::MakeGuard(BIO_free, ssl_bio);
 
-		SSL * ssl(0);
-		BIO_get_ssl(ssl_bio, &ssl);
-		if (!ssl)
-			throw std::runtime_error("Can't locate SSL pointer");
-		else
-		{ /* all is well */ }
+		SPIN_PRIVATE_OPENSSL_EXEC(SSL * ssl(0); BIO_get_ssl(ssl_bio, &ssl), ssl, Exceptions::SSL::SSLPointerLocationError);
 
 		// Don't want any retries
 		SSL_set_mode(ssl, SSL_MODE_AUTO_RETRY);
 
 		std::vector< char > b(local_address.begin(), local_address.end());
 		b.push_back(0);
-		BIO * accept_bio(BIO_new_accept(&(b[0])));
-		if (!accept_bio)
-			throw std::bad_alloc();
-		else
-		{ /* all is well */ }
+		SPIN_PRIVATE_OPENSSL_EXEC(BIO * accept_bio(BIO_new_accept(&(b[0]))), accept_bio, Exceptions::SSL::AcceptSocketAllocationError);
 
 		/*
 		 * By doing this when a new connection is established
@@ -179,10 +145,7 @@ namespace Spin
 		ssl_bio_guard.Dismiss();
 
 		// Setup accept BIO
-		if (BIO_do_accept(accept_bio) <= 0)
-			throw std::runtime_error("Error setting up accept BIO");
-		else
-		{ /* all is well */ }
+		SPIN_PRIVATE_OPENSSL_EXEC(, BIO_do_accept(accept_bio) > 0, Exceptions::SSL::AcceptSetupError);
 		ssl_context_guard.Dismiss();
 		return accept_bio;
 	}
