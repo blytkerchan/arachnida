@@ -100,7 +100,6 @@ namespace Spin
 				  tls_key_(Spin::Private::TLS::getInstance().acquireKey(free_)),
 				  next_thread_id_(0)
 			{
-				std::clog << "Initializing OpenSSL" << std::endl;
 				assert(instance__ == 0);
 				instance__ = this;
 				Loki::ScopeGuard cleanup_guard = Loki::MakeGuard(&cleanup);
