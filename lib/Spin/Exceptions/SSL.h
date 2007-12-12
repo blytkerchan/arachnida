@@ -29,7 +29,10 @@ namespace Spin
 				  what_(e.what_)
 			{
 				e.what_ = 0;
+				e.error_line_data_ = 0;
 			}
+
+			~SSLProtocolError();
 
 			SSLProtocolError & operator=(SSLProtocolError e)
 			{
@@ -60,7 +63,7 @@ namespace Spin
 			int error_code_;
 			const char * filename_;
 			int line_;
-			const char * error_line_data_;
+			mutable const char * error_line_data_;
 			int error_line_data_flags_;
 			mutable char * what_;
 		};
