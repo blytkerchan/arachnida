@@ -15,7 +15,7 @@ int main()
 	while (1)
 	{
 		boost::shared_ptr< ::Spin::Details::Request > request(request_handler.getNextRequest());
-		// we handle only GET requests - anything else and we respond with 404
+		// we handle only GET requests - anything else and we respond with 501
 		if (request->method_ == "GET")
 		{
 			if (request->url_ == "/")
