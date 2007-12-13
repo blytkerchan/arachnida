@@ -32,6 +32,11 @@ namespace Spin
 
 	::BIO * Connector::connectSSL_(const std::string & target)
 	{
+		/* Note that contrary to common practice, we create an SSL context object for
+		 * each connection, rather than a single context object that is shared by all
+		 * connections. We do this to avoid certain common pitfalls with connections
+		 * and SSL contexts.
+		 * At some later time, we might want to make this (compile-time) configurable */
 		SPIN_PRIVATE_OPENSSL_EXEC(::SSL_CTX * ssl_context(::SSL_CTX_new(::SSLv23_client_method())), ssl_context, Exceptions::SSL::ContextAllocationError);
 		Loki::ScopeGuard ssl_context_guard = Loki::MakeGuard(SSL_CTX_free, ssl_context);
 		/* We'd normally set some stuff like the verify paths and

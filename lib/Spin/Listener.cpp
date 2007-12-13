@@ -112,10 +112,28 @@ namespace Spin
 
 	BIO * Listener::createSSLBIO_(const boost::filesystem::path & server_cert_filename, const std::string & local_address)
 	{
+		/* Note that contrary to common practice, we create an SSL context object for
+		 * each connection, rather than a single context object that is shared by all
+		 * connections. We do this to avoid certain common pitfalls with connections
+		 * and SSL contexts.
+		 * At some later time, we might want to make this (compile-time) configurable */
 		SPIN_PRIVATE_OPENSSL_EXEC(SSL_CTX * ssl_context(SSL_CTX_new(SSLv23_server_method())), ssl_context, Exceptions::SSL::SSLContextAllocationError);
 		Loki::ScopeGuard ssl_context_guard = Loki::MakeGuard(SSL_CTX_free, ssl_context);
 
-		SPIN_PRIVATE_OPENSSL_EXEC(, SSL_CTX_use_certificate_file(ssl_context, server_cert_filename.string().c_str(), SSL_FILETYPE_PEM) && SSL_CTX_use_PrivateKey_file(ssl_context, server_cert_filename.string().c_str(), SSL_FILETYPE_PEM) && SSL_CTX_check_private_key(ssl_context), Exceptions::SSL::SSLContextSetupError);
+		/* Note that we *could* not use a certificate file, if the SSL connections we
+		 * accept negociate their ciphers with the Diffie-Hellman key-agreement protocol.
+		 * For most intents and purposes (and certainly when implementing HTTPS) this is
+		 * not a good idea as the client will want to use our certificate to authenticate
+		 * the server, but we might want to allow this as an option (at run-time).
+		 * 
+		 * Also note that we currently expect the private key and the certificate chain to
+		 * be in the same file, which is not necessarily a good idea, and we re-load both, 
+		 * including the private key, every time we create a new context - that is: for 
+		 * every connection. If the private key is protected by a passphrase, OpenSSL will
+		 * prompt for that passphrase every time.
+		 * Ideally, the private key and the rest of the SSL context should be loaded before
+		 * the first instance of the Listener class is created. */
+		SPIN_PRIVATE_OPENSSL_EXEC(, SSL_CTX_use_certificate_chain_file(ssl_context, server_cert_filename.string().c_str()) && SSL_CTX_use_PrivateKey_file(ssl_context, server_cert_filename.string().c_str(), SSL_FILETYPE_PEM) && SSL_CTX_check_private_key(ssl_context), Exceptions::SSL::SSLContextSetupError);
 
 		/* HERE!!
 		 * Might do other things here like setting verify locations and
