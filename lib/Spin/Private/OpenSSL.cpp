@@ -22,6 +22,10 @@ extern "C" {
 #include "TLS.h"
 #include "atomicPrimitives.h"
 
+#ifndef SPIN_DEFAULT_PRNG_SEED_SIZE
+#define SPIN_DEFAULT_PRNG_SEED_SIZE 1024
+#endif
+
 namespace Spin
 {
 	namespace Private
@@ -114,7 +118,7 @@ namespace Spin
 				::ERR_load_SSL_strings();
 				::SSL_load_error_strings();
 				::OpenSSL_add_all_algorithms();
-				// FIXME: should we seed the PRNG here?
+				seedPRNG();
 			}
 	
 			~OpenSSLInitializer()
@@ -169,6 +173,15 @@ namespace Spin
 				else
 					retval = *((boost::uint32_t *)(val));
 				return retval;
+			}
+
+			static void seedPRNG()
+			{
+				if (::RAND_load_file("/dev/random", SPIN_DEFAULT_PRNG_SEED_SIZE))
+					return;
+				if (::RAND_load_file("/dev/urandom", SPIN_DEFAULT_PRNG_SEED_SIZE))
+					return;
+
 			}
 	
 			Locks_ locks_;
