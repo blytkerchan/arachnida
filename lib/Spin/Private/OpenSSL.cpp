@@ -3,6 +3,7 @@
 extern "C" {
 #include <openssl/ssl.h>
 #include <openssl/crypto.h>
+#include <openssl/rand.h>
 }
 #if !defined(OPENSSL_THREADS)
 #error "OpenSSL was not compiled with thread support - please recompile it"
@@ -23,7 +24,10 @@ extern "C" {
 #include "atomicPrimitives.h"
 
 #ifndef SPIN_DEFAULT_PRNG_SEED_SIZE
-#define SPIN_DEFAULT_PRNG_SEED_SIZE 1024
+#define SPIN_DEFAULT_PRNG_SEED_SIZE 255
+#endif
+#ifndef SPIN_DEFAULT_EGD_DEVNAMES
+#define SPIN_DEFAULT_EGD_DEVNAMES "/var/run/egd-pool", "/dev/egd-pool", "/etc/egd-pool", "/etc/entropy"
 #endif
 
 namespace Spin
@@ -177,11 +181,15 @@ namespace Spin
 
 			static void seedPRNG()
 			{
-				if (::RAND_load_file("/dev/random", SPIN_DEFAULT_PRNG_SEED_SIZE))
-					return;
-				if (::RAND_load_file("/dev/urandom", SPIN_DEFAULT_PRNG_SEED_SIZE))
-					return;
-
+				if (::RAND_load_file("/dev/random", SPIN_DEFAULT_PRNG_SEED_SIZE) == SPIN_DEFAULT_PRNG_SEED_SIZE) return;
+				if (::RAND_load_file("/dev/urandom", SPIN_DEFAULT_PRNG_SEED_SIZE) == SPIN_DEFAULT_PRNG_SEED_SIZE) return;
+				// try using EGD
+				const char * names[] = { SPIN_DEFAULT_EGD_DEVNAMES, 0 };
+				for (int i(0); names[i]; ++i)
+				{
+					if (::RAND_egd_bytes(names[i], SPIN_DEFAULT_PRNG_SEED_SIZE) == SPIN_DEFAULT_PRNG_SEED_SIZE) return;
+				}
+				::RAND_screen();
 			}
 	
 			Locks_ locks_;
