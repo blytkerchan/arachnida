@@ -6,8 +6,8 @@
 #include <boost/function.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/condition.hpp>
+#include <Acari/BakeryCounter.h>
 #include "Pipe.h"
-#include "BakeryCounter.h"
 
 namespace boost
 {

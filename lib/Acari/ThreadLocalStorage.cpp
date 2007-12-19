@@ -1,4 +1,4 @@
-#include "TLS.h"
+#include "ThreadLocalStorage.h"
 #include <cassert>
 #include <stdexcept>
 #if defined(_WIN32) && !defined(__CYGWIN__)
@@ -14,13 +14,13 @@ extern "C" {
 
 namespace Acari
 {
-	/*static */TLS & TLS::getInstance()
+	/*static */ThreadLocalStorage & ThreadLocalStorage::getInstance()
 	{
-		static TLS instance__;
+		static ThreadLocalStorage instance__;
 		return instance__;
 	}
 
-	TLS::Key TLS::acquireKey(Deleter deleter)
+	ThreadLocalStorage::Key ThreadLocalStorage::acquireKey(Deleter deleter)
 	{
 #if defined(USE_POSIX_TLS)
 		Key retval;
@@ -43,7 +43,7 @@ namespace Acari
 #endif
 	}
 
-	void TLS::releaseKey(const TLS::Key & key)
+	void ThreadLocalStorage::releaseKey(const ThreadLocalStorage::Key & key)
 	{
 #if defined(USE_POSIX_TLS)
 		int rv(::pthread_key_delete(KEY(key)));
@@ -53,7 +53,7 @@ namespace Acari
 #endif
 	}
 
-	void TLS::setValue(const Key & key, void * value)
+	void ThreadLocalStorage::setValue(const Key & key, void * value)
 	{
 #if defined(USE_POSIX_TLS)
 		int rv(::pthread_setspecific(KEY(key), value));
@@ -68,7 +68,7 @@ namespace Acari
 #endif
 	}
 
-	void * TLS::getValue(const TLS::Key & key) const
+	void * ThreadLocalStorage::getValue(const ThreadLocalStorage::Key & key) const
 	{
 #if defined(USE_POSIX_TLS)
 		return ::pthread_getspecific(KEY(key));
@@ -76,7 +76,7 @@ namespace Acari
 		return TlsGetValue(key.u_.ui_);
 	}
 
-	void TLS::_clean_()
+	void ThreadLocalStorage::_clean_()
 	{
 		boost::mutex::scoped_lock lock(keys_lock_);
 		for (Keys_::const_iterator curr(keys_.begin()); curr != keys_.end(); ++curr)
@@ -90,10 +90,10 @@ namespace Acari
 #endif
 	}
 
-	TLS::TLS()
+	ThreadLocalStorage::ThreadLocalStorage()
 	{ /* no-op */ }
 
-	TLS::~TLS()
+	ThreadLocalStorage::~ThreadLocalStorage()
 	{ /* no-op */ }
 }
 

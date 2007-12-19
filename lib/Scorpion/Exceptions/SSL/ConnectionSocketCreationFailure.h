@@ -1,5 +1,5 @@
-#ifndef _spin_exceptions_ssl_connectionsocketcreationfailure_h
-#define _spin_exceptions_ssl_connectionsocketcreationfailure_h
+#ifndef _scorpion_exceptions_ssl_connectionsocketcreationfailure_h
+#define _scorpion_exceptions_ssl_connectionsocketcreationfailure_h
 
 namespace Scorpion
 {

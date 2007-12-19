@@ -20,7 +20,7 @@ extern "C" {
 }
 #define USING_PTHREADS
 #endif
-#include <Acari/TLS.h>
+#include <Acari/ThreadLocalStorage.h>
 #include <Acari/atomicPrimitives.h>
 
 #ifndef SCORPION_DEFAULT_PRNG_SEED_SIZE
@@ -105,7 +105,7 @@ namespace Scorpion
 			typedef std::vector< Lock * > Locks_;
 			OpenSSLInitializer()
 				: locks_(::CRYPTO_num_locks()),
-				  tls_key_(Acari::TLS::getInstance().acquireKey(free_)),
+				  tls_key_(Acari::ThreadLocalStorage::getInstance().acquireKey(free_)),
 				  next_thread_id_(0)
 			{
 				assert(instance__ == 0);
@@ -128,7 +128,7 @@ namespace Scorpion
 			~OpenSSLInitializer()
 			{
 				cleanup();
-				Acari::TLS::getInstance().releaseKey(tls_key_);
+				Acari::ThreadLocalStorage::getInstance().releaseKey(tls_key_);
 			}
 	
 			static void lock(int mode, int lock_id, const char * file, int line)
@@ -167,7 +167,7 @@ namespace Scorpion
 			static boost::uint32_t getThreadId()
 			{
 				boost::uint32_t retval(0);
-				Acari::TLS & tls(Acari::TLS::getInstance());
+				Acari::ThreadLocalStorage & tls(Acari::ThreadLocalStorage::getInstance());
 				void * val(tls.getValue(instance__->tls_key_));
 				if (!val)
 				{
@@ -193,7 +193,7 @@ namespace Scorpion
 			}
 	
 			Locks_ locks_;
-			Acari::TLS::Key tls_key_;
+			Acari::ThreadLocalStorage::Key tls_key_;
 			volatile boost::uint32_t next_thread_id_;
 	
 			static OpenSSLInitializer * instance__;

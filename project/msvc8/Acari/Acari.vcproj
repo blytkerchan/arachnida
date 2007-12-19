@@ -190,11 +190,19 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\lib\Acari\TLS.cpp"
+			RelativePath="..\..\..\lib\Acari\BakeryCounter.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\lib\Acari\TLS.h"
+			RelativePath="..\..\..\lib\Acari\BakeryCounter.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\lib\Acari\ThreadLocalStorage.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\lib\Acari\ThreadLocalStorage.h"
 			>
 		</File>
 	</Files>

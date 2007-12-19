@@ -19,7 +19,7 @@ namespace
 {
 	struct DoneCountingPred
 	{
-		DoneCountingPred(boost::uint16_t target_count, Spin::Private::BakeryCounter & counter)
+		DoneCountingPred(boost::uint16_t target_count, Acari::BakeryCounter & counter)
 			: target_count_(target_count),
 			  counter_(counter)
 		{ /* no-op */ }
@@ -30,7 +30,7 @@ namespace
 		}
 
 		boost::uint16_t target_count_;
-		Spin::Private::BakeryCounter & counter_;
+		Acari::BakeryCounter & counter_;
 	};
 
 	template < typename Pair, typename OpType >

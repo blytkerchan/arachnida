@@ -176,14 +176,6 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\..\..\tests\lib\Spin\BakeryCounter.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\BakeryCounter.h"
-			>
-		</File>
-		<File
 			RelativePath="..\..\..\tests\lib\Spin\Connection.cpp"
 			>
 		</File>

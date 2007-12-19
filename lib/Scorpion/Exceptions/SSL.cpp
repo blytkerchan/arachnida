@@ -11,14 +11,14 @@ namespace Scorpion
 	{
 		SSLProtocolError::~SSLProtocolError()
 		{
-			delete [] what_;
+			delete[] what_;
 			if (error_line_data_ && (error_line_data_flags_ & ERR_TXT_MALLOCED))
 				::OPENSSL_free((void*)error_line_data_);
 			else
 			{ /* no-op */ }
 		}
 
-		/*virtual */const char * SSLProtocolError::what() throw()
+		/*virtual */const char * SSLProtocolError::what() const throw()
 		{
 			if (!what_)
 			{

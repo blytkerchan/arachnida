@@ -184,6 +184,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\tests\lib\Acari\BakeryCounter.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\tests\lib\Acari\BakeryCounter.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\tests\lib\Acari\main.cpp"
 			>
 		</File>

@@ -11,7 +11,7 @@
 
 namespace Acari
 {
-	class ACARI_API TLS
+	class ACARI_API ThreadLocalStorage
 	{
 	public :
 		// this is a copyable opaque handle much in the same way as Windoze' HANDLE
@@ -20,7 +20,7 @@ namespace Acari
 		typedef void (*Deleter)(void *);
 
 		//! Get the instance of the singleton
-		static TLS & getInstance();
+		static ThreadLocalStorage & getInstance();
 		//! Get a key to use with TLS - you only need this once and can use it from all of your threads
 		Key acquireKey(Deleter deleter);
 		void releaseKey(const Key & key);
@@ -36,8 +36,8 @@ namespace Acari
 		typedef std::vector< std::pair< Key, Deleter > > Keys_;
 #endif
 
-		TLS();
-		~TLS();
+		ThreadLocalStorage();
+		~ThreadLocalStorage();
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 		Keys_ keys_;
