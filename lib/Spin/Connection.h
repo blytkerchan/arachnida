@@ -6,10 +6,11 @@
 #include <vector>
 #include <boost/any.hpp>
 #include <boost/cstdint.hpp>
+#include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
 #include "Details/Address.h"
 
-typedef struct bio_st BIO;
+namespace Scorpion { class BIO; }
 namespace Spin
 {
 	class Connector;
@@ -68,10 +69,10 @@ namespace Spin
 		// Not Assignable
 		Connection & operator=(const Connection&);
 
-		Connection(::BIO * bio);
+		Connection(Scorpion::BIO * bio);
 		void onDataReady_();
 
-		mutable ::BIO * bio_;
+		mutable boost::shared_ptr< Scorpion::BIO > bio_;
 		Handlers::NewDataHandler * data_handler_;
 		std::vector< boost::any > attributes_;
 		mutable int status_;

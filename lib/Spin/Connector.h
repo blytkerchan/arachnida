@@ -6,7 +6,7 @@
 #include <boost/cstdint.hpp>
 #include "Connection.h"
 
-typedef struct bio_st BIO;
+namespace Scorpion { class Context; class BIO; }
 namespace Spin
 {
 	class SPIN_API Connector
@@ -14,7 +14,8 @@ namespace Spin
 	public :
 		static Connector & getInstance();
 
-		Connection connect(const std::string & remote_address, boost::uint16_t port, bool use_ssl = false);
+		Connection connect(const std::string & remote_address, boost::uint16_t port);
+		Connection connect(Scorpion::Context & context, const std::string & remote_address, boost::uint16_t port);
 
 	private :
 		// Neither CopyConstructible nor Assignable
@@ -24,8 +25,8 @@ namespace Spin
 		Connector();
 		~Connector();
 
-		::BIO * connectSSL_(const std::string & target);
-		::BIO * connect_(const std::string & target);
+		Scorpion::BIO * connectSSL_(Scorpion::Context & context, const std::string & target);
+		Scorpion::BIO * connect_(const std::string & target);
 	};
 }
 

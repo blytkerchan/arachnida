@@ -3,6 +3,8 @@
 #include <Spin/Connection.h>
 #include <boost/tuple/tuple.hpp>
 #include <Spin/Exceptions/Connection.h>
+#include <Scorpion/Context.h>
+
 namespace Tests
 {
 	namespace Spin
@@ -51,7 +53,7 @@ namespace Tests
 
 			void Connector::tryCreateHTTPSConnectionToGoogle()
 			{
-				::Spin::Connection connection(::Spin::Connector::getInstance().connect("www.google.com", 443, true));
+				::Spin::Connection connection(::Spin::Connector::getInstance().connect(::Scorpion::Context(::Scorpion::Context::insecure_default_options__), "www.google.com", 443));
 				CPPUNIT_ASSERT(connection.usesSSL());
 				std::size_t byte_count(0);
 				int reason(0);

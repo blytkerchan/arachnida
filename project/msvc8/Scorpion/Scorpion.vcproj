@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="Test_Spin"
-	ProjectGUID="{BE589F03-C422-4DA1-BF64-425D49F25E2A}"
-	RootNamespace="Test_Spin"
+	Name="Scorpion"
+	ProjectGUID="{E094085C-CAED-41E1-91AB-3A297D13E594}"
+	RootNamespace="Scorpion"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -19,7 +19,7 @@
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
+			ConfigurationType="2"
 			CharacterSet="1"
 			>
 			<Tool
@@ -41,7 +41,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="$(ProjectDir)..\..\..\lib"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;SCORPION_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -62,10 +62,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="cppunitd.lib ACEd.lib"
+				AdditionalDependencies="ssleay32.lib libeay32.lib "
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
-				SubSystem="1"
+				SubSystem="2"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -97,7 +97,7 @@
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
+			ConfigurationType="2"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -119,7 +119,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="$(ProjectDir)..\..\..\lib"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SCORPION_EXPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -138,10 +138,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="cppunit.lib ACE.lib"
+				AdditionalDependencies="ssleay32.lib libeay32.lib "
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
-				SubSystem="1"
+				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="1"
@@ -175,56 +175,108 @@
 	<References>
 	</References>
 	<Files>
+		<Filter
+			Name="Details"
+			>
+			<File
+				RelativePath="..\..\..\lib\Scorpion\Details\GetPasswords.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Scorpion\Details\GetPasswords.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Scorpion\Details\prologue.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Private"
+			>
+			<File
+				RelativePath="..\..\..\lib\Scorpion\Private\OpenSSL.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Scorpion\Private\OpenSSL.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Exceptions"
+			>
+			<File
+				RelativePath="..\..\..\lib\Scorpion\Exceptions\SSL.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Scorpion\Exceptions\SSL.h"
+				>
+			</File>
+			<Filter
+				Name="SSL"
+				>
+				<File
+					RelativePath="..\..\..\lib\Scorpion\Exceptions\SSL\AcceptError.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\lib\Scorpion\Exceptions\SSL\AcceptSetupError.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\lib\Scorpion\Exceptions\SSL\AcceptSocketAllocationError.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\lib\Scorpion\Exceptions\SSL\ConnectionError.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\lib\Scorpion\Exceptions\SSL\ConnectionSocketCreationFailure.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\lib\Scorpion\Exceptions\SSL\ContextAllocationError.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\lib\Scorpion\Exceptions\SSL\HandshakeError.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\lib\Scorpion\Exceptions\SSL\ServerSocketAllocationError.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\lib\Scorpion\Exceptions\SSL\SSLContextAllocationError.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\lib\Scorpion\Exceptions\SSL\SSLContextSetupError.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\lib\Scorpion\Exceptions\SSL\SSLPointerLocationError.h"
+					>
+				</File>
+			</Filter>
+		</Filter>
 		<File
-			RelativePath="..\..\..\tests\lib\Spin\BakeryCounter.cpp"
+			RelativePath="..\..\..\lib\Scorpion\BIO.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\tests\lib\Spin\BakeryCounter.h"
+			RelativePath="..\..\..\lib\Scorpion\BIO.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\tests\lib\Spin\Connection.cpp"
+			RelativePath="..\..\..\lib\Scorpion\Context.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\tests\lib\Spin\Connection.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Connector.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Connector.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Listener.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Listener.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Logger.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Logger.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\main.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Pipe.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Pipe.h"
+			RelativePath="..\..\..\lib\Scorpion\Context.h"
 			>
 		</File>
 	</Files>

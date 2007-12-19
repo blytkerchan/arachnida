@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="Test_Spin"
-	ProjectGUID="{BE589F03-C422-4DA1-BF64-425D49F25E2A}"
-	RootNamespace="Test_Spin"
+	Name="Test_Acari"
+	ProjectGUID="{97961A79-53B1-499F-B119-81B3ADB40746}"
+	RootNamespace="Test_Acari"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -62,7 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="cppunitd.lib ACEd.lib"
+				AdditionalDependencies="cppunitd.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -138,7 +138,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="cppunit.lib ACE.lib"
+				AdditionalDependencies="cppunit.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -176,55 +176,15 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\..\..\tests\lib\Spin\BakeryCounter.cpp"
+			RelativePath="..\..\..\tests\lib\Acari\atomicPrimitives.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\tests\lib\Spin\BakeryCounter.h"
+			RelativePath="..\..\..\tests\lib\Acari\atomicPrimitives.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\tests\lib\Spin\Connection.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Connection.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Connector.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Connector.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Listener.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Listener.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Logger.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Logger.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\main.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Pipe.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Pipe.h"
+			RelativePath="..\..\..\tests\lib\Acari\main.cpp"
 			>
 		</File>
 	</Files>

@@ -40,6 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="$(ProjectDir)..\..\..\lib"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;SPIN_EXPORTS;HAVE_ATOMIC_PRIMITIVES;_CRT_SECURE_NO_WARNINGS;HAVE_ATOMIC_PRIMITIVES;_SCL_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -48,7 +49,7 @@
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="4"
-				DisableSpecificWarnings="4251"
+				DisableSpecificWarnings="4996;4251"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -61,7 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ssleay32.lib libeay32.lib ws2_32.lib"
+				AdditionalDependencies="ws2_32.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -117,13 +118,14 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="$(ProjectDir)..\..\..\lib"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SPIN_EXPORTS;HAVE_ATOMIC_PRIMITIVES;_CRT_SECURE_NO_WARNINGS;HAVE_ATOMIC_PRIMITIVES;_SCL_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
-				DisableSpecificWarnings="4251"
+				DisableSpecificWarnings="4996;4251"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -136,7 +138,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ssleay32.lib libeay32.lib ws2_32.lib"
+				AdditionalDependencies="ws2_32.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -177,14 +179,6 @@
 			Name="Private"
 			>
 			<File
-				RelativePath="..\..\..\lib\Spin\Private\atomicPrimitives.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\lib\Spin\Private\atomicPrimitives.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\lib\Spin\Private\BakeryCounter.cpp"
 				>
 			</File>
@@ -213,27 +207,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\lib\Spin\Private\OpenSSL.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\lib\Spin\Private\OpenSSL.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\lib\Spin\Private\Pipe.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\..\lib\Spin\Private\Pipe.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\lib\Spin\Private\TLS.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\lib\Spin\Private\TLS.h"
 				>
 			</File>
 			<File
@@ -328,14 +306,6 @@
 				RelativePath="..\..\..\lib\Spin\Exceptions\Socket.h"
 				>
 			</File>
-			<File
-				RelativePath="..\..\..\lib\Spin\Exceptions\SSL.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\lib\Spin\Exceptions\SSL.h"
-				>
-			</File>
 			<Filter
 				Name="HTTP"
 				>
@@ -393,54 +363,6 @@
 				</File>
 				<File
 					RelativePath="..\..\..\lib\Spin\Exceptions\Connection\UnusableConnection.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="SSL"
-				>
-				<File
-					RelativePath="..\..\..\lib\Spin\Exceptions\SSL\AcceptError.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\lib\Spin\Exceptions\SSL\AcceptSetupError.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\lib\Spin\Exceptions\SSL\AcceptSocketAllocationError.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\lib\Spin\Exceptions\SSL\ConnectionError.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\lib\Spin\Exceptions\SSL\ConnectionSocketCreationFailure.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\lib\Spin\Exceptions\SSL\ContextAllocationError.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\lib\Spin\Exceptions\SSL\HandshakeError.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\lib\Spin\Exceptions\SSL\ServerSocketAllocationError.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\lib\Spin\Exceptions\SSL\SSLContextAllocationError.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\lib\Spin\Exceptions\SSL\SSLContextSetupError.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\lib\Spin\Exceptions\SSL\SSLPointerLocationError.h"
 					>
 				</File>
 			</Filter>

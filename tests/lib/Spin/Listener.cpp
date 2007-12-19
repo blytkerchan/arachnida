@@ -1,4 +1,5 @@
 #include "Listener.h"
+#include <Scorpion/Context.h>
 #include <Spin/Listener.h>
 #include <Spin/Connector.h>
 #include <Spin/Details/Request.h>
@@ -101,10 +102,13 @@ namespace Tests
 
 			CPPUNIT_ASSERT(!cert_path__.empty());
 			CPPUNIT_ASSERT(boost::filesystem::exists(cert_path__));
-			::Spin::Listener listener(cert_path__, 0, 4098);
+			::Scorpion::Context server_ssl_context(::Scorpion::Context::insecure_default_options__);
+			server_ssl_context.setServerCertificateFilename(cert_path__);
+			server_ssl_context.setPrivateKeyFilename(cert_path__);
+			::Spin::Listener listener(server_ssl_context, 0, 4098);
 			listener.setNewConnectionHandler(handler);
 			Loki::ScopeGuard attachment_handler = Loki::MakeObjGuard(listener, &::Spin::Listener::clearNewConnectionHandler);
-			::Spin::Connection connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4098, true));
+			::Spin::Connection connection_out(::Spin::Connector::getInstance().connect(::Scorpion::Context(::Scorpion::Context::insecure_default_options__), "127.0.0.1", 4098));
 			::Spin::Connection accepted_connection(handler.getConnection());
 			connection_out.write("Hello, world!");
 			std::vector< char > buffer;

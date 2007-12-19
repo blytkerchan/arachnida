@@ -1,5 +1,7 @@
 #include "BakeryCounter.h"
-#include "atomicPrimitives.h"
+#include <Acari/atomicPrimitives.h>
+
+using namespace Acari;
 
 namespace Spin
 {

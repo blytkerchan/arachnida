@@ -1,5 +1,5 @@
 #include <Windows.h>
-#include "TLS.h"
+#include <Acari/TLS.h>
 
 BOOL __stdcall DllMain(HANDLE instance, DWORD treason, LPVOID reserved)
 {
@@ -45,7 +45,7 @@ BOOL __stdcall DllMain(HANDLE instance, DWORD treason, LPVOID reserved)
 		{ /* failed to initialize - nothing to clean up */ }
 		break;
 	case DLL_THREAD_DETACH :
-		Spin::Private::TLS::getInstance()._clean_();
+		Acari::TLS::getInstance()._clean_();
 		break;
 	default :
 		/* no-op */

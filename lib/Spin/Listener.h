@@ -3,11 +3,13 @@
 
 #include "Details/prologue.h"
 #include <boost/cstdint.hpp>
+#include <boost/scoped_ptr.hpp>
 #include "Connection.h"
 #include "Details/Address.h"
+#include <Scorpion/Context.h>
 
-typedef struct bio_st BIO;
 namespace boost { namespace filesystem { class path; } }
+namespace Scorpion { class BIO; }
 namespace Spin
 {
 	namespace Handlers
@@ -18,7 +20,7 @@ namespace Spin
 	{
 	public :
 		Listener(Details::Address local_address, boost::uint16_t local_port);
-		Listener(const boost::filesystem::path & server_cert_filename, Details::Address local_address, boost::uint16_t local_port);
+		Listener(const Scorpion::Context & security_context, Details::Address local_address, boost::uint16_t local_port);
 		~Listener();
 
 		Connection accept();
@@ -32,12 +34,13 @@ namespace Spin
 		Listener & operator=(const Listener&);
 
 		std::string constructLocalAddress_(Details::Address local_address, boost::uint16_t local_port);
-		BIO * createBIO_(const std::string & local_address);
-		BIO * createSSLBIO_(const boost::filesystem::path & server_cert_filename, const std::string & local_address);
+		Scorpion::BIO * createBIO_(const std::string & local_address);
+		Scorpion::BIO * createSSLBIO_(const std::string & local_address);
 
 		void onNewConnection_();
 
-		BIO * bio_;
+		Scorpion::Context security_context_;
+		boost::scoped_ptr< Scorpion::BIO > bio_;
 		Handlers::NewConnectionHandler * new_connection_handler_;
 	};
 }

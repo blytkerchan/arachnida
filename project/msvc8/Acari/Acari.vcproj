@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="Test_Spin"
-	ProjectGUID="{BE589F03-C422-4DA1-BF64-425D49F25E2A}"
-	RootNamespace="Test_Spin"
+	Name="Acari"
+	ProjectGUID="{81F90DEE-0D42-4326-B3C5-E065267E3C98}"
+	RootNamespace="Acari"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -19,7 +19,7 @@
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
+			ConfigurationType="2"
 			CharacterSet="1"
 			>
 			<Tool
@@ -41,7 +41,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="$(ProjectDir)..\..\..\lib"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;ACARI_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -62,10 +62,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="cppunitd.lib ACEd.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
-				SubSystem="1"
+				SubSystem="2"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -97,7 +96,7 @@
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
+			ConfigurationType="2"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -119,7 +118,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="$(ProjectDir)..\..\..\lib"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;ACARI_EXPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -138,10 +137,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="cppunit.lib ACE.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
-				SubSystem="1"
+				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="1"
@@ -175,56 +173,28 @@
 	<References>
 	</References>
 	<Files>
+		<Filter
+			Name="Details"
+			>
+			<File
+				RelativePath="..\..\..\lib\Acari\Details\prologue.h"
+				>
+			</File>
+		</Filter>
 		<File
-			RelativePath="..\..\..\tests\lib\Spin\BakeryCounter.cpp"
+			RelativePath="..\..\..\lib\Acari\atomicPrimitives.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\tests\lib\Spin\BakeryCounter.h"
+			RelativePath="..\..\..\lib\Acari\atomicPrimitives.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\tests\lib\Spin\Connection.cpp"
+			RelativePath="..\..\..\lib\Acari\TLS.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\tests\lib\Spin\Connection.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Connector.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Connector.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Listener.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Listener.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Logger.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Logger.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\main.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Pipe.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Pipe.h"
+			RelativePath="..\..\..\lib\Acari\TLS.h"
 			>
 		</File>
 	</Files>
