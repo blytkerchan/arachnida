@@ -11,7 +11,7 @@ int main()
 	::Spin::Handlers::HTTPRequestHandler request_handler;
 	::Spin::Handlers::HTTPConnectionHandler connection_handler(request_handler);
 	listener.setNewConnectionHandler(connection_handler);
-	Loki::ScopeGuard attachment_handler = Loki::MakeObjGuard(listener, &::Spin::Listener::clearNewConnectionHandler);
+	Loki::ScopeGuard attachment_guard = Loki::MakeObjGuard(listener, &::Spin::Listener::clearNewConnectionHandler);
 	while (1)
 	{
 		boost::shared_ptr< ::Spin::Details::Request > request(request_handler.getNextRequest());

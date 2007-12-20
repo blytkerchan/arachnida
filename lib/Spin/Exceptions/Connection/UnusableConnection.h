@@ -9,6 +9,7 @@ namespace Spin
 	{
 		namespace Connection
 		{
+			//! Thrown when a connection is used after it has declared itself unusable
 			struct UnusableConnection : std::logic_error
 			{
 				UnusableConnection() : std::logic_error("Connection no longer usable")

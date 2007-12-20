@@ -8,6 +8,7 @@ namespace Spin
 	class Connection;
 	namespace Handlers
 	{
+		//! Handler for when new data is ready on a connection
 		class SPIN_API NewDataHandler
 		{
 		public :
@@ -19,6 +20,7 @@ namespace Spin
 
 		protected :
 			virtual ~NewDataHandler();
+			//! Called when new data is ready.
 			virtual void onDataReady(Connection & connection) const = 0;
 		};
 	}

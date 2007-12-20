@@ -9,6 +9,7 @@ namespace Spin
 	{
 		namespace Connection
 		{
+			//! Thrown when the implementation failed to bind to a given port
 			struct BindFailure : public ConnectionError
 			{
 				BindFailure(int error_code)

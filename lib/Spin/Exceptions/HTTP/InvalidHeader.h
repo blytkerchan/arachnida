@@ -9,6 +9,7 @@ namespace Spin
 	{
 		namespace HTTP
 		{
+			//! Thrown when an invalid header is found in a request
 			struct InvalidHeader : public HTTPProtocolError
 			{
 				enum { max_header_size__ = 96 };

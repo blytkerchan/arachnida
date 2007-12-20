@@ -7,6 +7,7 @@ namespace Spin
 {
 	namespace Exceptions
 	{
+		//! Base class for all HTTP protocol related errors
 		struct HTTPProtocolError : std::runtime_error
 		{
 			HTTPProtocolError(const char * what)

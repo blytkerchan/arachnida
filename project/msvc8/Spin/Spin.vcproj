@@ -227,6 +227,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\lib\Spin\Details\documentation.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\lib\Spin\Details\prologue.h"
 				>
 			</File>

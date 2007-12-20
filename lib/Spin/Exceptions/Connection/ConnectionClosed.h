@@ -9,6 +9,7 @@ namespace Spin
 	{
 		namespace Connection
 		{
+			//! Thrown when a closed connection is used
 			struct ConnectionClosed : std::logic_error
 			{
 				ConnectionClosed() : std::logic_error("Connection closed")

@@ -9,6 +9,7 @@ namespace Spin
 	{
 		namespace HTTP
 		{
+			//! Thrown when an unknown request method is used by the client
 			struct UnknownMethod : public HTTPProtocolError
 			{
 				enum { max_protocol_size__ = 96 };

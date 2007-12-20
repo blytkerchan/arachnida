@@ -4,12 +4,12 @@
 #include "../Details/prologue.h"
 #include <memory>
 
-class ACE_SOCK_Stream;
 namespace Spin
 {
 	class Connection;
 	namespace Handlers
 	{
+		//! Base class for handlers of new connections.
 		class SPIN_API NewConnectionHandler
 		{
 		public :
@@ -22,6 +22,7 @@ namespace Spin
 			}
 
 		protected :
+			//! Called whenever a new connection is ready.
 			virtual void handleNewConnection(const Connection & connection) = 0;
 		};
 	}

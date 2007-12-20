@@ -7,6 +7,7 @@ namespace Spin
 {
 	namespace Exceptions
 	{
+		//! Thrown when something goes wrong with a socket
 		struct SocketError : std::runtime_error
 		{
 			enum { max_message_size__ = 64, max_function_size__ = 32 };

@@ -7,6 +7,7 @@ namespace Spin
 {
 	namespace Exceptions
 	{
+		//! Base class for various errors pertaining connections and sockets
 		struct ConnectionError : std::runtime_error
 		{
 			ConnectionError(const char * what)

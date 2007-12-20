@@ -9,6 +9,7 @@ namespace Spin
 	{
 		namespace Connection
 		{
+			//! Thrown when the implementation can't listen on a given socket
 			struct ListenFailure : public ConnectionError
 			{
 				ListenFailure(int error_code)
