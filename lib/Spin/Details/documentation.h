@@ -8,3 +8,24 @@
  * handled asynchronously and requests are put in the request handler, where the 
  * main thread will find them calling getNextRequest.
  * \include Mesothelae/main.cpp */
+
+//! The library's main namespace
+namespace Spin
+{
+	//! Implementation details you may need to know about
+	namespace Details
+	{ /* doc only */ }
+	//! Exceptions thrown by the library
+	namespace Exceptions
+	{
+		//! Connection-related exceptions
+		namespace Connection
+		{ /* doc only */ }
+		//! HTTP protocol exceptions
+		namespace HTTP
+		{ /* doc only */ }
+	}
+	//! Connection, data and request handlers and interfaces of such
+	namespace Handlers
+	{ /* doc only */ }
+}
