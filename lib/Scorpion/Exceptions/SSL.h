@@ -7,6 +7,8 @@ namespace Scorpion
 {
 	namespace Exceptions
 	{
+		/** Base class for SSL protocol errors. 
+		 * Takes care of getting the necessary information from the SSL error queue and formatting it (i.e., the information is already there) */
 		struct SSLProtocolError : std::runtime_error
 		{
 			SSLProtocolError(const char * what, int error_code, const char * filename, int line, const char * error_line_data, int error_line_data_flags)

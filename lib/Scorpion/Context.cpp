@@ -267,7 +267,10 @@ namespace Scorpion
 		/* Because we use a lazy allocation of the SSL context - we allocate it the first time 
 		 * someone asks for an actual context - we can implement a copy-on-write mechanism by 
 		 * simply dropping our own reference to the context whenever we write something.  */
-		ssl_context_.reset(new ::SSL_CTX *(0), freeSSLContext_);
+		if (*ssl_context_)
+			ssl_context_.reset(new ::SSL_CTX *(0), freeSSLContext_);
+		else
+		{ /* no need */ }
 	}
 
 	/*static */void Context::freeSSLContext_(::SSL_CTX ** ssl_context) throw()

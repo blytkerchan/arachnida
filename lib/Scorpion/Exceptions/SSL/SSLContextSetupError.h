@@ -7,6 +7,7 @@ namespace Scorpion
 	{
 		namespace SSL
 		{
+			//! Thrown when the implementation fails to set up the SSL context
 			struct SSLContextSetupError : public SSLProtocolError
 			{
 				SSLContextSetupError(int error_code, const char * filename, int line, const char * error_line_data, int error_line_data_flags)

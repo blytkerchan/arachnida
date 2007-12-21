@@ -7,6 +7,7 @@ namespace Scorpion
 	{
 		namespace SSL
 		{
+			//! Thrown when the accept socket could not be set up
 			struct AcceptSetupError : public SSLProtocolError
 			{
 				AcceptSetupError(int error_code, const char * filename, int line, const char * error_line_data, int error_line_data_flags)

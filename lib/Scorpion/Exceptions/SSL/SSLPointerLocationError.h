@@ -7,6 +7,7 @@ namespace Scorpion
 	{
 		namespace SSL
 		{
+			//! Throw when the implementation fails to obtain the SSL pointer from a BIO
 			struct SSLPointerLocationError : public SSLProtocolError
 			{
 				SSLPointerLocationError(int error_code, const char * filename, int line, const char * error_line_data, int error_line_data_flags)

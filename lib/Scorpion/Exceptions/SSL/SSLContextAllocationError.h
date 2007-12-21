@@ -7,6 +7,7 @@ namespace Scorpion
 	{
 		namespace SSL
 		{
+			//! Thrown when the application fails to allocate the SSL context (equivalent to a bad_alloc)
 			struct SSLContextAllocationError : public SSLProtocolError
 			{
 				SSLContextAllocationError(int error_code, const char * filename, int line, const char * error_line_data, int error_line_data_flags)
