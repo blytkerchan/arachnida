@@ -8,6 +8,13 @@
 
 namespace Acari
 {
+	/** A counter like you might find at your local bakery, but thread-safe and non-blocking.
+	 * This counter is implemented as an atomically updated 32-bit integer. Because it is 
+	 * atomically updated, it is pretty expensive though may not be quite as expensive as a 
+	 * lock on a similar kind of structure.
+	 *
+	 * The general use-case would be that the client increments the counter and takes a ticket,
+	 * whereas the baker will get a ticket and then increment the counter. */
 	class ACARI_API BakeryCounter
 	{
 	public :
