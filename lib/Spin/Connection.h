@@ -80,6 +80,9 @@ namespace Spin
 		 * or another, permanent error, an exception will be thrown. */
 		std::pair< std::size_t, int > write(const std::vector< char > & data);
 		std::pair< std::size_t, int > write(const std::string & data) { return write(std::vector< char >(data.begin(), data.end())); }
+		std::pair< std::size_t, int > write(const char * data) { return write(std::string(data)); }
+		template < typename T >
+		std::pair< std::size_t, int > write(const T & data) { return write(serialize(data)); }
 
 		/** Read data from the connection.
 		 * The read method will return the number of bytes read and

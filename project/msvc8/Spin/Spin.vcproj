@@ -231,11 +231,23 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\lib\Spin\Details\Header.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\lib\Spin\Details\prologue.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\..\lib\Spin\Details\Request.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Details\Response.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Details\Response.h"
 				>
 			</File>
 		</Filter>

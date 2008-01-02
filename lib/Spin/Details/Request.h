@@ -2,9 +2,10 @@
 #define _spin_details_request_h
 
 #include <string>
-#include <list>
 #include <vector>
 #include <utility>
+
+#include "Header.h"
 
 namespace Spin
 {
@@ -14,13 +15,8 @@ namespace Spin
 		//! An HTTP request.
 		struct Request
 		{
-			//! An HTTP header: a name-value pair
-			struct Header
-			{
-				std::string name_;	///< the name
-				std::string value_;	///< the value
-			};
-			typedef std::list< Header > HeaderFields;	///< the type of the list of header fields
+			typedef Header Header;				// for backward compatibility with version 1.0.00
+			typedef HeaderFields HeaderFields;	// for backward compatibility with version 1.0.00
 
 			/** Construct a new request with a connection.
 			 * \param connection the connection to use to respond to the request

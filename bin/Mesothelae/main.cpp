@@ -1,5 +1,6 @@
 #include <Spin/Listener.h>
 #include <Spin/Details/Request.h>
+#include <Spin/Details/Response.h>
 #include <Spin/Handlers/NewConnectionHandler.h>
 #include <Spin/Handlers/HTTPConnectionHandler.h>
 #include <Spin/Handlers/HTTPRequestHandler.h>
@@ -20,23 +21,25 @@ int main()
 		{
 			if (request->url_ == "/")
 				request->connection_.write(
-					"HTTP/1.1 302 Found\r\n"
-					"Content-Length: 0\r\n"
-					"Location: /index.html\r\n"
-					"\r\n"
-					);
+					Spin::Details::Response(request->protocol_and_version_, Spin::Details::Response::found__)
+						("Location", "/index.html")
+				);
 			else if (request->url_ == "/index.html")
 				request->connection_.write(
-					"HTTP/1.1 200 OK\r\n"
-					"Content-Length: 46\r\n"
-					"Content-Type: text/html\r\n"
-					"\r\n"
-					"<html><body><p>Hello, world!</p></body></html>"
-					);
+					Spin::Details::Response(request->protocol_and_version_, Spin::Details::Response::ok__)
+						("Content-Type", "text/html")
+						("<html><body><p>Hello, world!</p></body></html>")
+				);
+			else
+				request->connection_.write(
+					Spin::Details::Response(request->protocol_and_version_, Spin::Details::Response::not_found__)
+				);
 		}
 		else
 		{
-			request->connection_.write("HTTP/1.1 501 Not Implemented\r\n\r\n");
+			request->connection_.write(
+				Spin::Details::Response(request->protocol_and_version_, Spin::Details::Response::not_implemented__)
+			);
 		}
 	}
 }

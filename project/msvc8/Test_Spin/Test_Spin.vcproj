@@ -219,6 +219,14 @@
 			RelativePath="..\..\..\tests\lib\Spin\Pipe.h"
 			>
 		</File>
+		<File
+			RelativePath="..\..\..\tests\lib\Spin\Response.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\tests\lib\Spin\Response.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
