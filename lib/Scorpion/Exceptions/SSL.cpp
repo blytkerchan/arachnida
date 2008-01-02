@@ -9,7 +9,7 @@ namespace Scorpion
 {
 	namespace Exceptions
 	{
-		SSLProtocolError::~SSLProtocolError()
+		SSLProtocolError::~SSLProtocolError() throw()
 		{
 			delete[] what_;
 			if (error_line_data_ && (error_line_data_flags_ & ERR_TXT_MALLOCED))

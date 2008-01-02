@@ -130,8 +130,10 @@ namespace Spin
 #if HAVE_BOOST_THREADID && HAVE_BOOST_THIS_THREAD
 				/* hypothetical code */
 				if (worker_thread_id_ != boost::this_thread::get_id())
-#else
+#elif defined(ON_WINDOZE)
 				if (worker_thread_id_ != GetCurrentThreadId())
+#else
+				if (pthread_equal(pthread_self(), worker_thread_id_) == 0)
 #endif
 				do 
 				{
@@ -169,8 +171,10 @@ namespace Spin
 #if HAVE_BOOST_THREADID && HAVE_BOOST_THIS_THREAD
 			/* hypothetical code */
 			worker_thread_id_ = boost::this_thread::get_id();
-#else
+#elif defined(ON_WINDOZE)
 			worker_thread_id_ = GetCurrentThreadId();
+#else
+			worker_thread_id_ = pthread_self();
 #endif
 
 			while (!done_)

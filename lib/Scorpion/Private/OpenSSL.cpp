@@ -23,6 +23,9 @@ extern "C" {
 #include <Acari/ThreadLocalStorage.h>
 #include <Acari/atomicPrimitives.h>
 
+#ifndef SCORPION_USE_DEV_RANDOM
+#define SCORPION_USE_DEV_RANDOM 0
+#endif
 #ifndef SCORPION_DEFAULT_PRNG_SEED_SIZE
 #define SCORPION_DEFAULT_PRNG_SEED_SIZE 255
 #endif
@@ -181,7 +184,7 @@ namespace Scorpion
 
 			static void seedPRNG()
 			{
-				if (::RAND_load_file("/dev/random", SCORPION_DEFAULT_PRNG_SEED_SIZE) == SCORPION_DEFAULT_PRNG_SEED_SIZE) return;
+				if (SCORPION_USE_DEV_RANDOM && ::RAND_load_file("/dev/random", SCORPION_DEFAULT_PRNG_SEED_SIZE) == SCORPION_DEFAULT_PRNG_SEED_SIZE) return;
 				if (::RAND_load_file("/dev/urandom", SCORPION_DEFAULT_PRNG_SEED_SIZE) == SCORPION_DEFAULT_PRNG_SEED_SIZE) return;
 				// try using EGD
 				const char * names[] = { SCORPION_DEFAULT_EGD_DEVNAMES, 0 };
@@ -189,7 +192,9 @@ namespace Scorpion
 				{
 					if (::RAND_egd_bytes(names[i], SCORPION_DEFAULT_PRNG_SEED_SIZE) == SCORPION_DEFAULT_PRNG_SEED_SIZE) return;
 				}
+#if defined(_WIN32) && ! defined(__CYGWIN__)
 				::RAND_screen();
+#endif
 			}
 	
 			Locks_ locks_;

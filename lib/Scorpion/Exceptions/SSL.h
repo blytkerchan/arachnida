@@ -34,7 +34,7 @@ namespace Scorpion
 				e.error_line_data_ = 0;
 			}
 
-			~SSLProtocolError();
+			~SSLProtocolError() throw();
 
 			SSLProtocolError & operator=(SSLProtocolError e)
 			{

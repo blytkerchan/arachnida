@@ -24,7 +24,7 @@ namespace Spin
 		//! Create a connection, connecting to the given remote address and port
 		Connection connect(const std::string & remote_address, boost::uint16_t port);
 		//! Create a secured connection, connecting to the given remote address and port
-		Connection connect(Scorpion::Context & context, const std::string & remote_address, boost::uint16_t port);
+		Connection connect(const Scorpion::Context & context, const std::string & remote_address, boost::uint16_t port);
 
 	private :
 		// Neither CopyConstructible nor Assignable
@@ -34,7 +34,7 @@ namespace Spin
 		Connector();
 		~Connector();
 
-		Scorpion::BIO * connectSSL_(Scorpion::Context & context, const std::string & target);
+		Scorpion::BIO * connectSSL_(const Scorpion::Context & context, const std::string & target);
 		Scorpion::BIO * connect_(const std::string & target);
 	};
 }

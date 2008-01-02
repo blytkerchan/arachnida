@@ -106,10 +106,10 @@ namespace Spin
 		 *
 		 * Internally, the attributes are also used by the library (so don't simply pick an
 		 * integer value at random and use it!) */
-		static unsigned long Connection::allocateAttribute();
+		static unsigned long allocateAttribute();
 		/** Get an attribute with a previously allocated identifier, obtained from allocateAttribute.
 		 * The attribute returned will be a newly allocated boost::any by default */
-		boost::any & Connection::getAttribute(unsigned long index);
+		boost::any & getAttribute(unsigned long index);
 
 		/** Set a new data handler, which will be called whenever data is ready on the connection.
 		 * This allows for asynchronous handling of new data. Behind the scenes, a separate thread
@@ -137,7 +137,7 @@ namespace Spin
 		std::vector< boost::any > attributes_;
 		mutable int status_;
 
-		static unsigned long next_attribute_index__;
+		static volatile boost::uint32_t next_attribute_index__;
 
 		friend class Connector; // for construction
 		friend class Listener; // for construction

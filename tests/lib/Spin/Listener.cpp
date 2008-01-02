@@ -225,7 +225,7 @@ namespace Tests
 			CPPUNIT_ASSERT(request->protocol_and_version_ == "HTTP/1.1");
 			CPPUNIT_ASSERT(request->body_.empty());
 			CPPUNIT_ASSERT(request->header_fields_.size() == 7);
-			::Spin::Details::Request::HeaderFields::const_iterator where(request->header_fields_.begin());
+			::Spin::Details::HeaderFields::const_iterator where(request->header_fields_.begin());
 			CPPUNIT_ASSERT(where->name_ == "User-Agent");
 			CPPUNIT_ASSERT(where->value_ == "test");
 			++where;
@@ -277,7 +277,7 @@ namespace Tests
 			CPPUNIT_ASSERT(request->protocol_and_version_ == "HTTP/1.1");
 			CPPUNIT_ASSERT(request->body_.empty());
 			CPPUNIT_ASSERT(request->header_fields_.size() == 7);
-			::Spin::Details::Request::HeaderFields::const_iterator where(request->header_fields_.begin());
+			::Spin::Details::HeaderFields::const_iterator where(request->header_fields_.begin());
 			CPPUNIT_ASSERT(where->name_ == "User-Agent");
 			CPPUNIT_ASSERT(where->value_ == "test");
 			++where;
@@ -330,7 +330,7 @@ namespace Tests
 			CPPUNIT_ASSERT(request->protocol_and_version_ == "HTTP/1.1");
 			CPPUNIT_ASSERT(request->body_.empty());
 			CPPUNIT_ASSERT(request->header_fields_.size() == 7);
-			::Spin::Details::Request::HeaderFields::const_iterator where(request->header_fields_.begin());
+			::Spin::Details::HeaderFields::const_iterator where(request->header_fields_.begin());
 			CPPUNIT_ASSERT(where->name_ == "User-Agent");
 			CPPUNIT_ASSERT(where->value_ == "test");
 			++where;
@@ -383,7 +383,7 @@ namespace Tests
 			CPPUNIT_ASSERT(request->protocol_and_version_ == "HTTP/1.1");
 			CPPUNIT_ASSERT(request->body_.empty());
 			CPPUNIT_ASSERT(request->header_fields_.size() == 7);
-			::Spin::Details::Request::HeaderFields::const_iterator where(request->header_fields_.begin());
+			::Spin::Details::HeaderFields::const_iterator where(request->header_fields_.begin());
 			CPPUNIT_ASSERT(where->name_ == "User-Agent");
 			CPPUNIT_ASSERT(where->value_ == "test");
 			++where;
@@ -436,7 +436,7 @@ namespace Tests
 			CPPUNIT_ASSERT(request->protocol_and_version_ == "HTTP/1.1");
 			CPPUNIT_ASSERT(request->body_.empty());
 			CPPUNIT_ASSERT(request->header_fields_.size() == 7);
-			::Spin::Details::Request::HeaderFields::const_iterator where(request->header_fields_.begin());
+			::Spin::Details::HeaderFields::const_iterator where(request->header_fields_.begin());
 			CPPUNIT_ASSERT(where->name_ == "User-Agent");
 			CPPUNIT_ASSERT(where->value_ == "test");
 			++where;
@@ -489,7 +489,7 @@ namespace Tests
 			CPPUNIT_ASSERT(request->protocol_and_version_ == "HTTP/1.1");
 			CPPUNIT_ASSERT(request->body_.empty());
 			CPPUNIT_ASSERT(request->header_fields_.size() == 7);
-			::Spin::Details::Request::HeaderFields::const_iterator where(request->header_fields_.begin());
+			::Spin::Details::HeaderFields::const_iterator where(request->header_fields_.begin());
 			CPPUNIT_ASSERT(where->name_ == "User-Agent");
 			CPPUNIT_ASSERT(where->value_ == "test");
 			++where;
@@ -543,7 +543,7 @@ namespace Tests
 			CPPUNIT_ASSERT(request->protocol_and_version_ == "HTTP/1.1");
 			CPPUNIT_ASSERT(request->body_.empty());
 			CPPUNIT_ASSERT(request->header_fields_.size() == 7);
-			::Spin::Details::Request::HeaderFields::const_iterator where(request->header_fields_.begin());
+			::Spin::Details::HeaderFields::const_iterator where(request->header_fields_.begin());
 			CPPUNIT_ASSERT(where->name_ == "User-Agent");
 			CPPUNIT_ASSERT(where->value_ == "test");
 			++where;
@@ -605,7 +605,7 @@ namespace Tests
 			CPPUNIT_ASSERT(request->protocol_and_version_ == "HTTP/1.1");
 			CPPUNIT_ASSERT(request->body_.empty());
 			CPPUNIT_ASSERT(request->header_fields_.size() == 7);
-			::Spin::Details::Request::HeaderFields::const_iterator where(request->header_fields_.begin());
+			::Spin::Details::HeaderFields::const_iterator where(request->header_fields_.begin());
 			CPPUNIT_ASSERT(where->name_ == "User-Agent");
 			CPPUNIT_ASSERT(where->value_ == "test");
 			++where;
@@ -663,7 +663,7 @@ namespace Tests
 			CPPUNIT_ASSERT(request->url_ == "/index.html");
 			CPPUNIT_ASSERT(request->protocol_and_version_ == "HTTP/1.1");
 			CPPUNIT_ASSERT(request->header_fields_.size() == 8);
-			::Spin::Details::Request::HeaderFields::const_iterator where(request->header_fields_.begin());
+			::Spin::Details::HeaderFields::const_iterator where(request->header_fields_.begin());
 			CPPUNIT_ASSERT(where->name_ == "User-Agent");
 			CPPUNIT_ASSERT(where->value_ == "test");
 			++where;

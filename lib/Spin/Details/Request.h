@@ -15,9 +15,6 @@ namespace Spin
 		//! An HTTP request.
 		struct Request
 		{
-			typedef Header Header;				// for backward compatibility with version 1.0.00
-			typedef HeaderFields HeaderFields;	// for backward compatibility with version 1.0.00
-
 			/** Construct a new request with a connection.
 			 * \param connection the connection to use to respond to the request
 			 * \param method the method of the request, as supplied by the client

@@ -1,7 +1,11 @@
 #include "../Connection.h"
 #include <cassert>
 #include <cstring>
+#if defined(_WIN32) && ! defined(__CYGWIN__)
 #include <Windows.h>
+#else
+#include <cerrno>
+#endif
 
 namespace Spin
 {
@@ -39,6 +43,7 @@ namespace Spin
 						std::size_t error_text_size(0);
 						switch (error_code_)
 						{
+#if defined(_WIN32) && ! defined(__CYGWIN__)
 						CASE_ERROR_MESSAGE(WSANOTINITIALISED, "A successful WSAStartup call must occur before using this function.");
 						CASE_ERROR_MESSAGE(WSAENETDOWN, "The network subsystem has failed.");
 						CASE_ERROR_MESSAGE(WSAEADDRINUSE, "The socket's local address is already in use and the socket was not marked to allow address reuse with SO_REUSEADDR. This error usually occurs during execution of the bind function, but could be delayed until this function if the bind was to a partially wildcard address (involving ADDR_ANY) and if a specific address needs to be committed at the time of this function.");
@@ -49,6 +54,15 @@ namespace Spin
 						CASE_ERROR_MESSAGE(WSAENOBUFS, "No buffer space is available.");
 						CASE_ERROR_MESSAGE(WSAENOTSOCK, "The descriptor is not a socket.");
 						CASE_ERROR_MESSAGE(WSAEOPNOTSUPP, "The referenced socket is not of a type that supports the listen operation.");
+#else
+						CASE_ERROR_MESSAGE(EBADF, "The socket argument is not a valid file descriptor.");
+						CASE_ERROR_MESSAGE(EDESTADDRREQ, "The socket is not bound to a local address, and the protocol does not support listening on an unbound socket.");
+						CASE_ERROR_MESSAGE(EINVAL, "The socket is either already connected or has been shut down.");
+						CASE_ERROR_MESSAGE(ENOTSOCK, "The socket argument does not refer to a socket.");
+						CASE_ERROR_MESSAGE(EOPNOTSUPP, "The socket protocol does not support listen().");
+						CASE_ERROR_MESSAGE(EACCES, "The calling process does not have the appropriate privileges.");
+						CASE_ERROR_MESSAGE(ENOBUFS, "Insufficient resources are available in the system to complete the call.");
+#endif
 						CASE_DEFAULT_ERROR_MESSAGE("Unknown error.");
 						}
 

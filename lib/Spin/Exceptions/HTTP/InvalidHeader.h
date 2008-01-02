@@ -2,6 +2,7 @@
 #define _spin_exceptions_http_invalidheader_h
 
 #include <algorithm>
+#include <iterator>
 
 namespace Spin
 {
@@ -22,7 +23,7 @@ namespace Spin
 					if (std::distance(begin, where) > max_header_size__)
 					{
 						where = begin;
-						std::advance(where, max_header_size__);
+						std::advance(where, static_cast< typename std::iterator_traits< Iterator >::difference_type >(max_header_size__));
 					}
 					else
 					{ /* all is well */ }
@@ -37,7 +38,7 @@ namespace Spin
 					e.what_ = 0;
 				}
 
-				~InvalidHeader()
+				~InvalidHeader() throw()
 				{
 					delete[] what_; // Assuming what_ was created with new[]
 				}

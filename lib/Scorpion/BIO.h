@@ -67,7 +67,7 @@ namespace Scorpion
 	//! create a BIO than can accept connections and has SSL support
 	SCORPION_API BIO * createSSLAcceptBIO(const std::string & local_address, Context & context, int flags);
 	//! connect using SSL
-	SCORPION_API BIO * connect(Context & context, const std::string & peer_address);
+	SCORPION_API BIO * connect(const Context & context, const std::string & peer_address);
 	//! connect without using SSL
 	SCORPION_API BIO * connect(const std::string & peer_address);
 }

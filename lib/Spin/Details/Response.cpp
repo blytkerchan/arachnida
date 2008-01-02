@@ -123,7 +123,7 @@ namespace Spin
 			  reason_string_(reason_string)
 		{ /* no-op */ }
 
-		std::vector< char > serialize(const Response & response)
+		namespace
 		{
 			struct HeaderAppender
 			{
@@ -146,7 +146,10 @@ namespace Spin
 
 				std::string & headers_;
 			};
+		}
 
+		std::vector< char > serialize(const Response & response)
+		{
 			using namespace boost::lambda;
 			HeaderFields header_fields(response.header_fields_);
 			if (std::find_if(header_fields.begin(), header_fields.end(), bind(&Header::name_, _1) == "Content-Length") == header_fields.end())

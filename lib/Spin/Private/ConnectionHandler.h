@@ -9,6 +9,7 @@
 #include <Acari/BakeryCounter.h>
 #include "Pipe.h"
 
+
 namespace boost
 {
 	class thread;
@@ -51,8 +52,10 @@ namespace Spin
 #if HAVE_BOOST_THREADID && HAVE_BOOST_THIS_THREAD
 			/* hypothetical code */
 			boost::thread::id worker_thread_id_;
-#else
+#elif defined(_WIN32) && ! defined(__CYGWIN__)
 			unsigned int worker_thread_id_;
+#else
+			pthread_t worker_thread_id_;
 #endif
 		};
 	}

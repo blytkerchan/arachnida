@@ -2,7 +2,14 @@
 #include <stdexcept>
 #include <cassert>
 #include <climits>
+#if defined(_WIN32) && ! defined(__CYGWIN__)
 #include <Windows.h>
+#else
+extern "C" {
+#include <sys/socket.h>
+#include <netinet/in.h>
+}
+#endif
 #include <boost/bind.hpp>
 #include <Acari/atomicPrimitives.h>
 #include <Scorpion/BIO.h>
@@ -12,7 +19,7 @@
 
 namespace Spin
 {
-	/*static */unsigned long Connection::next_attribute_index__(0);
+	/*static */volatile boost::uint32_t Connection::next_attribute_index__(0);
 
 	Connection::Connection(const Connection & connection)
 		: bio_(connection.bio_),
@@ -182,7 +189,7 @@ read_entry_point:
 		{ /* carry on */ }
 		int socket_fd(bio_->getFD());
 		::sockaddr_in peer_addr;
-		int peer_addr_size(sizeof(peer_addr));
+		socklen_t peer_addr_size(sizeof(peer_addr));
 		::getpeername(socket_fd, (::sockaddr*)&peer_addr, &peer_addr_size);
 		return Details::Address(peer_addr.sin_addr.s_addr);
 	}

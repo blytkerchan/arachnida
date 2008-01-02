@@ -23,7 +23,7 @@ namespace Spin
 		return Connection(bio);
 	}
 
-	Connection Connector::connect(Scorpion::Context & context, const std::string & remote_address, boost::uint16_t port)
+	Connection Connector::connect(const Scorpion::Context & context, const std::string & remote_address, boost::uint16_t port)
 	{
 		boost::format fmt("%1%:%2%");
 		fmt % remote_address % port;
@@ -37,7 +37,7 @@ namespace Spin
 	Connector::~Connector()
 	{ /* no-op */ }
 
-	Scorpion::BIO * Connector::connectSSL_(Scorpion::Context & context, const std::string & target)
+	Scorpion::BIO * Connector::connectSSL_(const Scorpion::Context & context, const std::string & target)
 	{
 		return Scorpion::connect(context, target);
 	}

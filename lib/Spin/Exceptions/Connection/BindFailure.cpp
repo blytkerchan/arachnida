@@ -1,7 +1,11 @@
 #include "../Connection.h"
 #include <cassert>
 #include <cstring>
+#if defined(_WIN32) && ! defined(__CYGWIN__)
 #include <Windows.h>
+#else
+#include <cerrno>
+#endif
 
 namespace Spin
 {
@@ -39,6 +43,7 @@ namespace Spin
 						std::size_t error_text_size(0);
 						switch (error_code_)
 						{
+#if defined(_WIN32) && ! defined(__CYGWIN__)
 						CASE_ERROR_MESSAGE(WSANOTINITIALISED, "A successful WSAStartup call must occur before using this function.");
 						CASE_ERROR_MESSAGE(WSAENETDOWN, "The network subsystem has failed.");
 						CASE_ERROR_MESSAGE(WSAEACCES, "Attempt to connect datagram socket to broadcast address failed because setsockopt option SO_BROADCAST is not enabled.");
@@ -49,6 +54,20 @@ namespace Spin
 						CASE_ERROR_MESSAGE(WSAEINVAL, "The socket is already bound to an address.");
 						CASE_ERROR_MESSAGE(WSAENOBUFS, "Not enough buffers available, too many connections.");
 						CASE_ERROR_MESSAGE(WSAENOTSOCK, "The descriptor is not a socket.");
+#else
+						CASE_ERROR_MESSAGE(EADDRINUSE, "The specified address is already in use.");
+						CASE_ERROR_MESSAGE(EADDRNOTAVAIL, "The specified address is not available from the local machine.");
+						CASE_ERROR_MESSAGE(EAFNOSUPPORT, "The specified address is not a valid address for the address family of the specified socket.");
+						CASE_ERROR_MESSAGE(EBADF, "The socket argument is not a valid file descriptor.");
+						CASE_ERROR_MESSAGE(EINVAL, "The socket is already bound to an address, and the protocol does not support binding to a new address; or the socket has been shut down.");
+						CASE_ERROR_MESSAGE(ENOTSOCK, "The socket argument does not refer to a socket.");
+						CASE_ERROR_MESSAGE(EOPNOTSUPP, "The socket type of the specified socket does not support binding to an address.");
+						CASE_ERROR_MESSAGE(EACCES, "The specified address is protected and the current user does not have permission to bind to it.");
+						CASE_ERROR_MESSAGE(EISCONN, "The socket is already connected.");
+						CASE_ERROR_MESSAGE(ELOOP, "More than {SYMLOOP_MAX} symbolic links were encountered during resolution of the pathname in address.");
+						CASE_ERROR_MESSAGE(ENAMETOOLONG, "Pathname resolution of a symbolic link produced an intermediate result whose length exceeds {PATH_MAX}.");
+						CASE_ERROR_MESSAGE(ENOBUFS, "Insufficient resources were available to complete the call.");
+#endif
 						CASE_DEFAULT_ERROR_MESSAGE("Unknown error.");
 						}
 

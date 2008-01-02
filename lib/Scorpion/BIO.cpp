@@ -138,7 +138,7 @@ namespace Scorpion
 		return retval.release();
 	}
 
-	BIO * connect(Context & context, const std::string & peer_address)
+	BIO * connect(const Context & context, const std::string & peer_address)
 	{
 		std::auto_ptr< ConnectionBIO > retval(new ConnectionBIO);
 

@@ -22,7 +22,7 @@ namespace Spin
 					error_code_(e.error_code_)
 				{ /* no-op */ }
 
-				~ListenFailure()
+				~ListenFailure() throw()
 				{
 					delete[] what_; // Assuming what_ was created with new[]
 				}

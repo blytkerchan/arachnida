@@ -9,6 +9,7 @@
 #define ON_WINDOZE
 #else
 #include <cerrno>
+#define WSAGetLastError() errno
 extern "C" {
 #include <sys/time.h>
 #include <sys/types.h>

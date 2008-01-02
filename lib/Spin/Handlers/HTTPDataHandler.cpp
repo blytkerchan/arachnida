@@ -277,7 +277,7 @@ after_connection_attributes_are_got:
 					whence = findHeaderEnd(where, buffer.end());
 					if (where != whence)
 					{
-						Details::Request::Header header;
+						Details::Header header;
 						boost::tie(header.name_, header.value_) = splitHeader(where, whence);
 						request->header_fields_.push_back(header);
 						where = whence;
@@ -303,8 +303,8 @@ after_connection_attributes_are_got:
 				/* When we get here, we don't know whether the request has a body.
 				 * If it does, there is a Content-Length header among the headers
 				 * that will contain the size of the body. */
-				Details::Request::HeaderFields::const_iterator curr(request->header_fields_.begin());
-				Details::Request::HeaderFields::const_iterator end(request->header_fields_.end());
+				Details::HeaderFields::const_iterator curr(request->header_fields_.begin());
+				Details::HeaderFields::const_iterator end(request->header_fields_.end());
 				while (curr != end && curr->name_ != "Content-Length") ++curr;
 				bool complete_body_found(false);
 				if (curr != end)

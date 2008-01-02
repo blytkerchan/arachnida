@@ -2,7 +2,11 @@
 #include <cassert>
 #include <cstring>
 #include <boost/format.hpp>
+#if defined(_WIN32) && ! defined(__CYGWIN__)
 #include <Windows.h>
+#else
+#include <cerrno>
+#endif
 
 namespace Spin
 {
@@ -47,6 +51,7 @@ namespace Spin
 					const char * error_text(0);
 					switch (error_code_)
 					{
+#if defined(_WIN32) && ! defined(__CYGWIN__)
 						CASE_ERROR_MESSAGE(WSAEACCES, "The requested address is a broadcast address, but the appropriate flag was not set. Call setsockopt with the SO_BROADCAST socket option to enable use of the broadcast address.");
 						CASE_ERROR_MESSAGE(WSAEADDRINUSE, "A process on the computer is already bound to the same fully-qualified address and the socket has not been marked to allow address reuse with SO_REUSEADDR. For example, the IP address and port are bound in the af_inet case). (See the SO_REUSEADDR socket option under setsockopt.)");
 						CASE_ERROR_MESSAGE(WSAEADDRNOTAVAIL, "The specified address is not a valid address for this computer.");
@@ -68,6 +73,16 @@ namespace Spin
 						CASE_ERROR_MESSAGE(WSAETIMEDOUT, "The connection has been dropped, because of a network failure or because the system on the other end went down without notice.");
 						CASE_ERROR_MESSAGE(WSAEWOULDBLOCK, "The socket is marked as nonblocking and the requested operation would block.");
 						CASE_ERROR_MESSAGE(WSANOTINITIALISED, "A successful WSAStartup call must occur before using this function.");
+#else
+						CASE_ERROR_MESSAGE(EAFNOSUPPORT, "The implementation does not support the specified address family.");
+						CASE_ERROR_MESSAGE(EMFILE, "No more file descriptors are available for this process.");
+						CASE_ERROR_MESSAGE(ENFILE, "No more file descriptors are available for the system.");
+						CASE_ERROR_MESSAGE(EPROTONOSUPPORT, "The protocol is not supported by the address family, or the protocol is not supported by the implementation.");
+						CASE_ERROR_MESSAGE(EPROTOTYPE, "The socket type is not supported by the protocol.");
+						CASE_ERROR_MESSAGE(EACCES, "The process does not have appropriate privileges.");
+						CASE_ERROR_MESSAGE(ENOBUFS, "Insufficient resources were available in the system to perform the operation.");
+						CASE_ERROR_MESSAGE(ENOMEM, "Insufficient memory was available to fulfill the request.");
+#endif
 						CASE_DEFAULT_ERROR_MESSAGE("Unknown error.");
 					}
 
