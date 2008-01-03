@@ -10,6 +10,38 @@ namespace Spin
 {
 	namespace Details
 	{
+		/** An HTTP response.
+		 * This little structure encapsulates everything there is to know about an
+		 * HTTP response and allows you to easily add stuff to it. It overloads the
+		 * function call operator allowing you to easily add headers to the response,
+		 * like so:
+		 * \dontinclude Response.cpp 
+		 * \skip tryResponseWithHeaders
+		 * \skip ::Response
+		 * \until response
+		 * \until response
+		 * The same mechanism also allows you to add a body, by calling the object as 
+		 * a function with only a single argument:
+		 * \skip tryResponseWithBody
+		 * \skip ::Response
+		 * \until response
+		 * \until response
+		 * It even allows to to add anything serializable to the response, including 
+		 * another response (or even the response itself):
+		 * \skip tryResponseWithResponse
+		 * \skip ::Response
+		 * \until response
+		 * \until response
+		 * and, as you can see in this last example, the function call operator returns
+		 * a reference to the response object itself, which means you can chain function
+		 * calls together.
+		 *
+		 * Formatted a bit differently, the Mesothelae test server uses this feature
+		 * (as of version 1.1.00) as follows:
+		 * \dontinclude bin/Mesothelae/main.cpp
+		 * \skip protocol_and_version_
+		 * \until index.html
+		 */
 		struct SPIN_API Response
 		{
 			enum StatusCode
@@ -57,12 +89,28 @@ namespace Spin
 				_upper_bound__ = 506
 			};
 
+			/** Construct an empty response with the given protocol-and-version 
+			 * (normally the one used for the request, should be HTTP/1.0 or 
+			 * HTTP/1.1) and the given status code. */
 			Response(const std::string & protocol_and_version, StatusCode status_code);
+			/** Construct an empty response with the given protocol-and-version 
+			 * (normally the one used for the request, should be HTTP/1.0 or 
+			 * HTTP/1.1), the given status code and reason string. 
+			 * You'll normally only need this constructor if the status code is
+			 * not standard. In that case, know that 100-base status codes are
+			 * for when the server/client connection should change state or there
+			 * is something either party should do (such as: continue the query); 
+			 * 200-base status codes are for when all is OK, 300-base codes are
+			 * for when it's OK but not quite what the client may have expected;
+			 * 400-base codes are for client-side errors and 500-base codes are
+			 * for server-side errors. */
 			Response(const std::string & protocol_and_version, int status_code, const std::string & reason_string);
 
+			/** Add a header to the response. */
 			void addHeader(const std::string & name, const std::string & value) { header_fields_.push_back(Header(name, value)); }
 			Response & operator()(const std::string & name, const std::string & value) { addHeader(name, value); return *this; }
 
+			/** Set the body of the response */
 			void setBody(const std::vector< char > & body) { body_ = body; }
 			Response & operator()(const std::vector< char > & body) { setBody(body); return *this; }
 			Response & operator()(const std::string & body) { setBody(std::vector< char >(body.begin(), body.end())); return *this; }
