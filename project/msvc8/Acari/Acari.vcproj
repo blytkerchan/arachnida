@@ -198,6 +198,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\lib\Acari\ParsingHelpers.hpp"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\lib\Acari\ThreadLocalStorage.cpp"
 			>
 		</File>
