@@ -155,7 +155,7 @@ namespace Spin
 			}
 
 			template < typename Iterator, typename Method >
-			std::pair< boost::shared_ptr< Details::Request >, Iterator > extractHeader(Connection & connection, const std::map< std::string, Method > & supported_methods, Iterator curr, const Iterator & end)
+			std::pair< boost::shared_ptr< Details::Request >, Iterator > extractHeader(boost::shared_ptr< Connection > connection, const std::map< std::string, Method > & supported_methods, Iterator curr, const Iterator & end)
 			{
 				Iterator begin(curr);
 				/* The first line of an HTTP request consists of the method, the URL of 
@@ -216,13 +216,13 @@ namespace Spin
 			boost::call_once(initStaticMembers, once_flag__);
 		}
 
-		/*virtual */void HTTPDataHandler::onDataReady(Connection & connection) const
+		/*virtual */void HTTPDataHandler::onDataReady(boost::shared_ptr< Connection > connection) const
 		{
 			// get any pending data from the connection
 			std::vector< char > buffer;
 			std::size_t bytes_read;
 			int reason;
-			boost::tie( bytes_read, reason ) = connection.read(buffer);
+			boost::tie( bytes_read, reason ) = connection->read(buffer);
 			buffer.resize(bytes_read);
 
 			/* Regardless of whether we have all the data pending on the 
@@ -230,7 +230,7 @@ namespace Spin
 			 * case, buffer now contains anything we have. */
 			/* If the connection has an attribute, it's the request with any data
 			 * that was left over from the last time. */
-			boost::any & connection_attribute(connection.getAttribute(attribute_index__));
+			boost::any & connection_attribute(connection->getAttribute(attribute_index__));
 			boost::shared_ptr< Details::Request > request;
 			std::vector< char >::iterator where;
 			bool end_of_headers_found(false);

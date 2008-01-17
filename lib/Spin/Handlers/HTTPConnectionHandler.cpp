@@ -1,6 +1,7 @@
 #include "HTTPConnectionHandler.h"
+#include <list>
 #include <boost/bind.hpp>
-#include <boost/ptr_container/ptr_list.hpp>
+#include <boost/lambda/bind.hpp>
 #include <boost/lambda/lambda.hpp>
 #include "HTTPDataHandler.h"
 #include "../Connection.h"
@@ -12,6 +13,23 @@ namespace Spin
 	{
 		namespace
 		{
+			template < typename T >
+			struct Is_
+			{
+				Is_(T t) : t_(t) {}
+
+				bool operator()(T t) { return t_ == t; }
+				template < typename Y > bool operator()(Y y) { return y.get() == t_; }
+
+				T t_;
+			};
+
+			template < typename T >
+			Is_<T> is(T t)
+			{
+				return Is_< T >(t);
+			}
+
 			template < typename Container >
 			struct ErrorHandler
 			{
@@ -21,7 +39,17 @@ namespace Spin
 
 				void operator()(Connection * connection) const
 				{
-					container_.erase_if(&boost::lambda::_1 == connection);
+					Container::iterator where(
+						std::find_if(
+							container_.begin(),
+							container_.end(),
+							is(connection)
+							)
+						);
+					if (where != container_.end())
+						container_.erase(where);
+					else
+					{ /* not found */ }
 				}
 
 				Container & container_;
@@ -30,7 +58,7 @@ namespace Spin
 
 		struct HTTPConnectionHandler::Data
 		{
-			typedef boost::ptr_list< Connection > Connections_;
+			typedef std::list< boost::shared_ptr< Connection > > Connections_;
 
 			Data(HTTPRequestHandler & request_handler)
 				: data_handler_(request_handler)
@@ -87,9 +115,9 @@ namespace Spin
 			 * Note that the data handler can handle only one connection, 
 			 * because the connection handler won't tell it which connection
 			 * is ready to receive data. */
-			std::auto_ptr< Connection > connection_p(new Connection(connection));
+			boost::shared_ptr< Connection > connection_p(new Connection(connection));
 			connection_p->setNewDataHandler(data_->data_handler_, boost::bind<void>(ErrorHandler< Data::Connections_ >(data_->connections_), connection_p.get()));
-			data_->connections_.push_back(connection_p.release());
+			data_->connections_.push_back(connection_p);
 		}
 
 		/*virtual */bool HTTPConnectionHandler::validate(const Details::Address & peer_address)
