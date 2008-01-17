@@ -41,7 +41,7 @@ namespace Spin
 				void operator()(Connection * connection) const
 				{
 					boost::recursive_mutex::scoped_lock lock(lock_);
-					Container::iterator where(
+					typename Container::iterator where(
 						std::find_if(
 							container_.begin(),
 							container_.end(),
