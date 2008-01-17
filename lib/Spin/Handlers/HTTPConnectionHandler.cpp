@@ -1,7 +1,7 @@
 #include "HTTPConnectionHandler.h"
 #include <list>
 #include <boost/bind.hpp>
-#include <boost/lambda/bind.hpp>
+#include <boost/thread/recursive_mutex.hpp>
 #include <boost/lambda/lambda.hpp>
 #include "HTTPDataHandler.h"
 #include "../Connection.h"
@@ -33,12 +33,14 @@ namespace Spin
 			template < typename Container >
 			struct ErrorHandler
 			{
-				ErrorHandler(Container & container)
-					: container_(container)
-				{}
+				ErrorHandler(Container & container, boost::recursive_mutex & lock)
+					: container_(container),
+					  lock_(lock)
+				{ /* no-op */ }
 
 				void operator()(Connection * connection) const
 				{
+					boost::recursive_mutex::scoped_lock lock(lock_);
 					Container::iterator where(
 						std::find_if(
 							container_.begin(),
@@ -53,6 +55,7 @@ namespace Spin
 				}
 
 				Container & container_;
+				boost::recursive_mutex & lock_;
 			};
 		}
 
@@ -73,6 +76,7 @@ namespace Spin
 			 * language semantics does that for us. */
 			HTTPDataHandler data_handler_;
 			Connections_ connections_;
+			boost::recursive_mutex connections_lock_;
 		};
 
 		HTTPConnectionHandler::HTTPConnectionHandler(HTTPRequestHandler & request_handler)
@@ -116,7 +120,8 @@ namespace Spin
 			 * because the connection handler won't tell it which connection
 			 * is ready to receive data. */
 			boost::shared_ptr< Connection > connection_p(new Connection(connection));
-			connection_p->setNewDataHandler(data_->data_handler_, boost::bind<void>(ErrorHandler< Data::Connections_ >(data_->connections_), connection_p.get()));
+			connection_p->setNewDataHandler(data_->data_handler_, boost::bind<void>(ErrorHandler< Data::Connections_ >(data_->connections_, data_->connections_lock_), connection_p.get()));
+			boost::recursive_mutex::scoped_lock lock(data_->connections_lock_);
 			data_->connections_.push_back(connection_p);
 		}
 
