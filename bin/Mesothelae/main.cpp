@@ -1,3 +1,4 @@
+#include <iostream>
 #include <Spin/Listener.h>
 #include <Spin/Details/Request.h>
 #include <Spin/Details/Response.h>
@@ -17,7 +18,7 @@ int main()
 	{
 		boost::shared_ptr< ::Spin::Details::Request > request(request_handler.getNextRequest());
 		boost::shared_ptr< Spin::Connection > connection(request->connection_.lock());
-		if (connection)
+		if (connection) try
 		{
 			// we handle only GET requests - anything else and we respond with 501
 			if (request->method_ == "GET")
@@ -50,6 +51,14 @@ int main()
 					Spin::Details::Response(request->protocol_and_version_, Spin::Details::Response::not_implemented__)
 				);
 			}
+		}
+		catch (const std::exception & e)
+		{
+			std::cerr << e.what() << std::endl;
+		}
+		catch (...)
+		{
+			std::cerr << "Some unknown error occured" << std::endl;
 		}
 		else
 		{ /* client hung up */ }
