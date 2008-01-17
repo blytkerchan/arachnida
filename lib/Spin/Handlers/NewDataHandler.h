@@ -2,6 +2,7 @@
 #define _spin_handlers_newdatahandler_h
 
 #include "../Details/prologue.h"
+#include <boost/shared_ptr.hpp>
 
 namespace Spin
 {
@@ -12,7 +13,7 @@ namespace Spin
 		class SPIN_API NewDataHandler
 		{
 		public :
-			const NewDataHandler & operator()(Connection & connection) const
+			const NewDataHandler & operator()(boost::shared_ptr< Connection > connection) const
 			{
 				onDataReady(connection);
 				return *this;
@@ -21,7 +22,7 @@ namespace Spin
 		protected :
 			virtual ~NewDataHandler();
 			//! Called when new data is ready.
-			virtual void onDataReady(Connection & connection) const = 0;
+			virtual void onDataReady(boost::shared_ptr< Connection > connection) const = 0;
 		};
 	}
 }

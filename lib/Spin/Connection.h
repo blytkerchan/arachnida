@@ -7,6 +7,7 @@
 #include <boost/any.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 #include <boost/function.hpp>
 #include "Details/Address.h"
 
@@ -38,7 +39,7 @@ namespace Spin
 	 * In some cases, e.g. when the peer closes the connection, the Connection object
 	 * may no longer be usable. The getStatus method returns a flag that may indicate
 	 * this. */
-	class SPIN_API Connection
+	class SPIN_API Connection : public boost::enable_shared_from_this< Connection >
 	{
 	public :
 		//! Type of the call-back called when errors occur

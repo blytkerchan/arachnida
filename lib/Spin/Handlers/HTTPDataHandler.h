@@ -23,7 +23,7 @@ namespace Spin
 			HTTPDataHandler(HTTPRequestHandler & request_handler);
 
 		protected :
-			/*virtual */void onDataReady(Connection & connection) const/* = 0*/;
+			/*virtual */void onDataReady(boost::shared_ptr< Connection > connection) const/* = 0*/;
 
 		private :
 			enum Method { options__, get__, head__, post__, put__, delete__, trace__, connect__ };

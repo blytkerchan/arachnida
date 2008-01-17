@@ -205,7 +205,7 @@ read_entry_point:
 	void Connection::onDataReady_()
 	{
 		if (data_handler_ && status_ == good__)
-			(*data_handler_)(*this);
+			(*data_handler_)(shared_from_this());
 		else
 		{ /* no-op */ }
 	}

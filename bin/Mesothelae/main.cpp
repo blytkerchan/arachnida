@@ -16,30 +16,42 @@ int main()
 	while (1)
 	{
 		boost::shared_ptr< ::Spin::Details::Request > request(request_handler.getNextRequest());
-		// we handle only GET requests - anything else and we respond with 501
-		if (request->method_ == "GET")
+		boost::shared_ptr< Spin::Connection > connection(request->connection_.lock());
+		if (connection)
 		{
-			if (request->url_ == "/")
-				request->connection_.write(
-					Spin::Details::Response(request->protocol_and_version_, Spin::Details::Response::found__)
-						("Location", "/index.html")
-				);
-			else if (request->url_ == "/index.html")
-				request->connection_.write(
-					Spin::Details::Response(request->protocol_and_version_, Spin::Details::Response::ok__)
-						("Content-Type", "text/html")
-						("<html><body><p>Hello, world!</p></body></html>")
-				);
+			// we handle only GET requests - anything else and we respond with 501
+			if (request->method_ == "GET")
+			{
+				if (request->url_ == "/")
+				{
+					connection->write(
+						Spin::Details::Response(request->protocol_and_version_, Spin::Details::Response::found__)
+							("Location", "/index.html")
+					);
+				}
+				else if (request->url_ == "/index.html")
+				{
+					connection->write(
+						Spin::Details::Response(request->protocol_and_version_, Spin::Details::Response::ok__)
+							("Content-Type", "text/html")
+							("<html><body><p>Hello, world!</p></body></html>")
+					);
+				}
+				else
+				{
+					connection->write(
+						Spin::Details::Response(request->protocol_and_version_, Spin::Details::Response::not_found__)
+					);
+				}
+			}
 			else
-				request->connection_.write(
-					Spin::Details::Response(request->protocol_and_version_, Spin::Details::Response::not_found__)
+			{
+				connection->write(
+					Spin::Details::Response(request->protocol_and_version_, Spin::Details::Response::not_implemented__)
 				);
+			}
 		}
 		else
-		{
-			request->connection_.write(
-				Spin::Details::Response(request->protocol_and_version_, Spin::Details::Response::not_implemented__)
-			);
-		}
+		{ /* client hung up */ }
 	}
 }
