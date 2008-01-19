@@ -48,7 +48,7 @@ after_connection_attributes_are_got:
 			{
 				if (connection_attribute.empty() /* no existing attribute */)
 				{	// parse the request, as it is new
-					boost::tie(request, where) = extractHeader< Connection, Details::Request, Exceptions::HTTP::UnknownMethod, Exceptions::HTTP::UnsupportedProtocol >(connection, supported_methods__, buffer.begin(), buffer.end());
+					boost::tie(request, where) = extractRequestHeader< Connection, Details::Request, Exceptions::HTTP::UnknownMethod, Exceptions::HTTP::UnsupportedProtocol >(connection, supported_methods__, buffer.begin(), buffer.end());
 					if (!request && where == buffer.begin())
 					{
 						/* the extraction errored out because the first line was incomplete. 

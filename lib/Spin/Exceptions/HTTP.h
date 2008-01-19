@@ -1,6 +1,7 @@
 #ifndef _spin_exceptions_http_h
 #define _spin_exceptions_http_h
 
+#include "../Details/prologue.h"
 #include <stdexcept>
 
 namespace Spin
@@ -8,7 +9,7 @@ namespace Spin
 	namespace Exceptions
 	{
 		//! Base class for all HTTP protocol related errors
-		struct HTTPProtocolError : std::runtime_error
+		struct SPIN_API HTTPProtocolError : std::runtime_error
 		{
 			HTTPProtocolError(const char * what)
 				: std::runtime_error(what)

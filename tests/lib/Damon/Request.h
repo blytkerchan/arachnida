@@ -1,5 +1,5 @@
-#ifndef _tests_spin_response_h
-#define _tests_spin_response_h
+#ifndef _tests_damon_request_h
+#define _tests_damon_request_h
 
 #include <cppunit/extensions/HelperMacros.h>
 

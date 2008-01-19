@@ -1,6 +1,9 @@
 #ifndef _acari_parsinghelpers_hpp
 #define _acari_parsinghelpers_hpp
 
+#include <map>
+#include <boost/lexical_cast.hpp>
+
 namespace Acari
 {
 	namespace
@@ -67,6 +70,15 @@ namespace Acari
 		{
 			while ((where != begin) && ((where - 1) != begin) && isNewLine(*(where - 1)))
 				--where;
+			return where;
+		}
+
+		template < typename Iterator >
+		Iterator advanceUntilEndOfLine(Iterator where, const Iterator & whence)
+		{
+			while (where != whence && !isNewLine(*where))
+				++where;
+
 			return where;
 		}
 
@@ -146,7 +158,7 @@ namespace Acari
 		}
 
 		template < typename Connection, typename Request, typename UnknownMethod, typename UnsupportedProtocol, typename Iterator, typename Method >
-		std::pair< boost::shared_ptr< Request >, Iterator > extractHeader(boost::shared_ptr< Connection > connection, const std::map< std::string, Method > & supported_methods, Iterator curr, const Iterator & end)
+		std::pair< boost::shared_ptr< Request >, Iterator > extractRequestHeader(boost::shared_ptr< Connection > connection, const std::map< std::string, Method > & supported_methods, Iterator curr, const Iterator & end)
 		{
 			Iterator begin(curr);
 			/* The first line of an HTTP request consists of the method, the URL of 
@@ -194,6 +206,53 @@ namespace Acari
 			{ /* carry on */ }
 
 			return std::make_pair(boost::shared_ptr< Request >(new Request(connection, method, url, protocol_and_version)), whence);
+		}
+
+		template < typename Connection, typename Response, typename UnsupportedProtocol, typename Iterator >
+		std::pair< boost::shared_ptr< Response >, Iterator > extractResponseHeader(Connection & connection, Iterator curr, const Iterator & end)
+		{
+			Iterator begin(curr);
+			/* The first line of an HTTP response consists of the protocol and version,
+			 * the result code and a message intended for human consumption. Some broken 
+			 * implementations may send white spaces (characters 9, 10, 13 or 32) before
+			 * sending the response, so we will skip those if need be. */
+			std::vector< char >::iterator where(curr);
+			// ignore leading white space
+			where = advanceThroughIgnorableWhiteSpace(where, end);
+			std::vector< char >::iterator whence(where);
+			whence = advanceUntilIgnorableWhiteSpace(whence, end);
+			// if we're at the end of the buffer already, we do not have the entire method string.
+			if (whence == end)
+				return std::make_pair(boost::shared_ptr< Response >(), begin);
+			else
+			{ /* carry on */ }
+			// the protocol and version is now in [where, whence)
+			std::string protocol_and_version(where, whence);
+			// there are only two protocol strings we support: HTTP/1.0 and HTTP/1.1
+			if (protocol_and_version != "HTTP/1.0" && protocol_and_version != "HTTP/1.1")
+				throw UnsupportedProtocol(protocol_and_version.begin(), protocol_and_version.end());
+			else
+			{ /* carry on */ }
+
+			where = advanceThroughIgnorableWhiteSpace(whence, end);
+			whence = advanceUntilIgnorableWhiteSpace(where, end);
+			// if we're at the end of the buffer, we do not have the response line
+			if (whence == end)
+				return std::make_pair(boost::shared_ptr< Response >(), begin);
+			else
+			{ /* carry on */ }
+			// the response code is now in [where, whence)
+			std::string response_code(where, whence);
+			where = advanceThroughIgnorableWhiteSpace(whence, end);
+			whence = advanceUntilEndOfLine(where, end);
+			// if we're at the end of the buffer, we do not have the entire status line
+			if (whence == end)
+				return std::make_pair(boost::shared_ptr< Response >(), begin);
+			else
+			{ /* carry on */ }
+			std::string response_message(where, whence);
+
+			return std::make_pair(boost::shared_ptr< Response >(new Response(protocol_and_version, boost::lexical_cast< unsigned int >(response_code), response_message)), whence);
 		}
 	}
 }

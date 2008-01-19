@@ -106,6 +106,8 @@ namespace Spin
 			 * for server-side errors. */
 			Response(const std::string & protocol_and_version, int status_code, const std::string & reason_string);
 
+			~Response();
+
 			/** Add a header to the response. */
 			void addHeader(const std::string & name, const std::string & value) { header_fields_.push_back(Header(name, value)); }
 			Response & operator()(const std::string & name, const std::string & value) { addHeader(name, value); return *this; }

@@ -21,7 +21,7 @@ namespace Damon
 			std::string name_;	///< the name
 			std::string value_;	///< the value
 		};
-		typedef std::list< Header > HeaderFields;	///< the type of the list of header fields
+		typedef std::vector< Header > HeaderFields;	///< the type of the list of header fields
 	}
 }
 

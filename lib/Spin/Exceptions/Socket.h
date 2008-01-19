@@ -1,6 +1,7 @@
 #ifndef _spin_exceptions_socket_h
 #define _spin_exceptions_socket_h
 
+#include "../Details/prologue.h"
 #include <stdexcept>
 
 namespace Spin
@@ -8,7 +9,7 @@ namespace Spin
 	namespace Exceptions
 	{
 		//! Thrown when something goes wrong with a socket
-		struct SocketError : std::runtime_error
+		struct SPIN_API SocketError : std::runtime_error
 		{
 			enum { max_message_size__ = 64, max_function_size__ = 32 };
 

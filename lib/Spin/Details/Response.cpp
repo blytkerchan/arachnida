@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "Response.h"
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
@@ -122,6 +124,12 @@ namespace Spin
 			  status_code_(status_code),
 			  reason_string_(reason_string)
 		{ /* no-op */ }
+
+		Response::~Response()
+		{
+			std::cerr << "Response::~Response()" << std::endl;
+		}
+
 
 		namespace
 		{

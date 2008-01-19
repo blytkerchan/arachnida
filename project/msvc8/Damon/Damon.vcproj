@@ -40,6 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="$(ProjectDir)..\..\..\lib"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;DAMON_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -48,6 +49,7 @@
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
+				DisableSpecificWarnings="4251;4996;4275"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -115,12 +117,14 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="$(ProjectDir)..\..\..\lib"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;DAMON_EXPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
+				DisableSpecificWarnings="4251;4996;4275"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -182,6 +186,18 @@
 			</File>
 			<File
 				RelativePath="..\..\..\lib\Damon\Details\prologue.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Private"
+			>
+			<File
+				RelativePath="..\..\..\lib\Damon\Private\parseURL.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Damon\Private\parseURL.h"
 				>
 			</File>
 		</Filter>
