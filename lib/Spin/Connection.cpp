@@ -144,6 +144,11 @@ read_entry_point:
 		return std::make_pair(bytes_read_into_buffer, reason);
 	}
 
+	bool Connection::poll() const
+	{
+		return bio_->poll();
+	}
+
 	bool Connection::usesSSL() const
 	{
 		return bio_->usesSSL();

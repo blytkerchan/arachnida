@@ -28,6 +28,11 @@ namespace Scorpion
 			return ::BIO_write(getBIO(), buffer, static_cast< int >(buffer_size));
 		}
 
+		/*virtual */bool poll() const
+		{
+			return BIO_pending(getBIO()) != 0;
+		}
+
 		/*virtual */bool shouldRetry() const { return BIO_should_retry(getBIO()) != 0; }
 		/*virtual */bool shouldRead() const { return BIO_should_read(getBIO()) != 0; }
 		/*virtual */bool shouldWrite() const { return BIO_should_write(getBIO()) != 0; }

@@ -94,6 +94,8 @@ namespace Spin
 		 * is filled in blocks of default_read_block_size__ bytes in size. */
 		std::pair< std::size_t, int > read(std::vector< char > & buffer);
 
+		bool poll() const;
+
 		//! Return true if the connection uses SSL (and is therefore secured), false if not
 		bool usesSSL() const;
 

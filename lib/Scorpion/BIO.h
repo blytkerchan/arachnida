@@ -33,6 +33,8 @@ namespace Scorpion
 		//! Read data from a socket, handle, or what not
 		virtual int read(void * buffer, std::size_t buffer_size) { return not_implemented__; }
 
+		virtual bool poll() const { return false; }
+
 		//! Returns true if the previous operation failed because it should be retried
 		virtual bool shouldRetry() const { return false; }
 		//! Returns true if the previous operation failed because a read should be performed first
