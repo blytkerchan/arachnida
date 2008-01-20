@@ -32,7 +32,8 @@ namespace Damon
 	Response getResponse(Spin::Connection & connection)
 	{
 		boost::call_once(initAttributeIndex, once_flag__);
-
+		bool retrying(false);
+retry:
 		/* HERE we should make the connection blocking in a scoped manner if it isn't already */
 
 		std::vector< char > buffer;
@@ -48,8 +49,10 @@ namespace Damon
 		{
 			if (connection_attribute.empty() /* no existing attribute */)
 			{	// parse the request, as it is new
-				if (end_of_buffer_found || buffer.empty())
+				if (retrying || end_of_buffer_found || buffer.empty() || connection.poll())
 				{
+					std::vector< char > tmp_buffer(buffer);
+					buffer.clear();
 					std::pair< std::size_t, int > result(connection.read(buffer));
 					switch (result.second /* reason */)		// this is a switch mainly for documentation purposes - it could have been an if, but I think this is clearer
 					{
@@ -57,16 +60,17 @@ namespace Damon
 					case Spin::Connection::should_retry__ :
 					case Spin::Connection::should_read__ :
 						/* in any of these cases, we either have everything we came for or we 
-						* should read some more. We might as well check whether we have 
-						* everything we can for and retry only after that, because we will 
-						* probably have either the complete response or have to allow the 
-						* server a bit of time to push the rest of the data through. */
+						 * should read some more. We might as well check whether we have 
+						 * everything we can for and retry only after that, because we will 
+						 * probably have either the complete response or have to allow the 
+						 * server a bit of time to push the rest of the data through. */
 						break;
 					default :
 						throw std::runtime_error("Unexpected connection state"); // be more eloquent HERE
 					}
 					const std::size_t & size(result.first);
 					buffer.resize(size);
+					buffer.insert(buffer.begin(), tmp_buffer.begin(), tmp_buffer.end());
 				}
 				else
 				{ /* already have data to work with */ }
@@ -177,7 +181,8 @@ namespace Damon
 		else
 		{
 			connection_attribute = boost::make_tuple(response, std::vector< char >(where, buffer.end()), end_of_headers_found, end_of_buffer_found);
-			return getResponse(connection); // tail recursion - see if the compiler optimizes this away with a jump
+			retrying = true; // force a read on the connection
+			goto retry; // tail recursion
 		}
 
 		return Response(*response);

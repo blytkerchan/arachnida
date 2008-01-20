@@ -10,7 +10,8 @@ namespace Tests
 		class Request : public CPPUNIT_NS::TestFixture
 		{
 			CPPUNIT_TEST_SUITE( Request );
-			CPPUNIT_TEST( tryEmptyRequest );
+			CPPUNIT_TEST( tryRequest01 );
+			CPPUNIT_TEST( tryRequest02 );
 			CPPUNIT_TEST_SUITE_END();
 
 		public:
@@ -18,7 +19,8 @@ namespace Tests
 			virtual void tearDown();
 
 		protected:
-			void tryEmptyRequest();
+			void tryRequest01();
+			void tryRequest02();
 
 		private:
 		};
