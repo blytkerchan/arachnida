@@ -231,7 +231,9 @@ namespace Spin
 					default : error_message = "Unknown error"; break;
 					}
 #endif
-					// HERE!! log this error_message
+					// log this error_message HERE
+
+					/* When we get HERE one of the file descriptors in one of the sets caused an error. We should find out which one and remove it from the descriptors we work with. */
 				}
 				else
 				{
