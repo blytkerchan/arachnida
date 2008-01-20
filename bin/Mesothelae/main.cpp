@@ -34,9 +34,17 @@ int main()
 				{
 					connection->write(
 						Spin::Details::Response(request->protocol_and_version_, Spin::Details::Response::ok__)
-							("Content-Type", "text/html")
-							("<html><body><p>Hello, world!</p></body></html>")
-					);
+						("Content-Type", "text/html")
+						("<html><body><p>Hello, world!</p></body></html>")
+						);
+				}
+				else if (request->url_ == "/send_leading_whitespace")
+				{
+					connection->write("    \r\n\n\n\n\n\r          \t\t\t    ");
+					connection->write(
+						Spin::Details::Response(request->protocol_and_version_, Spin::Details::Response::found__)
+						("Location", "/index.html")
+						);
 				}
 				else
 				{
