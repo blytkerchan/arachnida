@@ -1,5 +1,6 @@
 #include "Request.h"
 #include <boost/format.hpp>
+#include <boost/bind.hpp>
 #include <boost/thread/once.hpp>
 #include <Acari/ParsingHelpers.hpp>
 #include <Scorpion/Context.h>
@@ -203,6 +204,31 @@ retry:
 		connection.write(request);
 
 		return getResponse(connection);
+	}
+
+	/*DAMON_API */std::vector< Response > send(const std::vector< Request > & requests)
+	{
+		using Private::parseURL;
+
+		if (requests.empty())
+			return std::vector< Response >();
+		else
+		{ /* carry on */ }
+
+		std::string protocol;
+		std::string server;
+		boost::uint16_t port;
+		std::string resource;
+		boost::tie(protocol, server, port, resource) = parseURL(requests[0].url_);
+		bool secured(protocol == "https");
+
+		Spin::Connection connection(secured ? Spin::Connector::getInstance().connect(Scorpion::Context(), server, port) : Spin::Connector::getInstance().connect(server, port));
+		std::for_each(requests.begin(), requests.end(), boost::bind(&Spin::Connection::write< Request >, &connection, _1));
+
+		std::vector< Response > responses;
+		for (std::vector< Request >::size_type i(0); i < requests.size(); ++i)
+			responses.push_back(getResponse(connection));
+		return responses;
 	}
 
 	namespace
