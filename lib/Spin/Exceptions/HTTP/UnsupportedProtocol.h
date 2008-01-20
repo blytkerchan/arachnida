@@ -11,7 +11,7 @@ namespace Spin
 		namespace HTTP
 		{
 			//! Thrown when an unsupported protocol and/or protocol version is used
-			struct UnsupportedProtocol : public HTTPProtocolError
+			struct SPIN_API UnsupportedProtocol : public HTTPProtocolError
 			{
 				enum { max_protocol_size__ = 96 };
 

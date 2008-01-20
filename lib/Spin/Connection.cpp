@@ -39,6 +39,7 @@ namespace Spin
 
 	std::pair< std::size_t, int > Connection::write(const std::vector< char > & data)
 	{
+		boost::recursive_mutex::scoped_lock sentinel(bio_lock_);
 		assert(data.size() < INT_MAX);
 		if (status_ != good__)
 		{
@@ -85,6 +86,7 @@ namespace Spin
 	
 	std::pair< std::size_t, int > Connection::read(std::vector< char > & buffer)
 	{
+		boost::recursive_mutex::scoped_lock sentinel(bio_lock_);
 		if (status_ != good__)
 		{
 			status_ |= error__;
@@ -144,8 +146,36 @@ read_entry_point:
 		return std::make_pair(bytes_read_into_buffer, reason);
 	}
 
+	bool Connection::poll() const
+	{
+		boost::recursive_mutex::scoped_lock sentinel(bio_lock_);
+		if (status_ != good__)
+		{
+			status_ |= error__;
+			throw Exceptions::Connection::UnusableConnection();
+		}
+		else
+		{ /* all is well */ }
+		return bio_->poll();
+	}
+
+	void Connection::close()
+	{
+		boost::recursive_mutex::scoped_lock sentinel(bio_lock_);
+		bio_.reset();
+		status_ |= done__;
+	}
+
 	bool Connection::usesSSL() const
 	{
+		boost::recursive_mutex::scoped_lock sentinel(bio_lock_);
+		if (status_ != good__)
+		{
+			status_ |= error__;
+			throw Exceptions::Connection::UnusableConnection();
+		}
+		else
+		{ /* all is well */ }
 		return bio_->usesSSL();
 	}
 
@@ -167,12 +197,14 @@ read_entry_point:
 
 	void Connection::setNewDataHandler(Handlers::NewDataHandler & handler, OnErrorCallback on_error_callback/* = OnErrorCallback()*/)
 	{
+		boost::recursive_mutex::scoped_lock sentinel(bio_lock_);
 		data_handler_ = &handler;
 		Private::ConnectionHandler::getInstance().attach(bio_->getFD(), boost::bind(&Connection::onDataReady_, this), on_error_callback);
 	}
 
 	void Connection::clearNewDataHandler()
 	{
+		boost::recursive_mutex::scoped_lock sentinel(bio_lock_);
 		if (data_handler_)
 		{
 			Private::ConnectionHandler::getInstance().detach(bio_->getFD());
@@ -184,6 +216,7 @@ read_entry_point:
 
 	Details::Address Connection::getPeerAddress() const
 	{
+		boost::recursive_mutex::scoped_lock sentinel(bio_lock_);
 		if (!bio_ || status_ != good__)
 			throw std::logic_error("No connection");
 		else

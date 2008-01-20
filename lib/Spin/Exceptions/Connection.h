@@ -1,6 +1,7 @@
 #ifndef _spin_exceptions_connection_h
 #define _spin_exceptions_connection_h
 
+#include "../Details/prologue.h"
 #include <stdexcept>
 
 namespace Spin
@@ -8,7 +9,7 @@ namespace Spin
 	namespace Exceptions
 	{
 		//! Base class for various errors pertaining connections and sockets
-		struct ConnectionError : std::runtime_error
+		struct SPIN_API ConnectionError : std::runtime_error
 		{
 			ConnectionError(const char * what)
 				: std::runtime_error(what)

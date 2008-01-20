@@ -35,6 +35,17 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test_Acari", "Test_Acari\Te
 		{81F90DEE-0D42-4326-B3C5-E065267E3C98} = {81F90DEE-0D42-4326-B3C5-E065267E3C98}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Damon", "Damon\Damon.vcproj", "{A9BA5F5B-FDF6-48D7-B2C4-6CC8AC069955}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E094085C-CAED-41E1-91AB-3A297D13E594} = {E094085C-CAED-41E1-91AB-3A297D13E594}
+		{F747D8ED-2A5E-4968-AA90-0497A4546B9F} = {F747D8ED-2A5E-4968-AA90-0497A4546B9F}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test_Damon", "Test_Damon\Test_Damon.vcproj", "{B579E54C-DFFD-4C4D-B5BF-8BC6E5196F87}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A9BA5F5B-FDF6-48D7-B2C4-6CC8AC069955} = {A9BA5F5B-FDF6-48D7-B2C4-6CC8AC069955}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -69,6 +80,14 @@ Global
 		{97961A79-53B1-499F-B119-81B3ADB40746}.Debug|Win32.Build.0 = Debug|Win32
 		{97961A79-53B1-499F-B119-81B3ADB40746}.Release|Win32.ActiveCfg = Release|Win32
 		{97961A79-53B1-499F-B119-81B3ADB40746}.Release|Win32.Build.0 = Release|Win32
+		{A9BA5F5B-FDF6-48D7-B2C4-6CC8AC069955}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A9BA5F5B-FDF6-48D7-B2C4-6CC8AC069955}.Debug|Win32.Build.0 = Debug|Win32
+		{A9BA5F5B-FDF6-48D7-B2C4-6CC8AC069955}.Release|Win32.ActiveCfg = Release|Win32
+		{A9BA5F5B-FDF6-48D7-B2C4-6CC8AC069955}.Release|Win32.Build.0 = Release|Win32
+		{B579E54C-DFFD-4C4D-B5BF-8BC6E5196F87}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B579E54C-DFFD-4C4D-B5BF-8BC6E5196F87}.Debug|Win32.Build.0 = Debug|Win32
+		{B579E54C-DFFD-4C4D-B5BF-8BC6E5196F87}.Release|Win32.ActiveCfg = Release|Win32
+		{B579E54C-DFFD-4C4D-B5BF-8BC6E5196F87}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

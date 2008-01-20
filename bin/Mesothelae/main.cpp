@@ -28,7 +28,7 @@ int main()
 					connection->write(
 						Spin::Details::Response(request->protocol_and_version_, Spin::Details::Response::found__)
 							("Location", "/index.html")
-					);
+						);
 				}
 				else if (request->url_ == "/index.html")
 				{
@@ -36,7 +36,15 @@ int main()
 						Spin::Details::Response(request->protocol_and_version_, Spin::Details::Response::ok__)
 							("Content-Type", "text/html")
 							("<html><body><p>Hello, world!</p></body></html>")
-					);
+						);
+				}
+				else if (request->url_ == "/send_leading_whitespace")
+				{
+					connection->write("    \r\n\n\n\n\n\r          \t\t\t    ");
+					connection->write(
+						Spin::Details::Response(request->protocol_and_version_, Spin::Details::Response::found__)
+							("Location", "/index.html")
+						);
 				}
 				else
 				{
@@ -53,13 +61,27 @@ int main()
 			}
 		}
 		catch (const std::exception & e)
+<<<<<<< HEAD:bin/Mesothelae/main.cpp
+=======
 		{
 			std::cerr << e.what() << std::endl;
 		}
 		catch (...)
+>>>>>>> topic/damon:bin/Mesothelae/main.cpp
+		{
+<<<<<<< HEAD:bin/Mesothelae/main.cpp
+			std::cerr << e.what() << std::endl;
+=======
+			std::cerr << "Some unknown error occured" << std::endl;
+>>>>>>> topic/damon:bin/Mesothelae/main.cpp
+		}
+<<<<<<< HEAD:bin/Mesothelae/main.cpp
+		catch (...)
 		{
 			std::cerr << "Some unknown error occured" << std::endl;
 		}
+=======
+>>>>>>> topic/damon:bin/Mesothelae/main.cpp
 		else
 		{ /* client hung up */ }
 	}
