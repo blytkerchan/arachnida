@@ -125,12 +125,6 @@ namespace Spin
 			  reason_string_(reason_string)
 		{ /* no-op */ }
 
-		Response::~Response()
-		{
-			std::cerr << "Response::~Response()" << std::endl;
-		}
-
-
 		namespace
 		{
 			struct HeaderAppender
