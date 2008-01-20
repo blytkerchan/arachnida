@@ -9,6 +9,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/function.hpp>
+#include <boost/thread/recursive_mutex.hpp>
 #include "Details/Address.h"
 
 #ifndef DOXYGEN_GENERATING
@@ -95,6 +96,7 @@ namespace Spin
 		std::pair< std::size_t, int > read(std::vector< char > & buffer);
 
 		bool poll() const;
+		void close();
 
 		//! Return true if the connection uses SSL (and is therefore secured), false if not
 		bool usesSSL() const;
@@ -136,6 +138,7 @@ namespace Spin
 		void onDataReady_();
 
 		mutable boost::shared_ptr< Scorpion::BIO > bio_;
+		mutable boost::recursive_mutex bio_lock_;
 		Handlers::NewDataHandler * data_handler_;
 		std::vector< boost::any > attributes_;
 		mutable int status_;
