@@ -1,6 +1,7 @@
 #ifndef _acari_parsinghelpers_hpp
 #define _acari_parsinghelpers_hpp
 
+#include <vector>
 #include <map>
 #include <boost/lexical_cast.hpp>
 
