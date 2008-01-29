@@ -251,7 +251,7 @@ retry:
 		};
 	}
 
-	/*DAMON_API */std::string serialize(const Request & request)
+	/*DAMON_API */std::string serialize(Request request)
 	{
 		using Private::parseURL;
 
@@ -288,12 +288,19 @@ retry:
 			retval = "CONNECT ";
 			break;
 		default :
-			throw std::runtime_error("Unknown method");	// be more eloquent HERE
+			throw std::runtime_error("Unknown method");    // be more eloquent HERE
 		}
 		retval += resource;
 		retval += " HTTP/1.1\r\n";
+
+		if (std::find_if(request.header_fields_.begin(), request.header_fields_.end(), bind(&Details::Header::name_, _1) == "Content-Length") == request.header_fields_.end())
+			request.header_fields_.push_back(Details::Header("Content-Length", boost::lexical_cast< std::string >(request.body_.size())));
+		else
+		{ /* Already has a Content-Length header */ }
 		std::for_each(request.header_fields_.begin(), request.header_fields_.end(), AppendHeader(retval));
 		retval += "\r\n";
+		retval.insert(retval.end(), request.body_.begin(), request.body_.end());
+	
 		return retval;
 	}
 }

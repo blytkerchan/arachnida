@@ -38,12 +38,12 @@ namespace Damon
 
 		friend DAMON_API Response send(const Request &/* request*/);
 		friend DAMON_API std::vector< Response > send(const std::vector< Request > & requests);
-		friend DAMON_API std::string serialize(const Request &/* request*/);
+		friend DAMON_API std::string serialize(Request /* request*/);
 	};
 
 	DAMON_API Response send(const Request & request);
 	DAMON_API std::vector< Response > send(const std::vector< Request > & requests);
-	DAMON_API std::string serialize(const Request & request);
+	DAMON_API std::string serialize(Request request);
 }
 
 #endif
