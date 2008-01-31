@@ -1,7 +1,7 @@
 #include "UDPSocket.h"
 #include <Spin/UDPSocket.h>
 #include <Spin/Handlers/UDPDataHandler.h>
-#ifdef ON_WINDOZE
+#if defined(_WIN32) && ! defined(__CYGWIN__)
 #	include <Windows.h>
 #	define yield() Sleep(1)
 #else

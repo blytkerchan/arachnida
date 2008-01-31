@@ -37,12 +37,12 @@ namespace Tests
 				boost::tie(byte_count, reason) = connection.read(buffer);
 				CPPUNIT_ASSERT(reason & ::Spin::Connection::should_retry__);
 				buffer.resize(byte_count);
-				// when we get here, Vlinder will have closed the connection
 				std::cerr << std::string(buffer.begin(), buffer.end()) << std::endl;
 				bool caught(false);
 				try
 				{
-					connection.read(buffer);
+					while (1)
+						connection.read(buffer);
 				}
 				catch (const ::Spin::Exceptions::Connection::ConnectionClosed &)
 				{

@@ -2,10 +2,11 @@
 #include <boost/bind.hpp>
 #include "Exceptions/Socket.h"
 extern "C" {
-#ifdef ON_WINDOZE
+#if defined(_WIN32) && ! defined(__CYGWIN__)
 #	include <WinSock2.h>
 #	define ssize_t int
 #	define getLastError__ WSAGetLastError
+#	define socklen_t int
 #else
 #	include <sys/types.h>
 #	include <sys/socket.h>
@@ -21,7 +22,7 @@ extern "C" {
 
 #define SOCKET_CALL(statement, check_on_error, message, function)					\
 	if ((statement) check_on_error)													\
-		throw Exceptions::SocketError(message, function, getLastError__());		\
+		throw Exceptions::SocketError(message, function, getLastError__());			\
 	else																			\
 	{ /* all is well */ }
 
