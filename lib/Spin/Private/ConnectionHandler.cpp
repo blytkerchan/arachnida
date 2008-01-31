@@ -155,7 +155,13 @@ namespace Spin
 		ConnectionHandler::~ConnectionHandler()
 		{
 			done_ = true;
+#if ! defined(_WIN32) || defined(__CYGWIN__)
+			/* On Windows, there really is no clean way to clean up after 
+			 * ourselves: an alternative to this would be to have DllMain 
+			 * take care of clean-up for us, but that's even sloppier than
+			 * not notifying the thread that it's about to die...*/
 			notifyThread_();
+#endif
 			if (worker_thread_)
 				worker_thread_->join();
 			else
