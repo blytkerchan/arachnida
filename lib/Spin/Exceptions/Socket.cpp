@@ -17,6 +17,7 @@ namespace Spin
 	{																				\
 		static const char * msg_##code##__ = message;								\
 		error_text = message;														\
+		break;																		\
 	}
 #define CASE_DEFAULT_ERROR_MESSAGE(message)											\
 	default :																		\
@@ -73,6 +74,7 @@ namespace Spin
 						CASE_ERROR_MESSAGE(WSAETIMEDOUT, "The connection has been dropped, because of a network failure or because the system on the other end went down without notice.");
 						CASE_ERROR_MESSAGE(WSAEWOULDBLOCK, "The socket is marked as nonblocking and the requested operation would block.");
 						CASE_ERROR_MESSAGE(WSANOTINITIALISED, "A successful WSAStartup call must occur before using this function.");
+						CASE_ERROR_MESSAGE(WSAEAFNOSUPPORT, "An address incompatible with the requested protocol was used.");
 #else
 						CASE_ERROR_MESSAGE(EAFNOSUPPORT, "The implementation does not support the specified address family.");
 						CASE_ERROR_MESSAGE(EMFILE, "No more file descriptors are available for this process.");
@@ -93,6 +95,7 @@ namespace Spin
 						% error_code_ 
 						% error_text
 						;
+					what_ = strdup(error_text_fmt.str().c_str());
 				}
 				catch(...)
 				{

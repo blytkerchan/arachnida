@@ -13,8 +13,8 @@ namespace Tests
 			{
 				CPPUNIT_TEST_SUITE( Connector );
 				CPPUNIT_TEST( tryCreateInstance );
-				CPPUNIT_TEST( tryCreateHTTPConnectionToGoogle );
-				CPPUNIT_TEST( tryCreateHTTPSConnectionToGoogle );
+				CPPUNIT_TEST( tryCreateHTTPConnectionToLandheerCieslakDotCom );
+				CPPUNIT_TEST( tryCreateHTTPSConnectionToLandheerCieslakDotCom );
 				CPPUNIT_TEST_SUITE_END();
 
 			public:
@@ -23,8 +23,8 @@ namespace Tests
 
 			protected:
 				void tryCreateInstance();
-				void tryCreateHTTPConnectionToGoogle();
-				void tryCreateHTTPSConnectionToGoogle();
+				void tryCreateHTTPConnectionToLandheerCieslakDotCom();
+				void tryCreateHTTPSConnectionToLandheerCieslakDotCom();
 
 			private:
 			};

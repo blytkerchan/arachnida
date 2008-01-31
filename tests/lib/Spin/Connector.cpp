@@ -24,9 +24,9 @@ namespace Tests
 				::Spin::Connector::getInstance();
 			}
 
-			void Connector::tryCreateHTTPConnectionToGoogle()
+			void Connector::tryCreateHTTPConnectionToLandheerCieslakDotCom()
 			{
-				::Spin::Connection connection(::Spin::Connector::getInstance().connect("www.google.com", 80));
+				::Spin::Connection connection(::Spin::Connector::getInstance().connect("www.landheer-cieslak.com", 80));
 				CPPUNIT_ASSERT(!connection.usesSSL());
 				std::size_t byte_count(0);
 				int reason(0);
@@ -37,7 +37,7 @@ namespace Tests
 				boost::tie(byte_count, reason) = connection.read(buffer);
 				CPPUNIT_ASSERT(reason & ::Spin::Connection::should_retry__);
 				buffer.resize(byte_count);
-				// when we get here, Google will have closed the connection
+				// when we get here, Vlinder will have closed the connection
 				std::cerr << std::string(buffer.begin(), buffer.end()) << std::endl;
 				bool caught(false);
 				try
@@ -51,9 +51,9 @@ namespace Tests
 				CPPUNIT_ASSERT(caught);
 			}
 
-			void Connector::tryCreateHTTPSConnectionToGoogle()
+			void Connector::tryCreateHTTPSConnectionToLandheerCieslakDotCom()
 			{
-				::Spin::Connection connection(::Spin::Connector::getInstance().connect(::Scorpion::Context(::Scorpion::Context::insecure_default_options__), "www.google.com", 443));
+				::Spin::Connection connection(::Spin::Connector::getInstance().connect(::Scorpion::Context(::Scorpion::Context::insecure_default_options__), "vlinder.landheer-cieslak.com", 443));
 				CPPUNIT_ASSERT(connection.usesSSL());
 				std::size_t byte_count(0);
 				int reason(0);
@@ -64,11 +64,12 @@ namespace Tests
 				boost::tie(byte_count, reason) = connection.read(buffer);
 				CPPUNIT_ASSERT(reason & ::Spin::Connection::should_retry__);
 				buffer.resize(byte_count);
-				// when we get here, Google will have closed the connection
+				std::cerr << std::string(buffer.begin(), buffer.end()) << std::endl;
 				bool caught(false);
 				try
 				{
-					connection.read(buffer);
+					while (1)
+						connection.read(buffer);
 				}
 				catch (const ::Spin::Exceptions::Connection::ConnectionClosed &)
 				{

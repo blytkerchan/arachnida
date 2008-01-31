@@ -190,6 +190,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\lib\Acari\Attributes.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\lib\Acari\Attributes.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\lib\Acari\BakeryCounter.cpp"
 			>
 		</File>

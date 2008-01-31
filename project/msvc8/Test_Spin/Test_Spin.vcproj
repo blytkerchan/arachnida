@@ -227,6 +227,14 @@
 			RelativePath="..\..\..\tests\lib\Spin\Response.h"
 			>
 		</File>
+		<File
+			RelativePath="..\..\..\tests\lib\Spin\UDPSocket.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\tests\lib\Spin\UDPSocket.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

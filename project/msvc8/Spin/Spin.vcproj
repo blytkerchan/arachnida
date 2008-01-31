@@ -223,6 +223,10 @@
 			Name="Details"
 			>
 			<File
+				RelativePath="..\..\..\lib\Spin\Details\Address.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\lib\Spin\Details\Address.h"
 				>
 			</File>
@@ -292,6 +296,14 @@
 			</File>
 			<File
 				RelativePath="..\..\..\lib\Spin\Handlers\NewDataHandler.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Handlers\UDPDataHandler.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Spin\Handlers\UDPDataHandler.h"
 				>
 			</File>
 		</Filter>
@@ -397,6 +409,14 @@
 		</File>
 		<File
 			RelativePath="..\..\..\lib\Spin\Listener.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\lib\Spin\UDPSocket.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\lib\Spin\UDPSocket.h"
 			>
 		</File>
 	</Files>

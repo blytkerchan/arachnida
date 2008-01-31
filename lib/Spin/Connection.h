@@ -3,13 +3,11 @@
 
 #include "Details/prologue.h"
 #include <string>
-#include <vector>
-#include <boost/any.hpp>
-#include <boost/cstdint.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/function.hpp>
 #include <boost/thread/recursive_mutex.hpp>
+#include <Acari/Attributes.h>
 #include "Details/Address.h"
 
 #ifndef DOXYGEN_GENERATING
@@ -40,9 +38,12 @@ namespace Spin
 	 * In some cases, e.g. when the peer closes the connection, the Connection object
 	 * may no longer be usable. The getStatus method returns a flag that may indicate
 	 * this. */
-	class SPIN_API Connection : public boost::enable_shared_from_this< Connection >
+	class SPIN_API Connection : public boost::enable_shared_from_this< Connection >, private Acari::Attributes
 	{
 	public :
+		using Acari::Attributes::allocateAttribute;
+		using Acari::Attributes::getAttribute;
+
 		//! Type of the call-back called when errors occur
 		typedef boost::function< void() > OnErrorCallback;
 		enum {
@@ -101,21 +102,6 @@ namespace Spin
 		//! Return true if the connection uses SSL (and is therefore secured), false if not
 		bool usesSSL() const;
 
-		/** Allocate an attribute identifier.
-		 * Much like I/O streams, you can add attributes to connections by allocating an 
-		 * identifier (globally, statically) and subsequently using that identifier 
-		 * with the getAttribute method. Once you've allocated an identifier on one
-		 * Connection object, it is valid for all Connection objects (so you do not need
-		 * to allocate a new one each time you want to use an attribute for the same purpose
-		 * on a different connection).
-		 *
-		 * Internally, the attributes are also used by the library (so don't simply pick an
-		 * integer value at random and use it!) */
-		static unsigned long allocateAttribute();
-		/** Get an attribute with a previously allocated identifier, obtained from allocateAttribute.
-		 * The attribute returned will be a newly allocated boost::any by default */
-		boost::any & getAttribute(unsigned long index);
-
 		/** Set a new data handler, which will be called whenever data is ready on the connection.
 		 * This allows for asynchronous handling of new data. Behind the scenes, a separate thread
 		 * will use select(2) on the connection to wait for data. */
@@ -130,7 +116,6 @@ namespace Spin
 		int getStatus() const { return status_; }
 
 	private :
-		enum { max_attribute_count__ = 8 };
 		// Not Assignable
 		Connection & operator=(const Connection&);
 
@@ -140,10 +125,7 @@ namespace Spin
 		mutable boost::shared_ptr< Scorpion::BIO > bio_;
 		mutable boost::recursive_mutex bio_lock_;
 		Handlers::NewDataHandler * data_handler_;
-		std::vector< boost::any > attributes_;
 		mutable int status_;
-
-		static volatile boost::uint32_t next_attribute_index__;
 
 		friend class Connector; // for construction
 		friend class Listener; // for construction
