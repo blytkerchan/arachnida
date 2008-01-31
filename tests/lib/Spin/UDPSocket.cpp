@@ -1,11 +1,15 @@
 #include "UDPSocket.h"
 #include <Spin/UDPSocket.h>
 #include <Spin/Handlers/UDPDataHandler.h>
-
-
-#include <Windows.h>
-#define yield() Sleep(1)
-
+#ifdef ON_WINDOZE
+#	include <Windows.h>
+#	define yield() Sleep(1)
+#else
+extern "C" {
+#	include <pthread.h>
+}
+#	define yield pthread_yield
+#endif
 namespace Tests
 {
 	namespace Spin

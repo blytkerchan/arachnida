@@ -2,16 +2,26 @@
 #include <boost/bind.hpp>
 #include "Exceptions/Socket.h"
 extern "C" {
-#include <WinSock2.h>
+#ifdef ON_WINDOZE
+#	include <WinSock2.h>
+#	define ssize_t int
+#	define getLastError__ WSAGetLastError
+#else
+#	include <sys/types.h>
+#	include <sys/socket.h>
+#	include <netinet/in.h>
+#	include <unistd.h>
+#	define getLastError__() errno
+#	define closesocket ::close
+#endif
 }
-#define ssize_t int
-
+#include <cerrno>
 #include "Handlers/UDPDataHandler.h"
 #include "Private/ConnectionHandler.h"
 
 #define SOCKET_CALL(statement, check_on_error, message, function)					\
 	if ((statement) check_on_error)													\
-		throw Exceptions::SocketError(message, function, WSAGetLastError());		\
+		throw Exceptions::SocketError(message, function, getLastError__());		\
 	else																			\
 	{ /* all is well */ }
 
@@ -59,7 +69,7 @@ namespace Spin
 		if (sent < 0)
 		{
 			status_ |= error__;
-			throw Exceptions::SocketError("Send failed", "UDPSocket::send", WSAGetLastError());
+			throw Exceptions::SocketError("Send failed", "UDPSocket::send", getLastError__());
 		}
 		else
 		{ /* all is well */ }
@@ -80,12 +90,12 @@ namespace Spin
 		{ /* keep the buffer as is */ }
 		sockaddr_in remote_address;
 		memset(&remote_address, 0, sizeof(remote_address));
-		int remote_address_size(sizeof(remote_address));
+		socklen_t remote_address_size(sizeof(remote_address));
 		ssize_t received(recvfrom(fd_, &buffer[0], buffer.size(), 0, (sockaddr *)(&remote_address), &remote_address_size));
 		if (received < 0)
 		{
 			status_ |= error__;
-			throw Exceptions::SocketError("Recv failed", "UDPSocket::recv", WSAGetLastError());
+			throw Exceptions::SocketError("Recv failed", "UDPSocket::recv", getLastError__());
 		}
 		else
 		{ /* all is well */ }
@@ -102,7 +112,7 @@ namespace Spin
 		checkStatus("UDPSocket::poll");
 		bool retval(false);
 
-		int highest_fd = fd_;
+		int highest_fd = fd_ + 1;
 		fd_set read_set;
 		fd_set write_set;
 		fd_set exc_set;
@@ -124,7 +134,7 @@ namespace Spin
 			break;
 		default :
 			status_ |= error__;
-			throw Exceptions::SocketError("Select call for poll failed", "UDPSocket::poll", WSAGetLastError());
+			throw Exceptions::SocketError("Select call for poll failed", "UDPSocket::poll", getLastError__());
 		}
 
 		return retval;

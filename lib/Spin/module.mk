@@ -18,7 +18,10 @@ Spin_SRC =					\
 	Exceptions/HTTP/InvalidHeader.cpp	\
 	Exceptions/HTTP/UnknownMethod.cpp	\
 	Exceptions/HTTP/UnsupportedProtocol.cpp	\
-	Exceptions/Socket.cpp
+	Exceptions/Socket.cpp			\
+	UDPSocket.cpp				\
+	Handlers/UDPDataHandler.cpp		\
+	Details/Address.cpp
 
 Spin_INSTALL_HEADERS += $(filter-out Private/%, $(wildcard *.h) $(wildcard */*.h))
 
