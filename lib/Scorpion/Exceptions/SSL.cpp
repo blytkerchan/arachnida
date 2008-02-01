@@ -12,10 +12,24 @@ namespace Scorpion
 		SSLProtocolError::~SSLProtocolError() throw()
 		{
 			delete[] what_;
-			if (error_line_data_ && (error_line_data_flags_ & ERR_TXT_MALLOCED))
-				::OPENSSL_free((void*)error_line_data_);
-			else
-			{ /* no-op */ }
+
+			/* In some rare cases, when testing on Windows without network 
+			 * connectivity using OpenSSL 0.9.8d, freeing this data here 
+			 * causes a crash. I haven;t been able to quite put my finger on
+			 * the "why" because that involved analysing the OpenSSL code, 
+			 * for which I do not currently have the time. Neither have I been
+			 * able to test this on a non-Windows machine because the only
+			 * non-Windows machine I have has connectivity and that connectivity
+			 * is needed for me to access it.
+			 *
+			 * The downside of this work-around is a memory leak, but should be
+			 * a very small and very rare one. 
+			 *
+			 * Contributions (better fix, explanation, etc.) are welcome. */
+			//if (error_line_data_ && (error_line_data_flags_ & ERR_TXT_MALLOCED))
+			//	::OPENSSL_free((void*)error_line_data_);
+			//else
+			//{ /* no-op */ }
 		}
 
 		/*virtual */const char * SSLProtocolError::what() const throw()
