@@ -19,7 +19,7 @@ namespace Spin
 		struct Address
 		{
 			//! Construct from a network-byte-order 32-bit integer
-			Address(boost::uint32_t u32)
+			Address(boost::uint32_t u32 = 0)
 			{
 				u_.u32_ = u32;
 			}
