@@ -63,6 +63,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ssleay32.lib libeay32.lib "
+				OutputFile="$(OutDir)\$(ProjectName)-vc80-mt-gd-0.dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -139,6 +140,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ssleay32.lib libeay32.lib "
+				OutputFile="$(OutDir)\$(ProjectName)-vc80-mt-0.dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="2"
