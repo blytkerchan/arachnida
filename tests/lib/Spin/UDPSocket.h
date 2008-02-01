@@ -15,6 +15,8 @@ namespace Tests
 			CPPUNIT_TEST( tryComm01 );
 			CPPUNIT_TEST( tryComm02 );
 			CPPUNIT_TEST( tryComm03 );
+			CPPUNIT_TEST( tryPeek01 );
+			CPPUNIT_TEST( tryTimeOut01 );
 			CPPUNIT_TEST_SUITE_END();
 
 		public:
@@ -27,6 +29,8 @@ namespace Tests
 			void tryComm01();
 			void tryComm02();
 			void tryComm03();
+			void tryPeek01();
+			void tryTimeOut01();
 
 		private:
 		};

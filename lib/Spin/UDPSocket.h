@@ -48,6 +48,7 @@ namespace Spin
 		std::size_t send(const Details::Address & to, unsigned short port, const T & data) { return send(to, port, serialize(data)); }
 
 		boost::tuple< Details::Address, unsigned short, std::size_t > recv(std::vector< char > & buffer, unsigned long timeout = ~0);
+		boost::tuple< Details::Address, unsigned short, std::size_t > peek(std::vector< char > & buffer, unsigned long timeout = ~0);
 
 		bool poll() const;
 		void close();
@@ -73,6 +74,8 @@ namespace Spin
 		mutable boost::recursive_mutex fd_lock_;
 		int fd_;
 		Handlers::UDPDataHandler * data_handler_;
+		boost::recursive_mutex peek_buffer_lock_;
+		boost::tuple< Details::Address, unsigned short, std::size_t, std::vector< char > > peek_buffer_;
 	};
 }
 

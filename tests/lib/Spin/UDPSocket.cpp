@@ -124,5 +124,62 @@ namespace Tests
 			CPPUNIT_ASSERT(data_handler.buffer_[2] == 's');
 			CPPUNIT_ASSERT(data_handler.buffer_[3] == 't');
 		}
+
+		void UDPSocket::tryPeek01()
+		{
+			::Spin::UDPSocket udp_recv_socket(::Spin::Details::Address(0), 9005);
+			::Spin::UDPSocket udp_send_socket(::Spin::Details::Address(0), 0);
+			udp_send_socket.send(::Spin::Details::Address(127, 0, 0, 1), 9005, "test");
+			std::vector< char > buffer;
+			::Spin::Details::Address remote_address(0);
+			unsigned short remote_port;
+			std::size_t received;
+			boost::tie(remote_address, remote_port, received) = udp_recv_socket.peek(buffer);
+			CPPUNIT_ASSERT(remote_address == ::Spin::Details::Address(127, 0, 0, 1));
+			// we know nothing about the port: it's random
+			CPPUNIT_ASSERT(received == 4);
+			unsigned short port = remote_port;
+			CPPUNIT_ASSERT(buffer[0] == 't');
+			CPPUNIT_ASSERT(buffer[1] == 'e');
+			CPPUNIT_ASSERT(buffer[2] == 's');
+			CPPUNIT_ASSERT(buffer[3] == 't');
+			boost::tie(remote_address, remote_port, received) = udp_recv_socket.peek(buffer);
+			CPPUNIT_ASSERT(remote_address == ::Spin::Details::Address(127, 0, 0, 1));
+			CPPUNIT_ASSERT(remote_port == port);
+			CPPUNIT_ASSERT(received == 4);
+			CPPUNIT_ASSERT(buffer[0] == 't');
+			CPPUNIT_ASSERT(buffer[1] == 'e');
+			CPPUNIT_ASSERT(buffer[2] == 's');
+			CPPUNIT_ASSERT(buffer[3] == 't');
+			boost::tie(remote_address, remote_port, received) = udp_recv_socket.peek(buffer);
+			CPPUNIT_ASSERT(remote_address == ::Spin::Details::Address(127, 0, 0, 1));
+			CPPUNIT_ASSERT(remote_port == port);
+			CPPUNIT_ASSERT(received == 4);
+			CPPUNIT_ASSERT(buffer[0] == 't');
+			CPPUNIT_ASSERT(buffer[1] == 'e');
+			CPPUNIT_ASSERT(buffer[2] == 's');
+			CPPUNIT_ASSERT(buffer[3] == 't');
+			boost::tie(remote_address, remote_port, received) = udp_recv_socket.recv(buffer);
+			CPPUNIT_ASSERT(remote_address == ::Spin::Details::Address(127, 0, 0, 1));
+			CPPUNIT_ASSERT(remote_port == port);
+			CPPUNIT_ASSERT(received == 4);
+			CPPUNIT_ASSERT(buffer[0] == 't');
+			CPPUNIT_ASSERT(buffer[1] == 'e');
+			CPPUNIT_ASSERT(buffer[2] == 's');
+			CPPUNIT_ASSERT(buffer[3] == 't');
+		}
+
+		void UDPSocket::tryTimeOut01()
+		{
+			::Spin::UDPSocket udp_recv_socket(::Spin::Details::Address(0), 9005);
+			std::vector< char > buffer;
+			::Spin::Details::Address remote_address(0);
+			unsigned short remote_port;
+			std::size_t received;
+			boost::tie(remote_address, remote_port, received) = udp_recv_socket.recv(buffer, 500);
+			CPPUNIT_ASSERT(remote_address == ::Spin::Details::Address(0, 0, 0, 0));
+			// we know nothing about the port: it's random
+			CPPUNIT_ASSERT(received == 0);
+		}
 	}
 }

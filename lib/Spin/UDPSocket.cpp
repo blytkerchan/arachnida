@@ -81,31 +81,86 @@ namespace Spin
 	boost::tuple< Details::Address, unsigned short, std::size_t > UDPSocket::recv(std::vector< char > & buffer, unsigned long timeout/* = ~0*/)
 	{
 		checkStatus("UDPSocket::recv");
-		bool we_own_the_buffer_size(false);
-		if (buffer.size() == 0)
+		boost::recursive_mutex::scoped_lock sentinel(peek_buffer_lock_);
+		if (boost::tuples::get<3>(peek_buffer_).empty())
 		{
-			buffer.resize(4096, 0);
-			we_own_the_buffer_size = true;
+			sentinel.unlock();
+			bool we_own_the_buffer_size(false);
+			if (buffer.size() == 0)
+			{
+				buffer.resize(4096, 0);
+				we_own_the_buffer_size = true;
+			}
+			else
+			{ /* keep the buffer as is */ }
+			sockaddr_in remote_address;
+			memset(&remote_address, 0, sizeof(remote_address));
+			socklen_t remote_address_size(sizeof(remote_address));
+			bool timed_out(false);
+			if (timeout != ~0)
+			{
+				int highest_fd = fd_ + 1;
+				fd_set read_set;
+				fd_set write_set;
+				fd_set exc_set;
+				FD_ZERO(&read_set);
+				FD_ZERO(&write_set);
+				FD_ZERO(&exc_set);
+				FD_SET(fd_, &read_set);
+				timeval time_out;
+				time_out.tv_sec = 0;
+				time_out.tv_usec = timeout;
+
+				switch (select(highest_fd, &read_set, &write_set, &exc_set, &time_out))
+				{
+				case 0 :
+					timed_out = true;
+					break;
+				case 1 :
+					timed_out = false;
+					break;
+				default :
+					status_ |= error__;
+					throw Exceptions::SocketError("Select call for recv failed", "UDPSocket::recv", getLastError__());
+				}
+			}
+			else
+			{ /* no time-out period */ }
+			ssize_t received(timed_out ? 0 : recvfrom(fd_, &buffer[0], buffer.size(), 0, (sockaddr *)(&remote_address), &remote_address_size));
+			if (received < 0)
+			{
+				status_ |= error__;
+				throw Exceptions::SocketError("Recv failed", "UDPSocket::recv", getLastError__());
+			}
+			else
+			{ /* all is well */ }
+			assert(remote_address_size == sizeof(remote_address));
+			if (we_own_the_buffer_size)
+				buffer.resize(received);
+			else
+			{ /* we don't own the buffer size, so let the called take care of it */ }
+			return boost::make_tuple(Details::Address(remote_address.sin_addr.s_addr), remote_address.sin_port, received);
 		}
 		else
-		{ /* keep the buffer as is */ }
-		sockaddr_in remote_address;
-		memset(&remote_address, 0, sizeof(remote_address));
-		socklen_t remote_address_size(sizeof(remote_address));
-		ssize_t received(recvfrom(fd_, &buffer[0], buffer.size(), 0, (sockaddr *)(&remote_address), &remote_address_size));
-		if (received < 0)
 		{
-			status_ |= error__;
-			throw Exceptions::SocketError("Recv failed", "UDPSocket::recv", getLastError__());
+			buffer = boost::tuples::get<3>(peek_buffer_);
+			boost::tuples::get<3>(peek_buffer_).clear();
+			return boost::make_tuple(boost::tuples::get<0>(peek_buffer_), boost::tuples::get<1>(peek_buffer_), boost::tuples::get<2>(peek_buffer_));
+		}
+	}
+
+	boost::tuple< Details::Address, unsigned short, std::size_t > UDPSocket::peek(std::vector< char > & buffer, unsigned long timeout/* = ~0*/)
+	{
+		boost::recursive_mutex::scoped_lock sentinel(peek_buffer_lock_);
+		if (boost::tuples::get<3>(peek_buffer_).empty())
+		{
+			boost::tie(boost::tuples::get<0>(peek_buffer_), boost::tuples::get<1>(peek_buffer_), boost::tuples::get<2>(peek_buffer_)) = recv(boost::tuples::get<3>(peek_buffer_), timeout);
 		}
 		else
-		{ /* all is well */ }
-		assert(remote_address_size == sizeof(remote_address));
-		if (we_own_the_buffer_size)
-			buffer.resize(received);
-		else
-		{ /* we don't own the buffer size, so let the called take care of it */ }
-		return boost::make_tuple(Details::Address(remote_address.sin_addr.s_addr), remote_address.sin_port, received);
+		{ /* already have a peeked buffer */ }
+
+		buffer = boost::tuples::get<3>(peek_buffer_);
+		return boost::make_tuple(boost::tuples::get<0>(peek_buffer_), boost::tuples::get<1>(peek_buffer_), boost::tuples::get<2>(peek_buffer_));
 	}
 
 	bool UDPSocket::poll() const
