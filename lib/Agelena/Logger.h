@@ -25,8 +25,6 @@ namespace Agelena
 	private :
 		static Logger * instance__;
 	};
-	/* USE WITH EXTREME CAUTION: we're defeating C++'s type system here! */
-	std::string stringify(const char * fmt, ...);
 }
 
 #endif

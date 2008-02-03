@@ -77,16 +77,4 @@ namespace Agelena
 
 	/*virtual */void Logger::debug_(const std::string & component, const std::string & message, const std::string & aux)
 	{ /* no-op by default - loggers are not required to have a debug_ method */ }
-
-	/* USE WITH EXTREME CAUTION: we're defeating C++'s type system here! */
-	std::string stringify(const char * fmt, ...)
-	{
-		char buffer[512];
-		memset(buffer, 0, sizeof(buffer));
-		va_list args;
-		va_start(args, fmt);
-		int count(vsnprintf(buffer, sizeof(buffer), fmt, args));
-		va_end(args);
-		return std::string(buffer, buffer + count);
-	}
 }
