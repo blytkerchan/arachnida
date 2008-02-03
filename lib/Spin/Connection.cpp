@@ -23,11 +23,13 @@ namespace Spin
 {
 	Connection::~Connection()
 	{
+		AGELENA_DEBUG_1("Connection(%1%)::~Connection()", this);
 		clearNewDataHandler();
 	}
 
 	std::pair< std::size_t, int > Connection::write(const std::vector< char > & data)
 	{
+		AGELENA_DEBUG_1("std::pair< std::size_t, int > Connection(%1%)::write(const std::vector< char > & data)", this);
 		boost::recursive_mutex::scoped_lock sentinel(bio_lock_);
 		assert(data.size() < INT_MAX);
 		if (status_ != good__)
@@ -75,6 +77,7 @@ namespace Spin
 	
 	std::pair< std::size_t, int > Connection::read(std::vector< char > & buffer)
 	{
+		AGELENA_DEBUG_1("std::pair< std::size_t, int > Connection(%1%)::read(std::vector< char > & buffer)", this);
 		boost::recursive_mutex::scoped_lock sentinel(bio_lock_);
 		if (status_ != good__)
 		{
@@ -137,6 +140,7 @@ read_entry_point:
 
 	bool Connection::poll() const
 	{
+		AGELENA_DEBUG_1("bool Connection(%1%)::poll() const", this);
 		boost::recursive_mutex::scoped_lock sentinel(bio_lock_);
 		if (status_ != good__)
 		{
@@ -150,6 +154,7 @@ read_entry_point:
 
 	void Connection::close()
 	{
+		AGELENA_DEBUG_1("void Connection(%1%)::close()", this);
 		boost::recursive_mutex::scoped_lock sentinel(bio_lock_);
 		bio_.reset();
 		status_ |= done__;
@@ -157,6 +162,7 @@ read_entry_point:
 
 	bool Connection::usesSSL() const
 	{
+		AGELENA_DEBUG_1("bool Connection(%1%)::usesSSL() const", this);
 		boost::recursive_mutex::scoped_lock sentinel(bio_lock_);
 		if (status_ != good__)
 		{
@@ -170,22 +176,19 @@ read_entry_point:
 
 	void Connection::setNewDataHandler(Handlers::NewDataHandler & handler, OnErrorCallback on_error_callback/* = OnErrorCallback()*/)
 	{
+		AGELENA_DEBUG_1("void Connection(%1%)::setNewDataHandler(Handlers::NewDataHandler & handler, OnErrorCallback on_error_callback/* = OnErrorCallback()*/)", this);
 		boost::recursive_mutex::scoped_lock sentinel(bio_lock_);
 		data_handler_ = &handler;
-		Private::ConnectionHandler::getInstance().attach(bio_->getFD(), boost::bind(&Connection::onDataReady_, this), on_error_callback);
+		Private::ConnectionHandler::getInstance().attach(fd_, boost::bind(&Connection::onDataReady_, this), on_error_callback);
 	}
 
 	void Connection::clearNewDataHandler()
 	{
+		AGELENA_DEBUG_1("void Connection(%1%)::clearNewDataHandler()", this);
 		boost::recursive_mutex::scoped_lock sentinel(bio_lock_);
 		if (data_handler_)
 		{
-			if (bio_)
-				Private::ConnectionHandler::getInstance().detach(bio_->getFD());
-			else
-			{ /* If the BIO doesn't exist, anymore, the FD will no longer be
-			   * valid and the connection handler will garbage collect it by
-			   * itself */ }
+			Private::ConnectionHandler::getInstance().detach(fd_);
 			data_handler_ = 0;
 		}
 		else
@@ -194,12 +197,13 @@ read_entry_point:
 
 	Details::Address Connection::getPeerAddress() const
 	{
+		AGELENA_DEBUG_1("Details::Address Connection(%1%)::getPeerAddress() const", this);
 		boost::recursive_mutex::scoped_lock sentinel(bio_lock_);
 		if (!bio_ || status_ != good__)
 			throw std::logic_error("No connection");
 		else
 		{ /* carry on */ }
-		int socket_fd(bio_->getFD());
+		int socket_fd(fd_);
 		::sockaddr_in peer_addr;
 		socklen_t peer_addr_size(sizeof(peer_addr));
 		::getpeername(socket_fd, (::sockaddr*)&peer_addr, &peer_addr_size);
@@ -209,11 +213,15 @@ read_entry_point:
 	Connection::Connection(Scorpion::BIO * bio)
 		: bio_(bio),
 		  data_handler_(0),
-		  status_(good__)
-	{ /* no-op */ }
+		  status_(good__),
+		  fd_(bio->getFD())
+	{
+		AGELENA_DEBUG_1("Connection(%1%)::Connection(Scorpion::BIO * bio)", this);
+	}
 
 	void Connection::onDataReady_()
 	{
+		AGELENA_DEBUG_1("void Connection(%1%)::onDataReady_()", this);
 		if (data_handler_ && status_ == good__)
 			(*data_handler_)(shared_from_this());
 		else

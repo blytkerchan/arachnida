@@ -10,7 +10,7 @@ boost::filesystem::path cert_path__;
 
 int main(int argc, char ** argv)
 {
-	Agelena::Loggers::DefaultWindowsLogger logger;
+//	Agelena::Loggers::DefaultWindowsLogger logger;
 	// UnitTest
 	CppUnit::TextTestRunner runner;
 	runner.setOutputter(CppUnit::CompilerOutputter::defaultOutputter(&runner.result(), std::cerr));
