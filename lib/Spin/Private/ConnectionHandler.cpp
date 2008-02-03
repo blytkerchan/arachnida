@@ -245,7 +245,7 @@ namespace Spin
 					default : error_message = "Unknown error"; break;
 					}
 #endif
-					AGELENA_ERROR_0(error_message);
+					AGELENA_ERROR_2("%1% (%2%)", error_message, WSAGetLastError());
 					/* When we get here one of the file descriptors in one 
 					 * of the sets caused an error. We should find out which 
 					 * one and remove it from the descriptors we work with. */
@@ -285,6 +285,7 @@ namespace Spin
 					{
 						try
 						{
+							AGELENA_DEBUG_1("Calling for FD %1%", boost::tuples::get<0>(*curr));
 							(boost::tuples::get<1>(*curr))();
 						}
 						catch (...)

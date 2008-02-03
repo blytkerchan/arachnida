@@ -125,6 +125,7 @@ namespace Spin
 		mutable boost::recursive_mutex bio_lock_;
 		Handlers::NewDataHandler * data_handler_;
 		mutable int status_;
+		int fd_;
 
 		friend class Connector; // for construction
 		friend class Listener; // for construction

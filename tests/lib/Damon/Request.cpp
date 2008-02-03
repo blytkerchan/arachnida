@@ -1,6 +1,7 @@
 #include "Request.h"
 #include <Damon/Request.h>
 #include <Damon/Response.h>
+#include <Spin/Exceptions/Connection/ConnectionClosed.h>
 
 namespace Tests
 {
@@ -85,7 +86,7 @@ namespace Tests
 		void Request::tryRequest04()
 		{
 			::Damon::Request request("http://127.0.0.1/close_connection");
-			::Damon::Response response(send(request));
+			CPPUNIT_ASSERT_THROW(send(request), ::Spin::Exceptions::Connection::ConnectionClosed);
 		}
 	}
 }
