@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="Test_Spin"
-	ProjectGUID="{BE589F03-C422-4DA1-BF64-425D49F25E2A}"
-	RootNamespace="Test_Spin"
+	Name="Test_Agelena"
+	ProjectGUID="{4F672A2D-3FD3-49D6-AE5A-6CEBD16BE368}"
+	RootNamespace="Test_Agelena"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -62,7 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="cppunitd.lib ACEd.lib"
+				AdditionalDependencies="cppunitd.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -138,7 +138,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="cppunit.lib ACE.lib"
+				AdditionalDependencies="cppunit.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -176,47 +176,15 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\..\..\tests\lib\Spin\Connection.cpp"
+			RelativePath="..\..\..\tests\lib\Agelena\Logger.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\tests\lib\Spin\Connection.h"
+			RelativePath="..\..\..\tests\lib\Agelena\Logger.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\tests\lib\Spin\Connector.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Connector.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Listener.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Listener.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\main.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Pipe.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Pipe.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Response.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Response.h"
+			RelativePath="..\..\..\tests\lib\Agelena\main.cpp"
 			>
 		</File>
 	</Files>

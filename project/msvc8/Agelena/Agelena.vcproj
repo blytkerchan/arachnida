@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="Test_Spin"
-	ProjectGUID="{BE589F03-C422-4DA1-BF64-425D49F25E2A}"
-	RootNamespace="Test_Spin"
+	Name="Agelena"
+	ProjectGUID="{EBC5EBD3-4156-47F0-B70F-949690B64666}"
+	RootNamespace="Agelena"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -19,7 +19,7 @@
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
+			ConfigurationType="2"
 			CharacterSet="1"
 			>
 			<Tool
@@ -40,8 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(ProjectDir)..\..\..\lib"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;AGELENA_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -62,10 +61,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="cppunitd.lib ACEd.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
-				SubSystem="1"
+				SubSystem="2"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -97,7 +95,7 @@
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
+			ConfigurationType="2"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -118,8 +116,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="$(ProjectDir)..\..\..\lib"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;AGELENA_EXPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -138,10 +135,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="cppunit.lib ACE.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
-				SubSystem="1"
+				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="1"
@@ -175,48 +171,20 @@
 	<References>
 	</References>
 	<Files>
+		<Filter
+			Name="Details"
+			>
+			<File
+				RelativePath="..\..\..\lib\Agelena\Details\prologue.h"
+				>
+			</File>
+		</Filter>
 		<File
-			RelativePath="..\..\..\tests\lib\Spin\Connection.cpp"
+			RelativePath="..\..\..\lib\Agelena\Logger.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\tests\lib\Spin\Connection.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Connector.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Connector.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Listener.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Listener.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\main.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Pipe.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Pipe.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Response.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Spin\Response.h"
+			RelativePath="..\..\..\lib\Agelena\Logger.h"
 			>
 		</File>
 	</Files>

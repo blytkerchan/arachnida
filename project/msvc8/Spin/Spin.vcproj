@@ -191,14 +191,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\lib\Spin\Private\Logger.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\lib\Spin\Private\Logger.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\lib\Spin\Private\Pipe.cpp"
 				>
 			</File>
