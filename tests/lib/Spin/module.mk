@@ -5,7 +5,8 @@ Test_Spin_SRC :=			\
 	Logger.cpp			\
 	Pipe.cpp			\
 	Response.cpp			\
-	main.cpp
+	main.cpp			\
+	UDPSocket.cpp
 
 SRC += $(patsubst %,tests/lib/Spin/%,$(Test_Spin_SRC))
 

@@ -20,12 +20,9 @@ extern "C" {
 
 namespace Spin
 {
-	/*static */volatile boost::uint32_t Connection::next_attribute_index__(0);
-
 	Connection::Connection(const Connection & connection)
 		: bio_(connection.bio_),
 		  data_handler_(connection.data_handler_),
-		  attributes_(connection.attributes_),
 		  status_(connection.status_)
 	{
 		connection.bio_.reset();
@@ -179,22 +176,6 @@ read_entry_point:
 		return bio_->usesSSL();
 	}
 
-	/*static */unsigned long Connection::allocateAttribute()
-	{
-		unsigned long retval(Acari::fetchAndIncrement(next_attribute_index__));
-		if (retval >= max_attribute_count__)
-			retval = 0xFFFFFFFF;
-		else
-		{ /* attributes not exhausted */ }
-		return retval;
-	}
-
-	boost::any & Connection::getAttribute(unsigned long index)
-	{
-		assert(index < max_attribute_count__);
-		return attributes_[index];
-	}
-
 	void Connection::setNewDataHandler(Handlers::NewDataHandler & handler, OnErrorCallback on_error_callback/* = OnErrorCallback()*/)
 	{
 		boost::recursive_mutex::scoped_lock sentinel(bio_lock_);
@@ -231,7 +212,6 @@ read_entry_point:
 	Connection::Connection(Scorpion::BIO * bio)
 		: bio_(bio),
 		  data_handler_(0),
-		  attributes_(max_attribute_count__),
 		  status_(good__)
 	{ /* no-op */ }
 

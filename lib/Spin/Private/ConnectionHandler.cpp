@@ -155,6 +155,13 @@ namespace Spin
 		ConnectionHandler::~ConnectionHandler()
 		{
 			done_ = true;
+#if ! defined(_WIN32) || defined(__CYGWIN__)
+			/* On Windows, there really is no clean way to clean up after 
+			 * ourselves: an alternative to this would be to have DllMain 
+			 * take care of clean-up for us, but that's even sloppier than
+			 * not notifying the thread that it's about to die...*/
+			notifyThread_();
+#endif
 			if (worker_thread_)
 				worker_thread_->join();
 			else
@@ -206,7 +213,7 @@ namespace Spin
 				int sync_pipe_read_descriptor(sync_pipe_.getReadDescriptor());
 				FD_SET(sync_pipe_read_descriptor, &read_fds);
 				highest_fd_seen = std::max(highest_fd_seen, sync_pipe_read_descriptor);
-				int select_result(::select(highest_fd_seen, &read_fds, &write_fds, &exc_fds, 0));
+				int select_result(::select(highest_fd_seen + 1, &read_fds, &write_fds, &exc_fds, 0));
 				if (select_result <= 0)
 				{
 					std::string error_message;

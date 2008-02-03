@@ -1,6 +1,7 @@
 #ifndef _spin_details_address_h
 #define _spin_details_address_h
 
+#include "prologue.h"
 #include <boost/cstdint.hpp>
 #include <boost/static_assert.hpp>
 
@@ -18,7 +19,7 @@ namespace Spin
 		struct Address
 		{
 			//! Construct from a network-byte-order 32-bit integer
-			Address(boost::uint32_t u32)
+			Address(boost::uint32_t u32 = 0)
 			{
 				u_.u32_ = u32;
 			}
@@ -42,6 +43,9 @@ namespace Spin
 			BOOST_STATIC_ASSERT(sizeof(boost::uint8_t) == 1);
 			BOOST_STATIC_ASSERT(sizeof(U_) == 4);
 		};
+
+		SPIN_API bool operator==(const Address & lhs, const Address & rhs);
+		SPIN_API bool operator!=(const Address & lhs, const Address & rhs);
 	}
 }
 

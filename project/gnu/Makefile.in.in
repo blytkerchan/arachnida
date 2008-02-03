@@ -1,4 +1,4 @@
-LIBRARIES := Spin Acari Scorpion
+LIBRARIES := Spin Acari Scorpion Damon
 INSTALL_LIBRARIES := 
 PROGRAMS := 
 MODULES := $(LIBRARIES) $(PROGRAMS)

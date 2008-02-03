@@ -14,14 +14,19 @@ int main(int argc, char ** argv)
 	else
 		std::cerr << "No path to the SSL certificate for the tests was specified - test won't be performed" << std::endl;;
 
-	// UnitTest
-	CppUnit::TextTestRunner runner;
-	runner.setOutputter(CppUnit::CompilerOutputter::defaultOutputter(&runner.result(), std::cerr));
-	CppUnit::BriefTestProgressListener progress;
-	runner.eventManager().addListener( &progress );
-	CppUnit::TestFactoryRegistry &registry = CppUnit::TestFactoryRegistry::getRegistry();
-	runner.addTest( registry.makeTest() );
-	runner.run();
+	try
+	{
+		// UnitTest
+		CppUnit::TextTestRunner runner;
+		runner.setOutputter(CppUnit::CompilerOutputter::defaultOutputter(&runner.result(), std::cerr));
+		CppUnit::BriefTestProgressListener progress;
+		runner.eventManager().addListener( &progress );
+		CppUnit::TestFactoryRegistry &registry = CppUnit::TestFactoryRegistry::getRegistry();
+		runner.addTest( registry.makeTest() );
+		runner.run();
+	}
+	catch (...)
+	{ /* no-op */ }
 
 	return 0;
 }

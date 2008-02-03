@@ -91,6 +91,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="$(TargetPath) $(ProjectDir)..\..\..\tests\lib\Spin\cert.pem"
 			/>
 		</Configuration>
 		<Configuration
@@ -169,6 +170,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="$(TargetPath) $(ProjectDir)..\..\..\tests\lib\Spin\cert.pem"
 			/>
 		</Configuration>
 	</Configurations>
@@ -217,6 +219,14 @@
 		</File>
 		<File
 			RelativePath="..\..\..\tests\lib\Spin\Response.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\tests\lib\Spin\UDPSocket.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\tests\lib\Spin\UDPSocket.h"
 			>
 		</File>
 	</Files>

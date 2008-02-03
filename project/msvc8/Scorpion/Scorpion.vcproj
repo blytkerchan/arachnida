@@ -63,6 +63,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ssleay32.lib libeay32.lib "
+				OutputFile="$(OutDir)\$(ProjectName)-vc80-mt-gd-0.dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -91,6 +92,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="xcopy /y  /i /v /s $(ProjectDir)..\..\..\lib\$(InputName)\*.h c:\inst\$(InputName)\include\$(InputName)\&#x0D;&#x0A;xcopy /y  /i /v /s $(ProjectDir)..\..\..\lib\$(InputName)\*.hpp c:\inst\$(InputName)\include\$(InputName)\&#x0D;&#x0A;xcopy /y /i /v $(TargetPath) c:\inst\$(InputName)\bin\&#x0D;&#x0A;xcopy /y /i /v $(TargetDir)$(TargetName).pdb c:\inst\$(InputName)\bin\&#x0D;&#x0A;xcopy /y /i /v $(TargetDir)$(TargetName).lib c:\inst\$(InputName)\lib\&#x0D;&#x0A;xcopy /y /i /v $(TargetDir)$(TargetName).exp c:\inst\$(InputName)\lib\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -139,6 +141,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ssleay32.lib libeay32.lib "
+				OutputFile="$(OutDir)\$(ProjectName)-vc80-mt-0.dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -169,6 +172,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="xcopy /y  /i /v /s $(ProjectDir)..\..\..\lib\$(InputName)\*.h c:\inst\$(InputName)\include\$(InputName)\&#x0D;&#x0A;xcopy /y  /i /v /s $(ProjectDir)..\..\..\lib\$(InputName)\*.hpp c:\inst\$(InputName)\include\$(InputName)\&#x0D;&#x0A;xcopy /y /i /v $(TargetPath) c:\inst\$(InputName)\bin\&#x0D;&#x0A;xcopy /y /i /v $(TargetDir)$(TargetName).pdb c:\inst\$(InputName)\bin\&#x0D;&#x0A;xcopy /y /i /v $(TargetDir)$(TargetName).lib c:\inst\$(InputName)\lib\&#x0D;&#x0A;xcopy /y /i /v $(TargetDir)$(TargetName).exp c:\inst\$(InputName)\lib\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>

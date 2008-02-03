@@ -91,6 +91,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="$(TargetPath)"
 			/>
 		</Configuration>
 		<Configuration
@@ -169,6 +170,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="$(TargetPath)"
 			/>
 		</Configuration>
 	</Configurations>
@@ -181,6 +183,14 @@
 		</File>
 		<File
 			RelativePath="..\..\..\tests\lib\Acari\atomicPrimitives.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\tests\lib\Acari\Attributes.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\tests\lib\Acari\Attributes.h"
 			>
 		</File>
 		<File

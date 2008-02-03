@@ -33,6 +33,9 @@ extern "C" {
 #define SCORPION_DEFAULT_EGD_DEVNAMES "/var/run/egd-pool", "/dev/egd-pool", "/etc/egd-pool", "/etc/entropy"
 #endif
 
+#include <boost/format.hpp>
+
+
 namespace Scorpion
 {
 	namespace Private
@@ -142,10 +145,12 @@ namespace Scorpion
 				{
 					instance__->locks_[lock_id]->lock();
 				}
-				else
+				else if (mode & CRYPTO_UNLOCK)
 				{
 					instance__->locks_[lock_id]->unlock();
 				}
+				else
+				{ /* don't know why we were called */ }
 			}
 	
 			static void cleanup()
