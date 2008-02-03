@@ -26,15 +26,15 @@ namespace Tests
 
 			void Connector::tryCreateHTTPConnectionToLandheerCieslakDotCom()
 			{
-				::Spin::Connection connection(::Spin::Connector::getInstance().connect("www.landheer-cieslak.com", 80));
-				CPPUNIT_ASSERT(!connection.usesSSL());
+				boost::shared_ptr< ::Spin::Connection > connection(::Spin::Connector::getInstance().connect("www.landheer-cieslak.com", 80));
+				CPPUNIT_ASSERT(!connection->usesSSL());
 				std::size_t byte_count(0);
 				int reason(0);
-				boost::tie(byte_count, reason) = connection.write("GET / HTTP/1.0\n\n");
+				boost::tie(byte_count, reason) = connection->write("GET / HTTP/1.0\n\n");
 				CPPUNIT_ASSERT(byte_count == 16);
 				CPPUNIT_ASSERT(reason == ::Spin::Connection::no_error__);
 				std::vector< char > buffer;
-				boost::tie(byte_count, reason) = connection.read(buffer);
+				boost::tie(byte_count, reason) = connection->read(buffer);
 				CPPUNIT_ASSERT(reason & ::Spin::Connection::should_retry__);
 				buffer.resize(byte_count);
 				std::cerr << std::string(buffer.begin(), buffer.end()) << std::endl;
@@ -42,7 +42,7 @@ namespace Tests
 				try
 				{
 					while (1)
-						connection.read(buffer);
+						connection->read(buffer);
 				}
 				catch (const ::Spin::Exceptions::Connection::ConnectionClosed &)
 				{
@@ -53,15 +53,15 @@ namespace Tests
 
 			void Connector::tryCreateHTTPSConnectionToLandheerCieslakDotCom()
 			{
-				::Spin::Connection connection(::Spin::Connector::getInstance().connect(::Scorpion::Context(::Scorpion::Context::insecure_default_options__), "vlinder.landheer-cieslak.com", 443));
-				CPPUNIT_ASSERT(connection.usesSSL());
+				boost::shared_ptr< ::Spin::Connection > connection(::Spin::Connector::getInstance().connect(::Scorpion::Context(::Scorpion::Context::insecure_default_options__), "vlinder.landheer-cieslak.com", 443));
+				CPPUNIT_ASSERT(connection->usesSSL());
 				std::size_t byte_count(0);
 				int reason(0);
-				boost::tie(byte_count, reason) = connection.write("GET / HTTP/1.0\n\n");
+				boost::tie(byte_count, reason) = connection->write("GET / HTTP/1.0\n\n");
 				CPPUNIT_ASSERT(byte_count == 16);
 				CPPUNIT_ASSERT(reason == ::Spin::Connection::no_error__);
 				std::vector< char > buffer;
-				boost::tie(byte_count, reason) = connection.read(buffer);
+				boost::tie(byte_count, reason) = connection->read(buffer);
 				CPPUNIT_ASSERT(reason & ::Spin::Connection::should_retry__);
 				buffer.resize(byte_count);
 				std::cerr << std::string(buffer.begin(), buffer.end()) << std::endl;
@@ -69,7 +69,7 @@ namespace Tests
 				try
 				{
 					while (1)
-						connection.read(buffer);
+						connection->read(buffer);
 				}
 				catch (const ::Spin::Exceptions::Connection::ConnectionClosed &)
 				{

@@ -14,21 +14,13 @@ extern "C" {
 #include <boost/bind.hpp>
 #include <Acari/atomicPrimitives.h>
 #include <Scorpion/BIO.h>
+#include <Agelena/Logger.h>
 #include "Private/ConnectionHandler.h"
 #include "Handlers/NewDataHandler.h"
 #include "Exceptions/Connection.h"
 
 namespace Spin
 {
-	Connection::Connection(const Connection & connection)
-		: bio_(connection.bio_),
-		  data_handler_(connection.data_handler_),
-		  status_(connection.status_)
-	{
-		connection.bio_.reset();
-		connection.status_ |= done__;
-	}
-
 	Connection::~Connection()
 	{
 		clearNewDataHandler();
@@ -188,7 +180,12 @@ read_entry_point:
 		boost::recursive_mutex::scoped_lock sentinel(bio_lock_);
 		if (data_handler_)
 		{
-			Private::ConnectionHandler::getInstance().detach(bio_->getFD());
+			if (bio_)
+				Private::ConnectionHandler::getInstance().detach(bio_->getFD());
+			else
+			{ /* If the BIO doesn't exist, anymore, the FD will no longer be
+			   * valid and the connection handler will garbage collect it by
+			   * itself */ }
 			data_handler_ = 0;
 		}
 		else

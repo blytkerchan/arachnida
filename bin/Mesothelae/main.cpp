@@ -6,9 +6,11 @@
 #include <Spin/Handlers/HTTPConnectionHandler.h>
 #include <Spin/Handlers/HTTPRequestHandler.h>
 #include <loki/ScopeGuard.h>
+#include <Agelena/Loggers/DefaultWindowsLogger.h>
 
 int main()
 {
+	Agelena::Loggers::DefaultWindowsLogger logger;
 	Spin::Listener listener(0, 80);
 	::Spin::Handlers::HTTPRequestHandler request_handler;
 	::Spin::Handlers::HTTPConnectionHandler connection_handler(request_handler);
@@ -43,8 +45,12 @@ int main()
 					connection->write("    \r\n\n\n\n\n\r          \t\t\t    ");
 					connection->write(
 						Spin::Details::Response(request->protocol_and_version_, Spin::Details::Response::found__)
-							("Location", "/index.html")
+						("Location", "/index.html")
 						);
+				}
+				else if (request->url_ == "/close_connection")
+				{
+					connection->close();
 				}
 				else
 				{

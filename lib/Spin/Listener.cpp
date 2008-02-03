@@ -31,9 +31,9 @@ namespace Spin
 		clearNewConnectionHandler();
 	}
 
-	Connection Listener::accept()
+	boost::shared_ptr< Connection > Listener::accept()
 	{
-		return Connection(bio_->accept());
+		return boost::shared_ptr< Connection >(new Connection(bio_->accept()));
 	}
 
 	void Listener::setNewConnectionHandler(Handlers::NewConnectionHandler & handler)

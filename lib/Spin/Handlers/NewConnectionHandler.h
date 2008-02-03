@@ -2,7 +2,7 @@
 #define _spin_handlers_newconnectionhandler_h
 
 #include "../Details/prologue.h"
-#include <memory>
+#include <boost/shared_ptr.hpp>
 
 namespace Spin
 {
@@ -15,7 +15,7 @@ namespace Spin
 		public :
 			virtual ~NewConnectionHandler();
 
-			NewConnectionHandler & operator()(const Connection & connection)
+			NewConnectionHandler & operator()(boost::shared_ptr< Connection > connection)
 			{
 				handleNewConnection(connection);
 				return *this;
@@ -23,7 +23,7 @@ namespace Spin
 
 		protected :
 			//! Called whenever a new connection is ready.
-			virtual void handleNewConnection(const Connection & connection) = 0;
+			virtual void handleNewConnection(boost::shared_ptr< Connection > connection) = 0;
 		};
 	}
 }

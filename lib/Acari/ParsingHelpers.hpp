@@ -210,7 +210,7 @@ namespace Acari
 		}
 
 		template < typename Connection, typename Response, typename UnsupportedProtocol, typename Iterator >
-		std::pair< boost::shared_ptr< Response >, Iterator > extractResponseHeader(Connection & connection, Iterator curr, const Iterator & end)
+		std::pair< boost::shared_ptr< Response >, Iterator > extractResponseHeader(boost::shared_ptr< Connection > connection, Iterator curr, const Iterator & end)
 		{
 			Iterator begin(curr);
 			/* The first line of an HTTP response consists of the protocol and version,

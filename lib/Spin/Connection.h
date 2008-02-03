@@ -73,8 +73,6 @@ namespace Spin
 			should_write__	= 4,
 		};
 
-		//! Copy constructor with move semantics
-		Connection(const Connection & connection);
 		~Connection();
 
 		/** Write data to the connection.
@@ -116,7 +114,8 @@ namespace Spin
 		int getStatus() const { return status_; }
 
 	private :
-		// Not Assignable
+		// Neither CopyConstructible nor Assignable
+		Connection(const Connection &);
 		Connection & operator=(const Connection&);
 
 		Connection(Scorpion::BIO * bio);

@@ -89,7 +89,7 @@ namespace Spin
 			delete data_;
 		}
 
-		/*virtual */void HTTPConnectionHandler::handleNewConnection(const Connection & connection)/* = 0*/
+		/*virtual */void HTTPConnectionHandler::handleNewConnection(boost::shared_ptr< Connection > connection)/* = 0*/
 		{
 			/* When we get called, we know that:
 			 * * a new connection is ready and, if it is an SSL connection, 
@@ -105,7 +105,7 @@ namespace Spin
 			 * * this is where the choice whether or not we should serve 
 			 *   this client should take place.
 			 */
-			Details::Address peer_address(connection.getPeerAddress());
+			Details::Address peer_address(connection->getPeerAddress());
 			if (!validate(peer_address))
 			{
 				return; // validate returned false - don't serve this client
@@ -119,10 +119,9 @@ namespace Spin
 			 * Note that the data handler can handle only one connection, 
 			 * because the connection handler won't tell it which connection
 			 * is ready to receive data. */
-			boost::shared_ptr< Connection > connection_p(new Connection(connection));
-			connection_p->setNewDataHandler(data_->data_handler_, boost::bind<void>(ErrorHandler< Data::Connections_ >(data_->connections_, data_->connections_lock_), connection_p.get()));
+			connection->setNewDataHandler(data_->data_handler_, boost::bind<void>(ErrorHandler< Data::Connections_ >(data_->connections_, data_->connections_lock_), connection.get()));
 			boost::recursive_mutex::scoped_lock lock(data_->connections_lock_);
-			data_->connections_.push_back(connection_p);
+			data_->connections_.push_back(connection);
 		}
 
 		/*virtual */bool HTTPConnectionHandler::validate(const Details::Address & peer_address)

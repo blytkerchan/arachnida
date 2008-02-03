@@ -42,7 +42,7 @@ namespace Spin
 		~Listener();
 
 		//! Synchronously accept a connection (i.e. wait for it)
-		Connection accept();
+		boost::shared_ptr< Connection > accept();
 
 		//! Set a new connection handler for accepting connections asynchronously
 		void setNewConnectionHandler(Handlers::NewConnectionHandler & handler);

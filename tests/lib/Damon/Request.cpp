@@ -81,5 +81,11 @@ namespace Tests
 			CPPUNIT_ASSERT(responses[2].header_fields_[1].value_ == "46");
 			CPPUNIT_ASSERT(responses[2].body_.size() == 46);
 		}
+
+		void Request::tryRequest04()
+		{
+			::Damon::Request request("http://127.0.0.1/close_connection");
+			::Damon::Response response(send(request));
+		}
 	}
 }

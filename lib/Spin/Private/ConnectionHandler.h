@@ -42,6 +42,7 @@ namespace Spin
 
 			void workerThreadFunc_();
 			void notifyThread_();
+			static bool testFD_(int fd);
 
 			Callbacks_ callbacks_;
 			CallbacksLock_ callbacks_lock_;

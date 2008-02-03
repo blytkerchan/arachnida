@@ -22,9 +22,9 @@ namespace Spin
 		static Connector & getInstance();
 
 		//! Create a connection, connecting to the given remote address and port
-		Connection connect(const std::string & remote_address, boost::uint16_t port);
+		boost::shared_ptr< Connection > connect(const std::string & remote_address, boost::uint16_t port);
 		//! Create a secured connection, connecting to the given remote address and port
-		Connection connect(const Scorpion::Context & context, const std::string & remote_address, boost::uint16_t port);
+		boost::shared_ptr< Connection > connect(const Scorpion::Context & context, const std::string & remote_address, boost::uint16_t port);
 
 	private :
 		// Neither CopyConstructible nor Assignable

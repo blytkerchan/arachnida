@@ -179,6 +179,18 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="Loggers"
+			>
+			<File
+				RelativePath="..\..\..\lib\Agelena\Loggers\DefaultWindowsLogger.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\lib\Agelena\Loggers\DefaultWindowsLogger.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath="..\..\..\lib\Agelena\Logger.cpp"
 			>

@@ -29,20 +29,20 @@ namespace Tests
 			class NewConnectionHandler : public ::Spin::Handlers::NewConnectionHandler
 			{
 			public :
-				::Spin::Connection getConnection()
+				boost::shared_ptr< ::Spin::Connection > getConnection()
 				{
 					CPPUNIT_ASSERT(connection_.get());
-					return ::Spin::Connection(*connection_);
+					return connection_;
 				}
 
 			protected :
-				/*virtual */void handleNewConnection(const ::Spin::Connection & connection)
+				/*virtual */void handleNewConnection(boost::shared_ptr< ::Spin::Connection > connection)
 				{
-					connection_.reset(new ::Spin::Connection(connection));
+					connection_ = connection;
 				}
 
 			private :
-				std::auto_ptr< ::Spin::Connection > connection_;
+				boost::shared_ptr< ::Spin::Connection > connection_;
 			};
 
 			class NewConnectionHandler2 : public ::Spin::Handlers::NewConnectionHandler
@@ -52,22 +52,22 @@ namespace Tests
 					: listener_(listener)
 				{ /* no-op */ }
 
-				::Spin::Connection getConnection()
+				boost::shared_ptr< ::Spin::Connection > getConnection()
 				{
 					CPPUNIT_ASSERT(connection_.get());
-					return ::Spin::Connection(*connection_);
+					return connection_;
 				}
 
 			protected :
-				/*virtual */void handleNewConnection(const ::Spin::Connection & connection)
+				/*virtual */void handleNewConnection(boost::shared_ptr< ::Spin::Connection > connection)
 				{
-					connection_.reset(new ::Spin::Connection(connection));
+					connection_ = connection;
 					listener_.clearNewConnectionHandler();
 				}
 
 			private :
 				::Spin::Listener & listener_;
-				std::auto_ptr< ::Spin::Connection > connection_;
+				boost::shared_ptr< ::Spin::Connection > connection_;
 			};
 		}
 
@@ -87,11 +87,11 @@ namespace Tests
 		void Listener::tryAccept()
 		{
 			::Spin::Listener listener(0, 4097);
-			::Spin::Connection connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4097));
-			::Spin::Connection accepted_connection(listener.accept());
-			connection_out.write("Hello, world!");
+			boost::shared_ptr< ::Spin::Connection > connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4097));
+			boost::shared_ptr< ::Spin::Connection > accepted_connection(listener.accept());
+			connection_out->write("Hello, world!");
 			std::vector< char > buffer;
-			std::pair< std::size_t, int > results(accepted_connection.read(buffer));
+			std::pair< std::size_t, int > results(accepted_connection->read(buffer));
 			buffer.resize(results.first);
 			CPPUNIT_ASSERT(std::string(buffer.begin(), buffer.end()) == "Hello, world!");
 		}
@@ -108,11 +108,11 @@ namespace Tests
 			::Spin::Listener listener(server_ssl_context, 0, 4098);
 			listener.setNewConnectionHandler(handler);
 			Loki::ScopeGuard attachment_handler = Loki::MakeObjGuard(listener, &::Spin::Listener::clearNewConnectionHandler);
-			::Spin::Connection connection_out(::Spin::Connector::getInstance().connect(::Scorpion::Context(::Scorpion::Context::insecure_default_options__), "127.0.0.1", 4098));
-			::Spin::Connection accepted_connection(handler.getConnection());
-			connection_out.write("Hello, world!");
+			boost::shared_ptr< ::Spin::Connection > connection_out(::Spin::Connector::getInstance().connect(::Scorpion::Context(::Scorpion::Context::insecure_default_options__), "127.0.0.1", 4098));
+			boost::shared_ptr< ::Spin::Connection > accepted_connection(handler.getConnection());
+			connection_out->write("Hello, world!");
 			std::vector< char > buffer;
-			std::pair< std::size_t, int > results(accepted_connection.read(buffer));
+			std::pair< std::size_t, int > results(accepted_connection->read(buffer));
 			buffer.resize(results.first);
 			CPPUNIT_ASSERT(std::string(buffer.begin(), buffer.end()) == "Hello, world!");
 		}
@@ -123,12 +123,12 @@ namespace Tests
 			NewConnectionHandler2 handler(listener);
 			listener.setNewConnectionHandler(handler);
 			Loki::ScopeGuard attachment_handler = Loki::MakeObjGuard(listener, &::Spin::Listener::clearNewConnectionHandler);
-			::Spin::Connection connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4099));
+			boost::shared_ptr< ::Spin::Connection > connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4099));
 			Sleep(1000);
-			::Spin::Connection accepted_connection(handler.getConnection());
-			connection_out.write("Hello, world!");
+			boost::shared_ptr< ::Spin::Connection > accepted_connection(handler.getConnection());
+			connection_out->write("Hello, world!");
 			std::vector< char > buffer;
-			std::pair< std::size_t, int > results(accepted_connection.read(buffer));
+			std::pair< std::size_t, int > results(accepted_connection->read(buffer));
 			buffer.resize(results.first);
 			CPPUNIT_ASSERT(std::string(buffer.begin(), buffer.end()) == "Hello, world!");
 		}
@@ -140,8 +140,8 @@ namespace Tests
 			::Spin::Handlers::HTTPConnectionHandler connection_handler(request_handler);
 			listener.setNewConnectionHandler(connection_handler);
 			Loki::ScopeGuard attachment_handler = Loki::MakeObjGuard(listener, &::Spin::Listener::clearNewConnectionHandler);
-			::Spin::Connection connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4100));
-			connection_out.write(
+			boost::shared_ptr< ::Spin::Connection > connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4100));
+			connection_out->write(
 				"POST / HTTP/1.1\r\n"
 				"Content-Length: 8\r\n"
 				"\r\n"
@@ -162,8 +162,8 @@ namespace Tests
 			::Spin::Handlers::HTTPConnectionHandler connection_handler(request_handler);
 			listener.setNewConnectionHandler(connection_handler);
 			Loki::ScopeGuard attachment_handler = Loki::MakeObjGuard(listener, &::Spin::Listener::clearNewConnectionHandler);
-			::Spin::Connection connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4101));
-			connection_out.write(
+			boost::shared_ptr< ::Spin::Connection > connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4101));
+			connection_out->write(
 				"GET / HTTP/1.1\r\n"
 				"\r\n"
 				);
@@ -181,8 +181,8 @@ namespace Tests
 			::Spin::Handlers::HTTPConnectionHandler connection_handler(request_handler);
 			listener.setNewConnectionHandler(connection_handler);
 			Loki::ScopeGuard attachment_handler = Loki::MakeObjGuard(listener, &::Spin::Listener::clearNewConnectionHandler);
-			::Spin::Connection connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4102));
-			connection_out.write(
+			boost::shared_ptr< ::Spin::Connection > connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4102));
+			connection_out->write(
 				"GET /index.html HTTP/1.1\r\n"
 				"\r\n"
 				"GET /images/logo.png HTTP/1.1\r\n"
@@ -207,8 +207,8 @@ namespace Tests
 			::Spin::Handlers::HTTPConnectionHandler connection_handler(request_handler);
 			listener.setNewConnectionHandler(connection_handler);
 			Loki::ScopeGuard attachment_handler = Loki::MakeObjGuard(listener, &::Spin::Listener::clearNewConnectionHandler);
-			::Spin::Connection connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4103));
-			connection_out.write(
+			boost::shared_ptr< ::Spin::Connection > connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4103));
+			connection_out->write(
 				"GET /index.html HTTP/1.1\r\n"
 				"User-Agent: test\r\n"
 				"Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5\r\n"
@@ -256,8 +256,8 @@ namespace Tests
 			::Spin::Handlers::HTTPConnectionHandler connection_handler(request_handler);
 			listener.setNewConnectionHandler(connection_handler);
 			Loki::ScopeGuard attachment_handler = Loki::MakeObjGuard(listener, &::Spin::Listener::clearNewConnectionHandler);
-			::Spin::Connection connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4104));
-			connection_out.write(
+			boost::shared_ptr< ::Spin::Connection > connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4104));
+			connection_out->write(
 				"GET /index.html HTTP/1.1\r\n"
 				"User-Agent: test\r\n"
 				"Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5\r\n"
@@ -265,7 +265,7 @@ namespace Tests
 				"Accept-Encoding: gzip,deflate\r\n"
 				);
 			Sleep(1000);
-			connection_out.write(
+			connection_out->write(
 				"Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7\r\n"
 				"Keep-Alive: 300\r\n"
 				"Connection: keep-alive\r\n"
@@ -308,8 +308,8 @@ namespace Tests
 			::Spin::Handlers::HTTPConnectionHandler connection_handler(request_handler);
 			listener.setNewConnectionHandler(connection_handler);
 			Loki::ScopeGuard attachment_handler = Loki::MakeObjGuard(listener, &::Spin::Listener::clearNewConnectionHandler);
-			::Spin::Connection connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4105));
-			connection_out.write(
+			boost::shared_ptr< ::Spin::Connection > connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4105));
+			connection_out->write(
 				"GET /index.html HTTP/1.1\r\n"
 				"User-Agent: test\r\n"
 				"Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5\r\n"
@@ -317,7 +317,7 @@ namespace Tests
 				"Accept-Encoding: gzip,deflate"
 				);
 			Sleep(1000);
-			connection_out.write(
+			connection_out->write(
 				"\r\n"
 				"Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7\r\n"
 				"Keep-Alive: 300\r\n"
@@ -361,8 +361,8 @@ namespace Tests
 			::Spin::Handlers::HTTPConnectionHandler connection_handler(request_handler);
 			listener.setNewConnectionHandler(connection_handler);
 			Loki::ScopeGuard attachment_handler = Loki::MakeObjGuard(listener, &::Spin::Listener::clearNewConnectionHandler);
-			::Spin::Connection connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4106));
-			connection_out.write(
+			boost::shared_ptr< ::Spin::Connection > connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4106));
+			connection_out->write(
 				"GET /index.html HTTP/1.1\r\n"
 				"User-Agent: test\r\n"
 				"Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5\r\n"
@@ -370,7 +370,7 @@ namespace Tests
 				"Accept-Encoding: gzip,"
 				);
 			Sleep(1000);
-			connection_out.write(
+			connection_out->write(
 				"deflate\r\n"
 				"Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7\r\n"
 				"Keep-Alive: 300\r\n"
@@ -414,8 +414,8 @@ namespace Tests
 			::Spin::Handlers::HTTPConnectionHandler connection_handler(request_handler);
 			listener.setNewConnectionHandler(connection_handler);
 			Loki::ScopeGuard attachment_handler = Loki::MakeObjGuard(listener, &::Spin::Listener::clearNewConnectionHandler);
-			::Spin::Connection connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4107));
-			connection_out.write(
+			boost::shared_ptr< ::Spin::Connection > connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4107));
+			connection_out->write(
 				"GET /index.html HTTP/1.1\r\n"
 				"User-Agent: test\r\n"
 				"Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5\r\n"
@@ -423,7 +423,7 @@ namespace Tests
 				"Accept-Encoding: gzip,\r\n"
 				);
 			Sleep(1000);
-			connection_out.write(
+			connection_out->write(
 				"\tdeflate\r\n"
 				"Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7\r\n"
 				"Keep-Alive: 300\r\n"
@@ -467,8 +467,8 @@ namespace Tests
 			::Spin::Handlers::HTTPConnectionHandler connection_handler(request_handler);
 			listener.setNewConnectionHandler(connection_handler);
 			Loki::ScopeGuard attachment_handler = Loki::MakeObjGuard(listener, &::Spin::Listener::clearNewConnectionHandler);
-			::Spin::Connection connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4107));
-			connection_out.write(
+			boost::shared_ptr< ::Spin::Connection > connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4107));
+			connection_out->write(
 				"GET /index.html HTTP/1.1\r\n"
 				"User-Agent: test\r\n"
 				"Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5\r\n"
@@ -480,7 +480,7 @@ namespace Tests
 				"Connection: keep-alive\r\n"
 				);
 			Sleep(1000);
-			connection_out.write(
+			connection_out->write(
 				"\r\n"
 				);
 			boost::shared_ptr< ::Spin::Details::Request > request(request_handler.getNextRequest());
@@ -520,12 +520,12 @@ namespace Tests
 			::Spin::Handlers::HTTPConnectionHandler connection_handler(request_handler);
 			listener.setNewConnectionHandler(connection_handler);
 			Loki::ScopeGuard attachment_handler = Loki::MakeObjGuard(listener, &::Spin::Listener::clearNewConnectionHandler);
-			::Spin::Connection connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4108));
-			connection_out.write(
+			boost::shared_ptr< ::Spin::Connection > connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4108));
+			connection_out->write(
 				"GET /index.html HTTP/1.1"
 				);
 			Sleep(1000);
-			connection_out.write(
+			connection_out->write(
 				"\r\n"
 				"User-Agent: test\r\n"
 				"Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5\r\n"
@@ -574,20 +574,20 @@ namespace Tests
 			::Spin::Handlers::HTTPConnectionHandler connection_handler(request_handler);
 			listener.setNewConnectionHandler(connection_handler);
 			Loki::ScopeGuard attachment_handler = Loki::MakeObjGuard(listener, &::Spin::Listener::clearNewConnectionHandler);
-			::Spin::Connection connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4109));
-			connection_out.write(
+			boost::shared_ptr< ::Spin::Connection > connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4109));
+			connection_out->write(
 				"G"
 				);
 			Sleep(1000);
-			connection_out.write(
+			connection_out->write(
 				"ET /index"
 				);
 			Sleep(1000);
-			connection_out.write(
+			connection_out->write(
 				".html HTT"
 				);
 			Sleep(1000);
-			connection_out.write(
+			connection_out->write(
 				"P/1.1\r\n"
 				"User-Agent: test\r\n"
 				"Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5\r\n"
@@ -636,8 +636,8 @@ namespace Tests
 			::Spin::Handlers::HTTPConnectionHandler connection_handler(request_handler);
 			listener.setNewConnectionHandler(connection_handler);
 			Loki::ScopeGuard attachment_handler = Loki::MakeObjGuard(listener, &::Spin::Listener::clearNewConnectionHandler);
-			::Spin::Connection connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4110));
-			connection_out.write(
+			boost::shared_ptr< ::Spin::Connection > connection_out(::Spin::Connector::getInstance().connect("127.0.0.1", 4110));
+			connection_out->write(
 				"GET /index.html HTTP/1.1\r\n"
 				"User-Agent: test\r\n"
 				"Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5\r\n"
@@ -651,11 +651,11 @@ namespace Tests
 				"\r\n"
 				);
 			Sleep(1000);
-			connection_out.write(
+			connection_out->write(
 				"01234"
 				);
 			Sleep(1000);
-			connection_out.write(
+			connection_out->write(
 				"56789"
 				);
 			boost::shared_ptr< ::Spin::Details::Request > request(request_handler.getNextRequest());

@@ -1,4 +1,6 @@
+//#define AGELENA_NDEBUG	// remove this to turn debugging on
 #include "ConnectionHandler.h"
+#include <Agelena/Logger.h>
 #if defined(_WIN32) && ! defined(__CYGWIN__)
 #include <WinSock2.h>
 #define ON_WINDOZE
@@ -213,7 +215,12 @@ namespace Spin
 				int sync_pipe_read_descriptor(sync_pipe_.getReadDescriptor());
 				FD_SET(sync_pipe_read_descriptor, &read_fds);
 				highest_fd_seen = std::max(highest_fd_seen, sync_pipe_read_descriptor);
+				AGELENA_DEBUG_5("Calling select(highest_fd_seen + 1 (%1%), &read_fds (%2%), &write_fds (%3%), &exc_fds (%4%), 0 (%5%))", (highest_fd_seen + 1), (void*)&read_fds, (void*)&write_fds, (void*)&exc_fds, 0);
 				int select_result(::select(highest_fd_seen + 1, &read_fds, &write_fds, &exc_fds, 0));
+				AGELENA_DEBUG_1("select returned with %1%", select_result);
+
+				typedef std::list< int > CallbacksToRemove;
+				CallbacksToRemove callbacks_to_remove;
 				if (select_result <= 0)
 				{
 					std::string error_message;
@@ -238,9 +245,26 @@ namespace Spin
 					default : error_message = "Unknown error"; break;
 					}
 #endif
-					// log this error_message HERE
-
-					/* When we get HERE one of the file descriptors in one of the sets caused an error. We should find out which one and remove it from the descriptors we work with. */
+					AGELENA_ERROR_0(error_message);
+					/* When we get here one of the file descriptors in one 
+					 * of the sets caused an error. We should find out which 
+					 * one and remove it from the descriptors we work with. */
+					CallbacksLock_::scoped_lock lock(callbacks_lock_);
+					for (Callbacks_::iterator curr(callbacks_.begin()); curr != callbacks_.end(); ++curr)
+					{
+						if (boost::tuples::get<3>(*curr) == attached__)
+						{
+							if (!testFD_(boost::tuples::get<0>(*curr)))
+							{
+								AGELENA_WARNING_1("Scheduling FD %1% for removal", boost::tuples::get<0>(*curr));
+								callbacks_to_remove.push_back(boost::tuples::get<0>(*curr));
+							}
+							else
+							{ /* this one is OK */ }
+						}
+						else
+						{ /* ignore this one, at least for now */ }
+					}
 				}
 				else
 				{
@@ -257,8 +281,6 @@ namespace Spin
 							{ /* fd not set */ }
 						}
 					} // lock ends here
-					typedef std::list< int > CallbacksToRemove;
-					CallbacksToRemove callbacks_to_remove;
 					for (CallbacksToCall::const_iterator curr(callbacks_to_call.begin()); curr != callbacks_to_call.end(); ++curr)
 					{
 						try
@@ -270,40 +292,61 @@ namespace Spin
 							callbacks_to_remove.push_back(boost::tuples::get<0>(*curr));
 						}
 					}
-					if (!callbacks_to_remove.empty())
+				}
+				if (!callbacks_to_remove.empty())
+				{
+					CallbacksLock_::scoped_lock lock(callbacks_lock_);
+					for (CallbacksToRemove::const_iterator curr(callbacks_to_remove.begin()); curr != callbacks_to_remove.end(); ++curr)
 					{
-						CallbacksLock_::scoped_lock lock(callbacks_lock_);
-						for (CallbacksToRemove::const_iterator curr(callbacks_to_remove.begin()); curr != callbacks_to_remove.end(); ++curr)
+						Callbacks_::iterator where(std::find_if(callbacks_.begin(), callbacks_.end(), apply_to_nth< Callbacks_::value_type, 0 >(std::bind2nd(std::equal_to< int >(), *curr))));
+						if (where != callbacks_.end())
 						{
-							Callbacks_::iterator where(std::find_if(callbacks_.begin(), callbacks_.end(), apply_to_nth< Callbacks_::value_type, 0 >(std::bind2nd(std::equal_to< int >(), *curr))));
-							if (where != callbacks_.end())
-							{
-								boost::tuples::get<3>(*where) = pending_detachment__;
-								if (!boost::tuples::get<2>(*where).empty())
-									boost::tuples::get<2>(*where)();
-								else
-								{ /* no on-error callback to call */ }
-							}
+							boost::tuples::get<3>(*where) = pending_detachment__;
+							if (!boost::tuples::get<2>(*where).empty())
+								boost::tuples::get<2>(*where)();
 							else
-							{ /* The callback is no longer there anyway */ }
+							{ /* no on-error callback to call */ }
 						}
+						else
+						{ /* The callback is no longer there anyway */ }
 					}
 				}
-				if (FD_ISSET(sync_pipe_read_descriptor, &read_fds))
-				{
-					// consume the bytes put in the pipe
-					char buffer[64];
-					std::size_t bytes_read_from_sync_pipe(sync_pipe_.read(buffer, sizeof(buffer)));
-				}
 				else
-				{ /* not notified */ }
+				{
+					if (FD_ISSET(sync_pipe_read_descriptor, &read_fds))
+					{
+						AGELENA_DEBUG_0("Fetching notification");
+						// consume the bytes put in the pipe
+						char buffer[64];
+						std::size_t bytes_read_from_sync_pipe(sync_pipe_.read(buffer, sizeof(buffer)));
+					}
+					else
+					{ /* not notified */ }
+				}
 			}
 		}
 
 		void ConnectionHandler::notifyThread_()
 		{
+			AGELENA_DEBUG_0("void ConnectionHandler::notifyThread_()");
 			char sync(0);
 			sync_pipe_.write(&sync, 1);
+		}
+
+		/*static */bool ConnectionHandler::testFD_(int fd)
+		{
+			fd_set read_fds;
+			fd_set write_fds;
+			fd_set exc_fds;
+			FD_ZERO(&read_fds);
+			FD_ZERO(&write_fds);
+			FD_ZERO(&exc_fds);
+			FD_SET(fd, &read_fds);
+			struct timeval timeout;
+			timeout.tv_sec = 0;
+			timeout.tv_usec = 1;
+			int rv(select(fd + 1, &read_fds, &write_fds, &exc_fds, &timeout));
+			return rv >= 0;
 		}
 	}
 }

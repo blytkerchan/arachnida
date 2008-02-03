@@ -13,6 +13,7 @@ namespace Tests
 			CPPUNIT_TEST( tryRequest01 );
 			CPPUNIT_TEST( tryRequest02 );
 			CPPUNIT_TEST( tryRequest03 );
+			CPPUNIT_TEST( tryRequest04 );
 			CPPUNIT_TEST_SUITE_END();
 
 		public:
@@ -23,6 +24,7 @@ namespace Tests
 			void tryRequest01();
 			void tryRequest02();
 			void tryRequest03();
+			void tryRequest04();
 
 		private:
 		};

@@ -4,11 +4,14 @@
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/TestResult.h>
 #include <boost/filesystem/path.hpp>
+#include <Agelena/Loggers/DefaultWindowsLogger.h>
 
 boost::filesystem::path cert_path__;
 
 int main(int argc, char ** argv)
 {
+	Agelena::Loggers::DefaultWindowsLogger logger;
+
 	if (argc > 1)
 		cert_path__ = boost::filesystem::path(argv[1], boost::filesystem::native);
 	else

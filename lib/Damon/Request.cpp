@@ -30,7 +30,7 @@ namespace Damon
 	Request::~Request()
 	{ /* no-op */ }
 
-	Response getResponse(Spin::Connection & connection)
+	Response getResponse(boost::shared_ptr< Spin::Connection > connection)
 	{
 		boost::call_once(initAttributeIndex, once_flag__);
 		bool retrying(false);
@@ -41,7 +41,7 @@ retry:
 
 		/* When we get here, we may have some data in the connection's 
 		 * attributes already, which we can get now */
-		boost::any & connection_attribute(connection.getAttribute(attribute_index__));
+		boost::any & connection_attribute(connection->getAttribute(attribute_index__));
 		std::vector< char >::iterator where;
 		bool end_of_headers_found(false);
 		bool end_of_buffer_found(false);
@@ -50,11 +50,11 @@ retry:
 		{
 			if (connection_attribute.empty() /* no existing attribute */)
 			{	// parse the request, as it is new
-				if (retrying || end_of_buffer_found || buffer.empty() || connection.poll())
+				if (retrying || end_of_buffer_found || buffer.empty() || connection->poll())
 				{
 					std::vector< char > tmp_buffer(buffer);
 					buffer.clear();
-					std::pair< std::size_t, int > result(connection.read(buffer));
+					std::pair< std::size_t, int > result(connection->read(buffer));
 					switch (result.second /* reason */)		// this is a switch mainly for documentation purposes - it could have been an if, but I think this is clearer
 					{
 					case Spin::Connection::no_error__ :
@@ -200,8 +200,8 @@ retry:
 		boost::tie(protocol, server, port, resource) = parseURL(request.url_);
 		bool secured(protocol == "https");
 
-		Spin::Connection connection(secured ? Spin::Connector::getInstance().connect(Scorpion::Context(), server, port) : Spin::Connector::getInstance().connect(server, port));
-		connection.write(request);
+		boost::shared_ptr< Spin::Connection > connection(secured ? Spin::Connector::getInstance().connect(Scorpion::Context(), server, port) : Spin::Connector::getInstance().connect(server, port));
+		connection->write(request);
 
 		return getResponse(connection);
 	}
@@ -222,8 +222,8 @@ retry:
 		boost::tie(protocol, server, port, resource) = parseURL(requests[0].url_);
 		bool secured(protocol == "https");
 
-		Spin::Connection connection(secured ? Spin::Connector::getInstance().connect(Scorpion::Context(), server, port) : Spin::Connector::getInstance().connect(server, port));
-		std::for_each(requests.begin(), requests.end(), boost::bind(&Spin::Connection::write< Request >, &connection, _1));
+		boost::shared_ptr< Spin::Connection > connection(secured ? Spin::Connector::getInstance().connect(Scorpion::Context(), server, port) : Spin::Connector::getInstance().connect(server, port));
+		std::for_each(requests.begin(), requests.end(), boost::bind(&Spin::Connection::write< Request >, connection.get(), _1));
 
 		std::vector< Response > responses;
 		for (std::vector< Request >::size_type i(0); i < requests.size(); ++i)

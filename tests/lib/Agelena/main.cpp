@@ -4,11 +4,13 @@
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/TestResult.h>
 #include <boost/filesystem/path.hpp>
+#include <Agelena/Loggers/DefaultWindowsLogger.h>
 
 boost::filesystem::path cert_path__;
 
 int main(int argc, char ** argv)
 {
+	Agelena::Loggers::DefaultWindowsLogger logger;
 	// UnitTest
 	CppUnit::TextTestRunner runner;
 	runner.setOutputter(CppUnit::CompilerOutputter::defaultOutputter(&runner.result(), std::cerr));

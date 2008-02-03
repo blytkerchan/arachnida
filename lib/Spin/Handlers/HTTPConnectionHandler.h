@@ -29,7 +29,7 @@ namespace Spin
 			~HTTPConnectionHandler();
 
 		protected :
-			/*virtual */void handleNewConnection(const Connection & connection)/* = 0*/;
+			/*virtual */void handleNewConnection(boost::shared_ptr< Connection > connection)/* = 0*/;
 			// overload this function and have it return false for addresses you don't want to accept connections from
 			virtual bool validate(const Details::Address & peer_address);
 
