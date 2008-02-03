@@ -11,6 +11,8 @@ namespace Acari
 	class ACARI_API Attributes
 	{
 	public :
+		enum { max_attribute_count__ = 8 };
+
 		Attributes();
 		Attributes(const Attributes & attributes);
 		~Attributes();
@@ -31,8 +33,6 @@ namespace Acari
 		boost::any & getAttribute(unsigned long index);
 
 	private :
-		enum { max_attribute_count__ = 8 };
-
 		std::vector< boost::any > attributes_;
 		static volatile boost::uint32_t next_attribute_index__;
 	};

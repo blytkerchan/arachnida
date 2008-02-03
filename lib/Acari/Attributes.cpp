@@ -21,7 +21,7 @@ namespace Acari
 	{
 		unsigned long retval(fetchAndIncrement(next_attribute_index__));
 		if (retval >= max_attribute_count__)
-			retval = 0xFFFFFFFF;
+			throw std::bad_alloc();
 		else
 		{ /* attributes not exhausted */ }
 		return retval;
