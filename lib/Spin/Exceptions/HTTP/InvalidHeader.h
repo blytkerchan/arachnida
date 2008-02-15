@@ -17,7 +17,8 @@ namespace Spin
 
 				template < typename Iterator >
 				InvalidHeader(Iterator begin, Iterator end)
-					: HTTPProtocolError("Invalid header field.")
+					: HTTPProtocolError("Invalid header field."),
+					  what_(0)
 				{
 					Iterator where(end);
 					if (std::distance(begin, where) > max_header_size__)

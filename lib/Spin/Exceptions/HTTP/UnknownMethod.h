@@ -17,7 +17,8 @@ namespace Spin
 
 				template < typename Iterator >
 				UnknownMethod(Iterator begin, Iterator end)
-					: HTTPProtocolError("Unknown method.")
+					: HTTPProtocolError("Unknown method."),
+					  what_(0)
 				{
 					Iterator where(end);
 					if (std::distance(begin, where) > max_protocol_size__)
