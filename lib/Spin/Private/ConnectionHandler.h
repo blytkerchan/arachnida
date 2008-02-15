@@ -7,8 +7,11 @@
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include <Acari/BakeryCounter.h>
+#if defined(_WIN32) && ! defined(__CYGWIN__)
+#	define _WINSOCKAPI_ // Prevent inclusion of winsock.h in windows.h
+#	include <Windows.h>
+#endif
 #include "Pipe.h"
-
 
 namespace boost
 {
@@ -42,6 +45,10 @@ namespace Spin
 
 			void workerThreadFunc_();
 			void notifyThread_();
+			static bool testFD_(int fd);
+#if defined(_WIN32) && ! defined(__CYGWIN__)
+			bool checkThreadStatus();
+#endif
 
 			Callbacks_ callbacks_;
 			CallbacksLock_ callbacks_lock_;
@@ -54,6 +61,7 @@ namespace Spin
 			boost::thread::id worker_thread_id_;
 #elif defined(_WIN32) && ! defined(__CYGWIN__)
 			unsigned int worker_thread_id_;
+			HANDLE worker_thread_handle_;
 #else
 			pthread_t worker_thread_id_;
 #endif

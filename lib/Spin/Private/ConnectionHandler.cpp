@@ -12,6 +12,7 @@ extern "C" {
 #endif
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
+#include <boost/thread/xtime.hpp>
 #include <functional>
 #undef max
 
@@ -127,18 +128,46 @@ namespace Spin
 			{
 				boost::tuples::get<3>(*where) = pending_detachment__;
 				notifyThread_();
-#if HAVE_BOOST_THREADID && HAVE_BOOST_THIS_THREAD
+				/*
+				 * On Windows, the worker thread can apparently die without 
+				 * any indication as to why or how, and without leaving the 
+				 * call to select. This happens only when the application is 
+				 * shutting down but does not allow us to shut down safely 
+				 * without risking a hang in certain conditions (which have 
+				 * been produced with proprietary code).
+				 * As a result if this, we have to check here whether the 
+				 * worker thread is still alive and, as it could die while
+				 * we're waiting for it to notify us that is has successfully
+				 * detached the FD from its internal sets, we cannot wait for 
+				 * that notification indefinitely and have to check again, from
+				 * time to time, that the thread is still there to notify us at
+				 * some point. We do this every thirty milliseconds because in
+				 * the cases where I have been able to test this, thirty milli-
+				 * seconds has always been enough for the worker thread to wake 
+				 * up and do its job, whereas it is also short enough to allow 
+				 * the application to shutdown with apparent cleanliness...
+				 */
+#if defined(ON_WINDOZE)
+				if (worker_thread_id_ != -1 && worker_thread_id_ != GetCurrentThreadId() && checkThreadStatus())
+				do 
+				{
+					boost::xtime xt;
+					boost::xtime_get(&xt, boost::TIME_UTC);
+					xt.nsec += 30000000;
+					callbacks_cond_.timed_wait(lock, xt);
+				} while(boost::tuples::get<3>(*where) != detached__  && checkThreadStatus());
+#else
+#	if HAVE_BOOST_THREADID && HAVE_BOOST_THIS_THREAD
 				/* hypothetical code */
 				if (worker_thread_id_ != boost::this_thread::get_id())
-#elif defined(ON_WINDOZE)
-				if (worker_thread_id_ != GetCurrentThreadId())
-#else
+#	else
 				if (pthread_equal(pthread_self(), worker_thread_id_) == 0)
-#endif
+#	endif
 				do 
 				{
 					callbacks_cond_.wait(lock);
-				} while(boost::tuples::get<3>(*where) != detached__);
+				} while(boost::tuples::get<3>(*where) != detached__ );
+#endif
 				callbacks_.erase(where);
 			}
 			else
@@ -180,6 +209,14 @@ namespace Spin
 			worker_thread_id_ = boost::this_thread::get_id();
 #elif defined(ON_WINDOZE)
 			worker_thread_id_ = GetCurrentThreadId();
+			if (!DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &worker_thread_handle_, 0, 0, DUPLICATE_SAME_ACCESS))
+			{
+				AGELENA_FATAL_ERROR_0("Failed to duplicate worker thread handle - cannot continue");
+				worker_thread_id_ = ~0;
+				throw std::bad_alloc();	// be more eloquent HERE
+			}
+			else
+			{ /* all is well */ }
 #else
 			worker_thread_id_ = pthread_self();
 #endif
@@ -305,5 +342,50 @@ namespace Spin
 			char sync(0);
 			sync_pipe_.write(&sync, 1);
 		}
+
+		/*static */bool ConnectionHandler::testFD_(int fd)
+		{
+			fd_set read_fds;
+			fd_set write_fds;
+			fd_set exc_fds;
+			FD_ZERO(&read_fds);
+			FD_ZERO(&write_fds);
+			FD_ZERO(&exc_fds);
+			FD_SET(fd, &read_fds);
+			struct timeval timeout;
+			timeout.tv_sec = 0;
+			timeout.tv_usec = 1;
+			int rv(select(fd + 1, &read_fds, &write_fds, &exc_fds, &timeout));
+			return rv >= 0;
+		}
+
+#if defined(ON_WINDOZE)
+		bool ConnectionHandler::checkThreadStatus()
+		{
+			DWORD wfso_result(WaitForSingleObject(worker_thread_handle_, 0));
+			AGELENA_DEBUG_1("WaitForSingleObject returned with %x", wfso_result);
+			if (wfso_result == WAIT_TIMEOUT)
+			{
+				AGELENA_DEBUG_0("Worker thread still seems to be alive");
+				return true;
+			}
+			else if (wfso_result == WAIT_OBJECT_0)
+			{
+				AGELENA_WARNING_0("Worker thread seems to have died during the call to select(2) - this probably means the application is shutting down");
+				CloseHandle(worker_thread_handle_);
+			}
+			else if (wfso_result == WAIT_FAILED)
+			{
+				AGELENA_ERROR_0("Worker thread seems to have died during the call to select(2) - this probably means the application is shutting down, though it's strange that our handle is also dead");
+			}
+			else
+			{
+				AGELENA_ERROR_1("WaitForSingleObject returned with %x, which is unexpected. We will assume the worker thread is no longer alive.\nNote that this may cause problems if it is!", wfso_result);
+			}
+			worker_thread_handle_ = NULL;
+			worker_thread_id_ = -1;
+			return false;
+		}
+#endif
 	}
 }
