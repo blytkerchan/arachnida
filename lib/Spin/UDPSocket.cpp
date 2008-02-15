@@ -1,5 +1,4 @@
 #include "UDPSocket.h"
-#include <Agelena/Logger.h>
 #include <boost/bind.hpp>
 #include "Exceptions/Socket.h"
 extern "C" {
@@ -227,7 +226,6 @@ namespace Spin
 		boost::recursive_mutex::scoped_lock sentinel(fd_lock_);
 		if (data_handler_)
 		{
-			AGELENA_DEBUG_1("Detaching FD %1% from the connection handler", fd_);
 			Private::ConnectionHandler::getInstance().detach(fd_);
 			data_handler_ = 0;
 		}
