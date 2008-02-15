@@ -79,17 +79,17 @@ namespace Agelena
 #define AGELENA_ERROR_5(msg, p1, p2, p3, p4, p5)								\
 	Agelena::Logger::error((boost::format("%1%(%2%) : error :") % __FILE__ % __LINE__).str(), (boost::format(msg) % p1 % p2 % p3 % p4 % p5).str())
 #define AGELENA_FATAL_ERROR_0(msg)													\
-	Agelena::Logger::fatal_error((boost::format("%1%(%2%) : fatal error :") % __FILE__ % __LINE__).str(), msg)
+	Agelena::Logger::fatalError((boost::format("%1%(%2%) : fatal error :") % __FILE__ % __LINE__).str(), msg)
 #define AGELENA_FATAL_ERROR_1(msg, p1)												\
-	Agelena::Logger::fatal_error((boost::format("%1%(%2%) : fatal error :") % __FILE__ % __LINE__).str(), (boost::format(msg) % p1).str())
+	Agelena::Logger::fatalError((boost::format("%1%(%2%) : fatal error :") % __FILE__ % __LINE__).str(), (boost::format(msg) % p1).str())
 #define AGELENA_FATAL_ERROR_2(msg, p1, p2)											\
-	Agelena::Logger::fatal_error((boost::format("%1%(%2%) : fatal error :") % __FILE__ % __LINE__).str(), (boost::format(msg) % p1 % p2).str())
+	Agelena::Logger::fatalError((boost::format("%1%(%2%) : fatal error :") % __FILE__ % __LINE__).str(), (boost::format(msg) % p1 % p2).str())
 #define AGELENA_FATAL_ERROR_3(msg, p1, p2, p3)										\
-	Agelena::Logger::fatal_error((boost::format("%1%(%2%) : fatal error :") % __FILE__ % __LINE__).str(), (boost::format(msg) % p1 % p2 % p3).str())
+	Agelena::Logger::fatalError((boost::format("%1%(%2%) : fatal error :") % __FILE__ % __LINE__).str(), (boost::format(msg) % p1 % p2 % p3).str())
 #define AGELENA_FATAL_ERROR_4(msg, p1, p2, p3, p4)									\
-	Agelena::Logger::fatal_error((boost::format("%1%(%2%) : fatal error :") % __FILE__ % __LINE__).str(), (boost::format(msg) % p1 % p2 % p3 % p4).str())
+	Agelena::Logger::fatalError((boost::format("%1%(%2%) : fatal error :") % __FILE__ % __LINE__).str(), (boost::format(msg) % p1 % p2 % p3 % p4).str())
 #define AGELENA_FATAL_ERROR_5(msg, p1, p2, p3, p4, p5)								\
-	Agelena::Logger::fatal_error((boost::format("%1%(%2%) : fatal error :") % __FILE__ % __LINE__).str(), (boost::format(msg) % p1 % p2 % p3 % p4 % p5).str())
+	Agelena::Logger::fatalError((boost::format("%1%(%2%) : fatal error :") % __FILE__ % __LINE__).str(), (boost::format(msg) % p1 % p2 % p3 % p4 % p5).str())
 
 }
 
