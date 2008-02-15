@@ -1,4 +1,5 @@
 #include "UDPSocket.h"
+#include <Agelena/Logger.h>
 #include <boost/bind.hpp>
 #include "Exceptions/Socket.h"
 extern "C" {
@@ -42,7 +43,7 @@ namespace Spin
 			memset(&in_address, 0, sizeof(in_address));
 			in_address.sin_addr.s_addr = address.u_.u32_;
 			in_address.sin_family = AF_INET;
-			in_address.sin_port = port;
+			in_address.sin_port = htons(port);
 			SOCKET_CALL(bind(fd_, (const sockaddr *)(&in_address), sizeof(sockaddr_in)), < 0, "bind failed", "UDPSocket constructor");
 		}
 		else
@@ -62,7 +63,7 @@ namespace Spin
 		memset(&remote_address, 0, sizeof(remote_address));
 		remote_address.sin_addr.s_addr = to.u_.u32_;
 		remote_address.sin_family = AF_INET;
-		remote_address.sin_port = port;
+		remote_address.sin_port = htons(port);
 
 		const char * curr(&data[0]);
 		const char * end(curr + data.size());
@@ -139,7 +140,7 @@ namespace Spin
 				buffer.resize(received);
 			else
 			{ /* we don't own the buffer size, so let the called take care of it */ }
-			return boost::make_tuple(Details::Address(remote_address.sin_addr.s_addr), remote_address.sin_port, received);
+			return boost::make_tuple(Details::Address(remote_address.sin_addr.s_addr), ntohs(remote_address.sin_port), received);
 		}
 		else
 		{
@@ -161,6 +162,12 @@ namespace Spin
 
 		buffer = boost::tuples::get<3>(peek_buffer_);
 		return boost::make_tuple(boost::tuples::get<0>(peek_buffer_), boost::tuples::get<1>(peek_buffer_), boost::tuples::get<2>(peek_buffer_));
+	}
+
+	void UDPSocket::clearPeekBuffer()
+	{
+		boost::recursive_mutex::scoped_lock sentinel(peek_buffer_lock_);
+		boost::tuples::get<3>(peek_buffer_).clear();
 	}
 
 	bool UDPSocket::poll() const
@@ -220,6 +227,7 @@ namespace Spin
 		boost::recursive_mutex::scoped_lock sentinel(fd_lock_);
 		if (data_handler_)
 		{
+			AGELENA_DEBUG_1("Detaching FD %1% from the connection handler", fd_);
 			Private::ConnectionHandler::getInstance().detach(fd_);
 			data_handler_ = 0;
 		}

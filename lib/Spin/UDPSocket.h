@@ -50,6 +50,8 @@ namespace Spin
 		boost::tuple< Details::Address, unsigned short, std::size_t > recv(std::vector< char > & buffer, unsigned long timeout = ~0);
 		boost::tuple< Details::Address, unsigned short, std::size_t > peek(std::vector< char > & buffer, unsigned long timeout = ~0);
 
+		void clearPeekBuffer();
+
 		bool poll() const;
 		void close();
 
