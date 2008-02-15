@@ -17,7 +17,8 @@ namespace Spin
 
 				template < typename Iterator >
 				UnsupportedProtocol(Iterator begin, Iterator end)
-					: HTTPProtocolError("Unsupported protocol.")
+					: HTTPProtocolError("Unsupported protocol."),
+					  what_(0)
 				{
 					Iterator where(end);
 					if (std::distance(begin, where) > max_protocol_size__)
