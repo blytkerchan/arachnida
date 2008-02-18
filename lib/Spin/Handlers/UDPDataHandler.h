@@ -9,7 +9,7 @@ namespace Spin
 	class UDPSocket;
 	namespace Handlers
 	{
-		//! Handler for when new data is ready on a connection
+		//! Handler for when new data is ready on a UDP socket
 		class SPIN_API UDPDataHandler
 		{
 		public :

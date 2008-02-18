@@ -181,6 +181,10 @@
 			Name="Details"
 			>
 			<File
+				RelativePath="..\..\..\lib\Acari\Details\documentation.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\lib\Acari\Details\prologue.h"
 				>
 			</File>

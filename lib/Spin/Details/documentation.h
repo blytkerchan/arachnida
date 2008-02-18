@@ -7,7 +7,17 @@
  * it serves up with a bit of HTP containing "Hello, world!". Connections are 
  * handled asynchronously and requests are put in the request handler, where the 
  * main thread will find them calling getNextRequest.
- * \include Mesothelae/main.cpp */
+ * \dontinclude Mesothelae/main.cpp
+ * \until else if (request->url_ == "/index.html")
+ * \until }
+ * \skip close_connection
+ * \skip {
+ * \skip else
+ * \until client hung up
+ * \until }
+ * \until }
+ * \until }
+ */
 
 //! The library's main namespace
 namespace Spin

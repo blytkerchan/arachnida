@@ -7,20 +7,35 @@
 
 namespace Agelena
 {
+	/** The base class for all loggers.
+	 * If you want to write one, derive it from this class. */
 	class AGELENA_API Logger
 	{
 	public :
+		//! Call this to register a debug message
 		static void debug(const std::string & component, const std::string & message, const std::string & aux = std::string()) throw();
+		//! Call this to register a warning message
 		static void warning(const std::string & component, const std::string & message, const std::string & aux = std::string()) throw();
+		//! Call this to register an error message
 		static void error(const std::string & component, const std::string & message, const std::string & aux = std::string()) throw();
+		/** Call this to register a fatal error message
+		 * \note the caller should not expect the logger to do anything rash
+		 *       just because the error is fatal. */
 		static void fatalError(const std::string & component, const std::string & message, const std::string & aux = std::string()) throw();
 
 	protected :
+		//! Returns the one known instance of the Logger. Called by the static methods of this class
 		static Logger * getInstance();
+		/** Set the one instance of the Logger.
+		 * Normally called by the constructor of a derived class, which \em should check that getInstance returns 0 first. */
 		static void setInstance(Logger * logger);
+		//! Called to register a debug message - ignored by default
 		virtual void debug_(const std::string & component, const std::string & message, const std::string & aux);
+		//! Called to register a warning message
 		virtual void warning_(const std::string & component, const std::string & message, const std::string & aux) = 0;
+		//! Called to register an error message
 		virtual void error_(const std::string & component, const std::string & message, const std::string & aux) = 0;
+		//! Called to register a fatal error message
 		virtual void fatalError_(const std::string & component, const std::string & message, const std::string & aux) = 0;
 
 	private :

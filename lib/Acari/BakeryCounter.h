@@ -18,12 +18,18 @@ namespace Acari
 	class ACARI_API BakeryCounter
 	{
 	public :
+		//! Default constructor - do the obvious
 		BakeryCounter();
+		//! Destructor - do the obvious
 		~BakeryCounter();
 
+		//! Get the current value of the client counter
 		boost::uint16_t getClientCounter() const { Counter_ counter(counter_); return counter.u16_[client_counter__]; }
+		//! Get the current value of the baker's counter
 		boost::uint16_t getBakerCounter() const { Counter_ counter(counter_); return counter.u16_[baker_counter__]; }
+		//! Increment the client counter
 		void incrementClientCounter();
+		//! Increment the baker's counter
 		void incrementBakerCounter();
 
 	private :

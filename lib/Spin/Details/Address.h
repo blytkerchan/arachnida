@@ -44,7 +44,9 @@ namespace Spin
 			BOOST_STATIC_ASSERT(sizeof(U_) == 4);
 		};
 
+		//! Compare two addresses for equality
 		SPIN_API bool operator==(const Address & lhs, const Address & rhs);
+		//! Compare two addresses for inequality
 		SPIN_API bool operator!=(const Address & lhs, const Address & rhs);
 	}
 }

@@ -94,7 +94,26 @@ namespace Spin
 		 * is filled in blocks of default_read_block_size__ bytes in size. */
 		std::pair< std::size_t, int > read(std::vector< char > & buffer);
 
+		/** See if there is any data waiting on the connection.
+		 * \warning Results of the poll are not guaranteed to be accurate in 
+		 *          that it may result in false positives. This is due to 
+		 *          the fact that in some cases, not all data is for client 
+		 *          code consumption. */
 		bool poll() const;
+
+		/** Close the connection.
+		 * Any further communication on this socket will fail.
+		 * 
+		 * If a data handler is attached to the connection, it may receive a 
+		 * spurious notification if data was waiting on the connection at the
+		 * time it was being closed, but it will not be able to retrieve that 
+		 * data.
+		 * 
+		 * If an error callback was registered with the connection, it may be
+		 * notified, but only if there is also a data handler.
+		 *
+		 * Basically, this means you really should disconnect data handlers 
+		 * before closing the connection. */
 		void close();
 
 		//! Return true if the connection uses SSL (and is therefore secured), false if not

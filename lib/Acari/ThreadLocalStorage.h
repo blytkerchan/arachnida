@@ -21,6 +21,7 @@ namespace Acari
 		// this is a copyable opaque handle much in the same way as Windoze' HANDLE
 		struct Key
 		{ union { void * p_; unsigned int ui_; } u_; };
+		//! The of a function that can delete something
 		typedef void (*Deleter)(void *);
 
 		//! Get the instance of the singleton

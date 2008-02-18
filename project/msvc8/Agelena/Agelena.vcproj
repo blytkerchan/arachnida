@@ -179,6 +179,10 @@
 			Name="Details"
 			>
 			<File
+				RelativePath="..\..\..\lib\Agelena\Details\documentation.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\lib\Agelena\Details\prologue.h"
 				>
 			</File>

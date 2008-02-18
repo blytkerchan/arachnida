@@ -28,9 +28,25 @@ namespace Tests
 					{ /* no-op */ }
 				}
 
-				/*virtual */void warning_(const std::string & component, const std::string & message, const std::string & aux) {}
-				/*virtual */void error_(const std::string & component, const std::string & message, const std::string & aux) {}
-				/*virtual */void fatalError_(const std::string & component, const std::string & message, const std::string & aux) {}
+				/*virtual */void debug_(const std::string & component, const std::string & message, const std::string & aux)
+				{
+					// do something useful here
+				}
+
+				/*virtual */void warning_(const std::string & component, const std::string & message, const std::string & aux)
+				{
+					// do something useful here
+				}
+
+				/*virtual */void error_(const std::string & component, const std::string & message, const std::string & aux)
+				{
+					// do something useful here
+				}
+
+				/*virtual */void fatalError_(const std::string & component, const std::string & message, const std::string & aux)
+				{
+					// do something useful here
+				}
 			};
 		}
 		CPPUNIT_TEST_SUITE_REGISTRATION(Logger);

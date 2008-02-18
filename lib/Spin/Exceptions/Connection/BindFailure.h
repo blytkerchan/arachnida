@@ -12,24 +12,29 @@ namespace Spin
 			//! Thrown when the implementation failed to bind to a given port
 			struct BindFailure : public ConnectionError
 			{
+				//! Construct a bind failure with an error code provided by the OS
 				BindFailure(int error_code)
 					: ConnectionError("Bind failure."),
 					  error_code_(error_code)
 				{ /* no-op */ }
 
+				//! Copy-construct a bind failure
 				BindFailure(const BindFailure & e)
 					: ConnectionError(e),
 					  error_code_(e.error_code_)
 				{ /* no-op */ }
 
+				//! No-fail destructor
 				~BindFailure() throw()
 				{
 					delete[] what_; // Assuming what_ was created with new[]
 				}
 
+				//! Assignment
 				BindFailure & operator=(BindFailure e)
 				{ return swap(e); }
 
+				//! No-fail swap
 				BindFailure & swap(BindFailure & e) throw()
 				{
 					std::swap(what_, e.what_);
@@ -37,6 +42,7 @@ namespace Spin
 					return *this;
 				}
 
+				//! No-fail what, will return a default string if anything does fail
 				virtual const char * what() const throw();
 
 				int error_code_;

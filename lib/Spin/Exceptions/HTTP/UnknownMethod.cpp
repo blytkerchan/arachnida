@@ -15,9 +15,9 @@ namespace Spin
 					{
 						static const char * error_text__ = "Unknown method: ";
 						static const std::size_t error_text_size__ = std::strlen(error_text__);
-						what_ = new char[error_text_size__ + max_protocol_size__];
+						what_ = new char[error_text_size__ + max_method_size__];
 						char * where(std::copy(error_text__, error_text__ + error_text_size__, what_));
-						std::copy(protocol_, protocol_ + max_protocol_size__, where);
+						std::copy(protocol_, protocol_ + max_method_size__, where);
 					}
 					catch(...)
 					{

@@ -1,5 +1,5 @@
 /** \mainpage Scorpion: thinly wrapping OpenSSL for use in C++
- * Scorpion is a very thing wrapper around OpenSSL for use in C++, and principally
+ * Scorpion is a very thin wrapper around OpenSSL for use in C++, and principally
  * provides the \link Scorpion::Context Context \endlink class to allow you to 
  * set up security settings centrally and re-use them for all new connections. */
 //! The library's main namespace

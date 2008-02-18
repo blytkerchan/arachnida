@@ -7,6 +7,7 @@ namespace Agelena
 {
 	namespace Loggers
 	{
+		//! A default logger for windows, outputs to clog and/or cerr, as well as to OutputDebugStringA
 		struct AGELENA_API DefaultWindowsLogger : Logger
 		{
 			DefaultWindowsLogger();

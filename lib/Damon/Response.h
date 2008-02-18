@@ -7,8 +7,13 @@
 
 namespace Damon
 {
+	//! A response, as received from the server.
 	struct Response
 	{
+		/** Construct a response.
+		 * \param protocol_and_version the protocol and version, normally those of the original request.
+		 * \param status_code the status or response code of the query
+		 * \param reason_string the reason why the status code is what it is */
 		Response(const std::string & protocol_and_version, unsigned int status_code, const std::string & reason_string)
 			: protocol_and_version_(protocol_and_version),
 			  status_code_(status_code),
