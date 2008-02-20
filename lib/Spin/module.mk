@@ -1,27 +1,27 @@
 # the library
-Spin_SRC =					\
-	Private/ConnectionHandler.cpp		\
-	Private/Pipe.cpp			\
-	Private/Logger.cpp			\
-	Private/yield.cpp			\
-	Details/Response.cpp			\
-	Handlers/NewConnectionHandler.cpp	\
-	Handlers/HTTPConnectionHandler.cpp	\
-	Handlers/HTTPDataHandler.cpp		\
-	Handlers/HTTPRequestHandler.cpp		\
-	Handlers/NewDataHandler.cpp		\
-	Connection.cpp				\
-	Connector.cpp				\
-	Listener.cpp				\
-	Exceptions/Connection/BindFailure.cpp	\
-	Exceptions/Connection/ListenFailure.cpp	\
-	Exceptions/HTTP/InvalidHeader.cpp	\
-	Exceptions/HTTP/UnknownMethod.cpp	\
-	Exceptions/HTTP/UnsupportedProtocol.cpp	\
-	Exceptions/Socket.cpp			\
-	UDPSocket.cpp				\
-	Handlers/UDPDataHandler.cpp		\
-	Details/Address.cpp
+Spin_SRC =						\
+	Connection.cpp					\
+	Connector.cpp					\
+	Details/Address.cpp				\
+	Details/Attibutes.cpp				\
+	Details/Response.cpp				\
+	Exceptions/Connection/BindFailure.cpp		\
+	Exceptions/Connection/ListenFailure.cpp		\
+	Exceptions/HTTP/InvalidHeader.cpp		\
+	Exceptions/HTTP/UnknownMethod.cpp		\
+	Exceptions/HTTP/UnsupportedProtocol.cpp		\
+	Exceptions/Socket.cpp				\
+	Handlers/HTTPConnectionHandler.cpp		\
+	Handlers/HTTPDataHandler.cpp			\
+	Handlers/HTTPRequestHandler.cpp			\
+	Handlers/NewConnectionHandler.cpp		\
+	Handlers/NewDataHandler.cpp			\
+	Handlers/UDPDataHandler.cpp			\
+	Listener.cpp					\
+	Private/ConnectionHandler.cpp			\
+	Private/Pipe.cpp				\
+	Private/yield.cpp				\
+	UDPSocket.cpp
 
 Spin_INSTALL_HEADERS += $(filter-out Private/%, $(wildcard *.h) $(wildcard */*.h))
 
