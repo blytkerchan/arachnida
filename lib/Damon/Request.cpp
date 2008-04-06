@@ -3,6 +3,7 @@
 #include <boost/bind.hpp>
 #include <boost/thread/once.hpp>
 #include <Acari/ParsingHelpers.hpp>
+#include <Acari/urlencode.h>
 #include <Scorpion/Context.h>
 #include <Spin/Connection.h>
 #include <Spin/Connector.h>
@@ -237,6 +238,7 @@ retry:
 		boost::uint16_t port;
 		std::string resource;
 		boost::tie(protocol, server, port, resource) = parseURL(request.url_);
+		resource = urlencode(resource);
 		bool secured(protocol == "https");
 
 		if (secured)
@@ -418,6 +420,7 @@ retry:
 		boost::uint16_t port;
 		std::string resource;
 		boost::tie(protocol, server, port, resource) = parseURL(request.url_);
+		resource = urlencode(resource);
 		std::string retval;
 		switch (request.method_)
 		{
