@@ -33,7 +33,8 @@ namespace Spin
 				}
 
 				UnsupportedProtocol(const UnsupportedProtocol & e)
-					: HTTPProtocolError(e)
+					: HTTPProtocolError(e),
+					  what_(e.what_)
 				{
 					std::copy(e.protocol_, e.protocol_ + max_protocol_size__, protocol_);
 					e.what_ = 0;
