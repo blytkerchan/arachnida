@@ -36,8 +36,16 @@ int main()
 				{
 					connection->write(
 						Spin::Details::Response(request->protocol_and_version_, Spin::Details::Response::ok__)
-							("Content-Type", "text/html")
-							("<html><body><p>Hello, world!</p></body></html>")
+						("Content-Type", "text/html")
+						("<html><body><p>Hello, world!</p></body></html>")
+						);
+				}
+				else if (request->url_ == "/with%20space")
+				{
+					connection->write(
+						Spin::Details::Response(request->protocol_and_version_, Spin::Details::Response::ok__)
+						("Content-Type", "text/html")
+						("<html><body><p>Hello, space!</p></body></html>")
 						);
 				}
 				else if (request->url_ == "/send_leading_whitespace")

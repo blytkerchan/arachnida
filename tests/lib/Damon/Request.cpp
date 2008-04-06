@@ -51,6 +51,7 @@ namespace Tests
 			requests.push_back(::Damon::Request("http://127.0.0.1/send_leading_whitespace"));
 			requests.push_back(::Damon::Request("http://127.0.0.1/"));
 			requests.push_back(::Damon::Request("http://127.0.0.1/index.html"));
+			requests.push_back(::Damon::Request("http://127.0.0.1/with space"));
 
 			std::vector< ::Damon::Response > responses(send(requests));
 			CPPUNIT_ASSERT(responses.size() == requests.size());
@@ -81,6 +82,15 @@ namespace Tests
 			CPPUNIT_ASSERT(responses[2].header_fields_[1].name_ == "Content-Length");
 			CPPUNIT_ASSERT(responses[2].header_fields_[1].value_ == "46");
 			CPPUNIT_ASSERT(responses[2].body_.size() == 46);
+			CPPUNIT_ASSERT(responses[3].protocol_and_version_ == "HTTP/1.1");
+			CPPUNIT_ASSERT(responses[3].status_code_ == 200);
+			CPPUNIT_ASSERT(responses[3].reason_string_ == "OK");
+			CPPUNIT_ASSERT(responses[3].header_fields_.size() == 2);
+			CPPUNIT_ASSERT(responses[3].header_fields_[0].name_ == "Content-Type");
+			CPPUNIT_ASSERT(responses[3].header_fields_[0].value_ == "text/html");
+			CPPUNIT_ASSERT(responses[3].header_fields_[1].name_ == "Content-Length");
+			CPPUNIT_ASSERT(responses[3].header_fields_[1].value_ == "46");
+			CPPUNIT_ASSERT(responses[3].body_.size() == 46);
 		}
 
 		void Request::tryRequest04()
