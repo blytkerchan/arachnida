@@ -15,14 +15,18 @@ namespace Spin
 				//! Construct a listen failure with an error code provided by the OS
 				ListenFailure(int error_code)
 					: ConnectionError("Listen failure."),
-					error_code_(error_code)
+					  error_code_(error_code),
+					  what_(0)
 				{ /* no-op */ }
 
 				//! Copy-construct a listen failure
 				ListenFailure(const ListenFailure & e)
 					: ConnectionError(e),
-					error_code_(e.error_code_)
-				{ /* no-op */ }
+					  error_code_(e.error_code_),
+					  what_(e.what_)
+				{
+					e.what_ = 0;
+				}
 
 				//! No-fail destructor
 				~ListenFailure() throw()

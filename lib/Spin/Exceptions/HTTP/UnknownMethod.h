@@ -37,7 +37,8 @@ namespace Spin
 
 				//! Copy-construct the exception
 				UnknownMethod(const UnknownMethod & e)
-					: HTTPProtocolError(e)
+					: HTTPProtocolError(e),
+					  what_(e.what_)
 				{
 					std::copy(e.protocol_, e.protocol_ + max_method_size__, protocol_);
 					e.what_ = 0;

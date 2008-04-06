@@ -9,6 +9,7 @@
 namespace Damon
 {
 	class Request;
+	class Session;
 
 	/** A request to be sent to a server.
 	 * To construct a complex request, try this
@@ -80,12 +81,14 @@ namespace Damon
 		Details::HeaderFields header_fields_;		///< all header fields found while parsing the request
 		std::vector< char > body_;
 
-		friend DAMON_API Response send(const Request &/* request*/);
-		friend DAMON_API std::vector< Response > send(const std::vector< Request > & requests);
+		friend DAMON_API Response send(Session & /*session*/, const Request &/* request*/);
+		friend DAMON_API std::vector< Response > send(Session & /*session*/, const std::vector< Request > & requests);
 		friend DAMON_API std::string serialize(Request /* request*/);
 	};
 
+	DAMON_API Response send(Session & session, const Request & request);
 	DAMON_API Response send(const Request & request);
+	DAMON_API std::vector< Response > send(Session & session, const std::vector< Request > & requests);
 	DAMON_API std::vector< Response > send(const std::vector< Request > & requests);
 	DAMON_API std::string serialize(Request request);
 }

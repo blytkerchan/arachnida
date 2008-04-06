@@ -15,14 +15,18 @@ namespace Spin
 				//! Construct a bind failure with an error code provided by the OS
 				BindFailure(int error_code)
 					: ConnectionError("Bind failure."),
-					  error_code_(error_code)
+					  error_code_(error_code),
+					  what_(0)
 				{ /* no-op */ }
 
 				//! Copy-construct a bind failure
 				BindFailure(const BindFailure & e)
 					: ConnectionError(e),
-					  error_code_(e.error_code_)
-				{ /* no-op */ }
+					  error_code_(e.error_code_),
+					  what_(e.what_)
+				{
+					e.what_ = 0;
+				}
 
 				//! No-fail destructor
 				~BindFailure() throw()

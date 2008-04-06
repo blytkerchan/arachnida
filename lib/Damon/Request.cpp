@@ -3,16 +3,56 @@
 #include <boost/bind.hpp>
 #include <boost/thread/once.hpp>
 #include <Acari/ParsingHelpers.hpp>
+#include <Acari/urlencode.h>
 #include <Scorpion/Context.h>
 #include <Spin/Connection.h>
 #include <Spin/Connector.h>
 #include <Spin/Exceptions/HTTP.h>
 #include "Private/parseURL.h"
+#include "Session.h"
 
 using namespace Acari;
 
 namespace Damon
 {
+	namespace
+	{
+		template < typename C >
+		struct ValidateURL_
+		{
+			typedef C argument_type;
+
+			ValidateURL_(const std::string & server, unsigned short port, std::string C::* p)
+				: server_(server),
+				  port_(port),
+				  p_(p)
+			{ /* no-op */ }
+
+			bool operator()(const C & c) const
+			{
+				using Private::parseURL;
+
+				std::string protocol;
+				std::string server;
+				boost::uint16_t port;
+				std::string resource;
+				boost::tie(protocol, server, port, resource) = parseURL(c.*p_);
+
+				return (server == server_) && (port_ == port);
+			}
+
+			std::string server_;
+			unsigned short port_;
+			std::string C::* p_;
+		};
+
+		template < typename C >
+		ValidateURL_< C > ValidateURL(const std::string & server, unsigned short port, std::string C::* p)
+		{
+			return ValidateURL_< C >(server, port, p);
+		}
+	}
+
 	static unsigned long attribute_index__(0xFFFFFFFF);
 	static boost::once_flag once_flag__(BOOST_ONCE_INIT);
 
@@ -189,7 +229,7 @@ retry:
 		return Response(*response);
 	}
 
-	/*DAMON_API */Response send(const Request & request)
+	/*DAMON_API */Response send(Session & session, const Request & request)
 	{
 		using Private::parseURL;
 
@@ -198,15 +238,74 @@ retry:
 		boost::uint16_t port;
 		std::string resource;
 		boost::tie(protocol, server, port, resource) = parseURL(request.url_);
+		resource = urlencode(resource);
 		bool secured(protocol == "https");
 
-		boost::shared_ptr< Spin::Connection > connection(secured ? Spin::Connector::getInstance().connect(Scorpion::Context(), server, port) : Spin::Connector::getInstance().connect(server, port));
-		connection->write(request);
+		if (secured)
+		{
+			if (!session.context_)
+			{
+				session.context_ = new Scorpion::Context;
+			}
+			else
+			{ /* already have a context */ }
+		}
+		else
+		{ /* no security context required */ }
+		assert((secured && session.context_) || !secured);
 
-		return getResponse(connection);
+		/* the part of the URL that's important for the connection cache is 
+		* the server and the port. The rest of the URL (i.e. protocol and 
+		* resource) isn't important as it doesn't affect with whom we talk
+		* but rather how (which should not change from one call to the same
+		* port to another) and with which resource (which may change, but
+		* we don't care about that). */
+		boost::format cache_key("%1%:%2%");
+		cache_key
+			% server
+			% port
+			;
+		Session::ConnectionCache_::iterator cached_connection(session.connection_cache_.find(cache_key.str()));
+		do 
+		{
+			if (cached_connection == session.connection_cache_.end())
+			{
+				cached_connection = session.connection_cache_.insert(
+					Session::ConnectionCache_::value_type(
+					cache_key.str(),
+						(
+							secured
+								? Spin::Connector::getInstance().connect(*session.context_, server, port)
+								: Spin::Connector::getInstance().connect(server, port)
+							)
+						)
+					).first;
+			}
+			else
+			{ /* we've found the connection */ }
+			assert(cached_connection != session.connection_cache_.end());
+			if (cached_connection->second->getStatus() != Spin::Connection::good__)
+			{
+				session.connection_cache_.erase(cached_connection);
+				cached_connection = session.connection_cache_.end();
+			}
+			else
+			{ /* all is well */ }
+		} while(cached_connection == session.connection_cache_.end());
+
+		cached_connection->second->write(request);
+
+		return getResponse(cached_connection->second);
 	}
 
-	/*DAMON_API */std::vector< Response > send(const std::vector< Request > & requests)
+	/*DAMON_API */Response send(const Request & request)
+	{
+		Session session;
+
+		return send(session, request);
+	}
+
+	/*DAMON_API */std::vector< Response > send(Session & session, const std::vector< Request > & requests)
 	{
 		using Private::parseURL;
 
@@ -222,13 +321,74 @@ retry:
 		boost::tie(protocol, server, port, resource) = parseURL(requests[0].url_);
 		bool secured(protocol == "https");
 
-		boost::shared_ptr< Spin::Connection > connection(secured ? Spin::Connector::getInstance().connect(Scorpion::Context(), server, port) : Spin::Connector::getInstance().connect(server, port));
-		std::for_each(requests.begin(), requests.end(), boost::bind(&Spin::Connection::write< Request >, connection.get(), _1));
+		if (secured)
+		{
+			if (!session.context_)
+			{
+				session.context_ = new Scorpion::Context;
+			}
+			else
+			{ /* already have a context */ }
+		}
+		else
+		{ /* no security context required */ }
+		assert((secured && session.context_) || !secured);
+
+		/* the part of the URL that's important for the connection cache is 
+		 * the server and the port. The rest of the URL (i.e. protocol and 
+		 * resource) isn't important as it doesn't affect with whom we talk
+		 * but rather how (which should not change from one call to the same
+		 * port to another) and with which resource (which may change, but
+		 * we don't care about that). */
+		boost::format cache_key("%1%:%2%");
+		cache_key
+			% server
+			% port
+			;
+		Session::ConnectionCache_::iterator cached_connection(session.connection_cache_.find(cache_key.str()));
+		do 
+		{
+			if (cached_connection == session.connection_cache_.end())
+			{
+				cached_connection = session.connection_cache_.insert(
+						Session::ConnectionCache_::value_type(
+							cache_key.str(),
+							(
+								secured
+									? Spin::Connector::getInstance().connect(*session.context_, server, port)
+									: Spin::Connector::getInstance().connect(server, port)
+								)
+							)
+						).first;
+			}
+			else
+			{ /* we've found the connection */ }
+			assert(cached_connection != session.connection_cache_.end());
+			if (cached_connection->second->getStatus() != Spin::Connection::good__)
+			{
+				session.connection_cache_.erase(cached_connection);
+				cached_connection = session.connection_cache_.end();
+			}
+			else
+			{ /* all is well */ }
+		} while(cached_connection == session.connection_cache_.end());
+
+		// validate that all of the requests use the same server and port parts in the URL
+		assert(std::find_if(requests.begin(), requests.end(), std::not1(ValidateURL(server, port, &Request::url_))) == requests.end());
+
+		std::for_each(requests.begin(), requests.end(), boost::bind(&Spin::Connection::write< Request >, cached_connection->second.get(), _1));
 
 		std::vector< Response > responses;
 		for (std::vector< Request >::size_type i(0); i < requests.size(); ++i)
-			responses.push_back(getResponse(connection));
+			responses.push_back(getResponse(cached_connection->second));
 		return responses;
+	}
+
+	/*DAMON_API */std::vector< Response > send(const std::vector< Request > & requests)
+	{
+		Session session;
+
+		return send(session, requests);
 	}
 
 	namespace
@@ -260,6 +420,7 @@ retry:
 		boost::uint16_t port;
 		std::string resource;
 		boost::tie(protocol, server, port, resource) = parseURL(request.url_);
+		resource = urlencode(resource);
 		std::string retval;
 		switch (request.method_)
 		{

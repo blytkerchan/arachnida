@@ -37,7 +37,8 @@ namespace Spin
 
 				//! Copy-construct the exception
 				InvalidHeader(const InvalidHeader & e)
-					: HTTPProtocolError(e)
+					: HTTPProtocolError(e),
+					  what_(e.what_)
 				{
 					std::copy(e.header_content_, e.header_content_ + max_header_size__, header_content_);
 					e.what_ = 0;
