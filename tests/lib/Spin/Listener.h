@@ -10,22 +10,22 @@ namespace Tests
 		class Listener : public CPPUNIT_NS::TestFixture
 		{
 			CPPUNIT_TEST_SUITE( Listener );
-			//CPPUNIT_TEST( tryCreateInstance );
-			//CPPUNIT_TEST( tryAccept );
+			CPPUNIT_TEST( tryCreateInstance );
+			CPPUNIT_TEST( tryAccept );
 			CPPUNIT_TEST( tryAcceptSSL );
-			//CPPUNIT_TEST( tryAsyncAcceptAndDetach );
-			//CPPUNIT_TEST( tryAcceptWithHTTPHandler01 );
-			//CPPUNIT_TEST( tryAcceptWithHTTPHandler02 );
-			//CPPUNIT_TEST( tryAcceptWithHTTPHandler03 );
-			//CPPUNIT_TEST( tryAcceptWithHTTPHandler04 );
-			//CPPUNIT_TEST( tryAcceptWithHTTPHandler05 );
-			//CPPUNIT_TEST( tryAcceptWithHTTPHandler06 );
-			//CPPUNIT_TEST( tryAcceptWithHTTPHandler07 );
-			//CPPUNIT_TEST( tryAcceptWithHTTPHandler08 );
-			//CPPUNIT_TEST( tryAcceptWithHTTPHandler09 );
-			//CPPUNIT_TEST( tryAcceptWithHTTPHandler10 );
-			//CPPUNIT_TEST( tryAcceptWithHTTPHandler11 );
-			//CPPUNIT_TEST( tryAcceptWithHTTPHandler12 );
+			CPPUNIT_TEST( tryAsyncAcceptAndDetach );
+			CPPUNIT_TEST( tryAcceptWithHTTPHandler01 );
+			CPPUNIT_TEST( tryAcceptWithHTTPHandler02 );
+			CPPUNIT_TEST( tryAcceptWithHTTPHandler03 );
+			CPPUNIT_TEST( tryAcceptWithHTTPHandler04 );
+			CPPUNIT_TEST( tryAcceptWithHTTPHandler05 );
+			CPPUNIT_TEST( tryAcceptWithHTTPHandler06 );
+			CPPUNIT_TEST( tryAcceptWithHTTPHandler07 );
+			CPPUNIT_TEST( tryAcceptWithHTTPHandler08 );
+			CPPUNIT_TEST( tryAcceptWithHTTPHandler09 );
+			CPPUNIT_TEST( tryAcceptWithHTTPHandler10 );
+			CPPUNIT_TEST( tryAcceptWithHTTPHandler11 );
+			CPPUNIT_TEST( tryAcceptWithHTTPHandler12 );
 			CPPUNIT_TEST_SUITE_END();
 
 		public:
