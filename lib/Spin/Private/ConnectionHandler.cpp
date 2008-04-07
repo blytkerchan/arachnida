@@ -4,8 +4,10 @@
 #if defined(_WIN32) && ! defined(__CYGWIN__)
 #include <WinSock2.h>
 #define ON_WINDOZE
+#define getLastError__() WSAGetLastError()
 #else
 #include <cerrno>
+#define getLastError__() errno
 extern "C" {
 #include <sys/time.h>
 #include <sys/types.h>
@@ -262,7 +264,7 @@ namespace Spin
 				{
 					std::string error_message;
 #ifdef ON_WINDOZE
-					switch (WSAGetLastError())
+					switch (getLastError__())
 					{
 					case WSANOTINITIALISED : error_message = "A successful WSAStartup call must occur before using this function."; break;
 					case WSAEFAULT : error_message = "The Windows Sockets implementation was unable to allocate needed resources for its internal operations, or the readfds, writefds, exceptfds, or timeval parameters are not part of the user address space."; break;
@@ -282,7 +284,7 @@ namespace Spin
 					default : error_message = "Unknown error"; break;
 					}
 #endif
-					AGELENA_ERROR_2("%1% (%2%)", error_message, WSAGetLastError());
+					AGELENA_ERROR_2("%1% (%2%)", error_message, getLastError__());
 					/* When we get here one of the file descriptors in one 
 					 * of the sets caused an error. We should find out which 
 					 * one and remove it from the descriptors we work with. */
