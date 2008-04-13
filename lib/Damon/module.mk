@@ -2,7 +2,8 @@
 Damon_SRC =					\
 	Private/parseURL.cpp			\
 	Request.cpp				\
-	Response.cpp
+	Response.cpp				\
+	Session.cpp
 
 Damon_INSTALL_HEADERS += $(filter-out Private/%, $(wildcard *.h) $(wildcard */*.h))
 

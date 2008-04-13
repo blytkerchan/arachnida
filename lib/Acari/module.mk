@@ -3,7 +3,8 @@ Acari_SRC =					\
 	atomicPrimitives.cpp			\
 	BakeryCounter.cpp			\
 	ThreadLocalStorage.cpp			\
-	Attributes.cpp
+	Attributes.cpp				\
+	urlencode.cpp
 
 Acari_INSTALL_HEADERS += $(filter-out Private/%, $(wildcard *.h) $(wildcard */*.h))
 
