@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="Acari"
 	ProjectGUID="{81F90DEE-0D42-4326-B3C5-E065267E3C98}"
 	RootNamespace="Acari"
@@ -211,6 +211,14 @@
 		</File>
 		<File
 			RelativePath="..\..\..\lib\Acari\BakeryCounter.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\lib\Acari\base64encode.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\lib\Acari\base64encode.h"
 			>
 		</File>
 		<File
