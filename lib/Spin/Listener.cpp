@@ -61,11 +61,11 @@ namespace Spin
 		else
 		{
 			boost::format fmt("%1%.%2%.%3%.%4%");
-			fmt % local_address.u_.u8_[0]
-			% local_address.u_.u8_[1]
-			% local_address.u_.u8_[2]
-			% local_address.u_.u8_[3]
-			;
+			fmt % (unsigned int)local_address.u_.u8_[0]
+				% (unsigned int)local_address.u_.u8_[1]
+				% (unsigned int)local_address.u_.u8_[2]
+				% (unsigned int)local_address.u_.u8_[3]
+				;
 			local_address_s = fmt.str();
 		}
 		boost::format fmt("%1%:%2%");

@@ -690,5 +690,10 @@ namespace Tests
 			++where;
 			CPPUNIT_ASSERT(request->body_.size() == 10);
 		}
+
+		void Listener::regressListenerLocal01()
+		{
+			::Spin::Listener listener(::Spin::Details::Address(127, 0, 0, 1), 4110);
+		}
 	}
 }
