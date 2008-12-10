@@ -414,6 +414,7 @@ retry:
 	/*DAMON_API */std::string serialize(Request request)
 	{
 		using Private::parseURL;
+		using Private::extractHost;
 
 		std::string protocol;
 		std::string server;
@@ -454,6 +455,10 @@ retry:
 		retval += resource;
 		retval += " HTTP/1.1\r\n";
 
+		if (std::find_if(request.header_fields_.begin(), request.header_fields_.end(), bind(&Details::Header::name_, _1) == "Host") == request.header_fields_.end())
+			request.header_fields_.push_back(Details::Header("Host", extractHost(request.url_)));
+		else
+		{ /* Already has a Host header */ }
 		if (std::find_if(request.header_fields_.begin(), request.header_fields_.end(), bind(&Details::Header::name_, _1) == "Content-Length") == request.header_fields_.end())
 			request.header_fields_.push_back(Details::Header("Content-Length", boost::lexical_cast< std::string >(request.body_.size())));
 		else

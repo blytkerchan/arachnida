@@ -40,6 +40,20 @@ namespace Damon
 				mr[5].matched ? boost::lexical_cast< boost::uint16_t >(std::string(mr[5].first, mr[5].second)) : (protocol == "http" ? 80  : 443),
 				mr[6].matched ? (std::string(mr[6].first, mr[6].second).empty() ? "/" : std::string(mr[6].first, mr[6].second)) : "/");
 		}
+		
+		std::string extractHost(const std::string & url)
+		{
+			// Host name includes both domain name and port number 
+			boost::regex re("^([A-Za-z]+://)?([^:/]+(:[0-9]+)?).*");
+			boost::smatch mr;
+			if (!boost::regex_match(url, mr, re))
+				return "";
+			else
+			{ /* all is well so far */ }
+			assert(mr.size() == 4);
+			assert(mr[2].matched);
+			return mr[2];
+		}
 	}
 }
 
