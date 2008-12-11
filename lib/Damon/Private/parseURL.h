@@ -10,7 +10,7 @@ namespace Damon
 {
 	namespace Private
 	{
-		DAMON_API boost::tuple< std::string, std::string, boost::uint16_t, std::string > parseURL(const std::string & url);
+		DAMON_API boost::tuple< std::string, std::string, boost::uint16_t, std::string, std::string, std::string > parseURL(const std::string & url);
 		DAMON_API std::string extractHost(const std::string & url);
 	}
 }

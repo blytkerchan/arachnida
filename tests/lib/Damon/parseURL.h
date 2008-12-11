@@ -17,6 +17,8 @@ namespace Tests
 			CPPUNIT_TEST( tryURL05 );
 			CPPUNIT_TEST( tryURL06 );
 			CPPUNIT_TEST( tryURL07 );
+			CPPUNIT_TEST( tryURL08 );
+			CPPUNIT_TEST( tryURL09 );
 			CPPUNIT_TEST_SUITE_END();
 
 		public:
@@ -31,6 +33,8 @@ namespace Tests
 			void tryURL05();
 			void tryURL06();
 			void tryURL07();
+			void tryURL08();
+			void tryURL09();
 
 		private:
 		};

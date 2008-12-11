@@ -43,6 +43,14 @@ namespace Damon
 			connect__
 		};
 
+		//! Authorization method to use for user and password in url
+		enum AuthorizationMethod {
+			//! no authorization
+			none__,
+			//! use basic authorization
+			basic__,
+		};
+
 		/** Construct a request.
 		 * \param url the URL of the resource you're requesting. Should normally 
 		 *        at least include http:// or https://, and the server name. The 
@@ -51,7 +59,7 @@ namespace Damon
 		 *        connection. 
 		 * \param method the method that should be used with the request, GET by
 		 *        default.*/
-		Request(const std::string & url, Method method = get__);
+		Request(const std::string & url, Method method = get__, AuthorizationMethod auth_method = none__);
 		~Request();
 
 		/** Add a header to the response.
@@ -78,6 +86,7 @@ namespace Damon
 	private :
 		std::string url_;
 		Method method_;
+		AuthorizationMethod auth_method_;
 		Details::HeaderFields header_fields_;		///< all header fields found while parsing the request
 		std::vector< char > body_;
 

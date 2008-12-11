@@ -36,7 +36,9 @@ namespace Damon
 				std::string server;
 				boost::uint16_t port;
 				std::string resource;
-				boost::tie(protocol, server, port, resource) = parseURL(c.*p_);
+				std::string username;
+				std::string password;
+				boost::tie(protocol, server, port, resource, username, password) = parseURL(c.*p_);
 
 				return (server == server_) && (port_ == port);
 			}
@@ -62,9 +64,10 @@ namespace Damon
 		attribute_index__ = Spin::Connection::allocateAttribute();
 	}
 
-	Request::Request(const std::string & url, Method method/* = get__*/)
+	Request::Request(const std::string & url, Method method/* = get__*/, AuthorizationMethod auth_method/* = none__*/)
 		: url_(url),
-		  method_(method)
+		  method_(method),
+		  auth_method_(auth_method)
 	{ /* no-op */ }
 
 	Request::~Request()
@@ -237,7 +240,9 @@ retry:
 		std::string server;
 		boost::uint16_t port;
 		std::string resource;
-		boost::tie(protocol, server, port, resource) = parseURL(request.url_);
+		std::string username;
+		std::string password;
+		boost::tie(protocol, server, port, resource, username, password) = parseURL(request.url_);
 		resource = urlencode(resource);
 		bool secured(protocol == "https");
 
@@ -318,7 +323,9 @@ retry:
 		std::string server;
 		boost::uint16_t port;
 		std::string resource;
-		boost::tie(protocol, server, port, resource) = parseURL(requests[0].url_);
+		std::string username;
+		std::string password;
+		boost::tie(protocol, server, port, resource, username, password) = parseURL(requests[0].url_);
 		bool secured(protocol == "https");
 
 		if (secured)
@@ -420,7 +427,9 @@ retry:
 		std::string server;
 		boost::uint16_t port;
 		std::string resource;
-		boost::tie(protocol, server, port, resource) = parseURL(request.url_);
+		std::string username;
+		std::string password;
+		boost::tie(protocol, server, port, resource, username, password) = parseURL(request.url_);
 		resource = urlencode(resource);
 		std::string retval;
 		switch (request.method_)
@@ -463,6 +472,10 @@ retry:
 			request.header_fields_.push_back(Details::Header("Content-Length", boost::lexical_cast< std::string >(request.body_.size())));
 		else
 		{ /* Already has a Content-Length header */ }
+		if (request.auth_method_ == Request::basic__ && !username.empty())
+			request.header_fields_.push_back(Details::createBasicAuthorizationHeader(username, password));
+		else
+		{ /* no authorization method, don't care about username & password */ }
 		std::for_each(request.header_fields_.begin(), request.header_fields_.end(), AppendHeader(retval));
 		retval += "\r\n";
 		retval.insert(retval.end(), request.body_.begin(), request.body_.end());
