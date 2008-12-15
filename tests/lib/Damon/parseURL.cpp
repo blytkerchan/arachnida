@@ -157,13 +157,13 @@ namespace Tests
 			std::string resource;
 			std::string username;
 			std::string password;
-			boost::tie(protocol, server, port, resource, username, password) = ::Damon::Private::parseURL("http://127.0.0.1:8080");
+			boost::tie(protocol, server, port, resource, username, password) = ::Damon::Private::parseURL("http://user:password@127.0.0.1:8080");
 			CPPUNIT_ASSERT(protocol == "http");
 			CPPUNIT_ASSERT(server == "127.0.0.1");
 			CPPUNIT_ASSERT(port == 8080);
 			CPPUNIT_ASSERT(resource == "/");
-			CPPUNIT_ASSERT(username == "");
-			CPPUNIT_ASSERT(password == "");
+			CPPUNIT_ASSERT(username == "user");
+			CPPUNIT_ASSERT(password == "password");
 		}
 
 	}
