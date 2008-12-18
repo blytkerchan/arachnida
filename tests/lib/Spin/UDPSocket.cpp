@@ -1,4 +1,6 @@
 #include "UDPSocket.h"
+#include <boost/bind.hpp>
+#include <boost/thread.hpp>
 #include <Spin/UDPSocket.h>
 #include <Spin/Handlers/UDPDataHandler.h>
 #if defined(_WIN32) && ! defined(__CYGWIN__)
@@ -10,6 +12,7 @@ extern "C" {
 }
 #	define yield pthread_yield
 #endif
+
 namespace Tests
 {
 	namespace Spin
@@ -180,6 +183,66 @@ namespace Tests
 			CPPUNIT_ASSERT(remote_address == ::Spin::Details::Address(0, 0, 0, 0));
 			// we know nothing about the port: it's random
 			CPPUNIT_ASSERT(received == 0);
+		}
+
+		void UDPSocket::regression01()
+		{
+			struct Handler
+			{
+				Handler(::Spin::UDPSocket & socket)
+					: socket_(&socket)
+					, thread_(0)
+					, is_closing_(false)
+					, received_(false)
+				{
+					thread_ = new boost::thread(boost::bind(&Handler::thread, this));
+				}
+
+				~Handler()
+				{
+					socket_->close();
+					is_closing_ = true;
+					thread_->join();
+					delete thread_;
+				}
+
+				void thread()
+				{
+					while (!is_closing_)
+					{
+						::Spin::Details::Address address;
+						unsigned short port;
+						std::size_t size;
+						std::vector< char > buffer;
+
+						boost::tie(address, port, size) = socket_->recv(buffer);
+						received_ = true;
+					}
+				}
+
+				::Spin::UDPSocket * socket_;
+				boost::thread * thread_;
+				bool is_closing_;
+				bool received_;
+			};
+
+
+			::Spin::UDPSocket udp_send_socket(::Spin::Details::Address(127, 0, 0, 1), 9721);
+			Handler send_socket_data_handler(udp_send_socket);
+
+			{
+				::Spin::UDPSocket udp_recv_socket(::Spin::Details::Address(127, 0, 0, 1), 9722);
+				Handler recv_socket_data_handler(udp_recv_socket);
+				udp_recv_socket.send(::Spin::Details::Address(127, 0, 0, 1), 9721, "hello");
+				while (!send_socket_data_handler.received_);
+				send_socket_data_handler.received_ = false;
+				udp_send_socket.send(::Spin::Details::Address(127, 0, 0, 1), 9722, "hello");
+				while (!recv_socket_data_handler.received_);
+				recv_socket_data_handler.received_ = false;
+			}
+			udp_send_socket.send(::Spin::Details::Address(127, 0, 0, 1), 9722, "hello");
+			Sleep(1000);
+			udp_send_socket.send(::Spin::Details::Address(127, 0, 0, 1), 9722, "hello");
 		}
 	}
 }

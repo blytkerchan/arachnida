@@ -2,6 +2,7 @@
 #include <Agelena/Logger.h>
 #include <boost/bind.hpp>
 #include "Exceptions/Socket.h"
+#include "Exceptions/Connection/UnusableUDPSocket.h"
 extern "C" {
 #if defined(_WIN32) && ! defined(__CYGWIN__)
 #	include <WinSock2.h>
@@ -30,8 +31,7 @@ extern "C" {
 namespace Spin
 {
 	UDPSocket::UDPSocket(const Details::Address & address, unsigned short port)
-		: status_(good__),
-		  fd_(-1),
+		: fd_(-1),
 		  data_handler_(0)
 	{
 		SOCKET_CALL(fd_ = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP), < 0, "socket allocation failed", "UDPSocket constructor");
@@ -58,7 +58,6 @@ namespace Spin
 
 	std::size_t UDPSocket::send(const Details::Address & to, unsigned short port, const std::vector< char > & data)
 	{
-		checkStatus("UDPSocket::send");
 		sockaddr_in remote_address;
 		memset(&remote_address, 0, sizeof(remote_address));
 		remote_address.sin_addr.s_addr = to.u_.u32_;
@@ -67,10 +66,13 @@ namespace Spin
 
 		const char * curr(&data[0]);
 		const char * end(curr + data.size());
+		if (fd_ == -1)
+			throw Exceptions::Connection::UnusableUDPSocket();
+		else
+		{ /* all is well */ }
 		ssize_t sent(::sendto(fd_, curr, std::distance(curr, end), 0, (const sockaddr *)(&remote_address), sizeof(remote_address)));
 		if (sent < 0)
 		{
-			status_ |= error__;
 			throw Exceptions::SocketError("Send failed", "UDPSocket::send", getLastError__());
 		}
 		else
@@ -81,8 +83,12 @@ namespace Spin
 
 	boost::tuple< Details::Address, unsigned short, std::size_t > UDPSocket::recv(std::vector< char > & buffer, unsigned long timeout/* = ~0*/)
 	{
-		checkStatus("UDPSocket::recv");
 		boost::recursive_mutex::scoped_lock sentinel(peek_buffer_lock_);
+		if (fd_ == -1)
+			throw Exceptions::Connection::UnusableUDPSocket();
+		else
+		{ /* all is well */ }
+
 		if (boost::tuples::get<3>(peek_buffer_).empty())
 		{
 			sentinel.unlock();
@@ -121,7 +127,6 @@ namespace Spin
 					timed_out = false;
 					break;
 				default :
-					status_ |= error__;
 					throw Exceptions::SocketError("Select call for recv failed", "UDPSocket::recv", getLastError__());
 				}
 			}
@@ -130,7 +135,6 @@ namespace Spin
 			ssize_t received(timed_out ? 0 : recvfrom(fd_, &buffer[0], buffer.size(), 0, (sockaddr *)(&remote_address), &remote_address_size));
 			if (received < 0)
 			{
-				status_ |= error__;
 				throw Exceptions::SocketError("Recv failed", "UDPSocket::recv", getLastError__());
 			}
 			else
@@ -153,6 +157,10 @@ namespace Spin
 	boost::tuple< Details::Address, unsigned short, std::size_t > UDPSocket::peek(std::vector< char > & buffer, unsigned long timeout/* = ~0*/)
 	{
 		boost::recursive_mutex::scoped_lock sentinel(peek_buffer_lock_);
+		if (fd_ == -1)
+			throw Exceptions::Connection::UnusableUDPSocket();
+		else
+		{ /* all is well */ }
 		if (boost::tuples::get<3>(peek_buffer_).empty())
 		{
 			boost::tie(boost::tuples::get<0>(peek_buffer_), boost::tuples::get<1>(peek_buffer_), boost::tuples::get<2>(peek_buffer_)) = recv(boost::tuples::get<3>(peek_buffer_), timeout);
@@ -172,7 +180,12 @@ namespace Spin
 
 	bool UDPSocket::poll() const
 	{
-		checkStatus("UDPSocket::poll");
+		boost::recursive_mutex::scoped_lock sentinel(fd_lock_);
+		if (fd_ == -1)
+			throw Exceptions::Connection::UnusableUDPSocket();
+		else
+		{ /* all is well */ }
+
 		bool retval(false);
 
 		int highest_fd = fd_ + 1;
@@ -196,7 +209,6 @@ namespace Spin
 			retval = true;
 			break;
 		default :
-			status_ |= error__;
 			throw Exceptions::SocketError("Select call for poll failed", "UDPSocket::poll", getLastError__());
 		}
 
@@ -212,12 +224,15 @@ namespace Spin
 		}
 		else
 		{ /* already closed */ }
-		status_ |= done__;
 	}
 
 	void UDPSocket::setDataHandler(Handlers::UDPDataHandler & handler, OnErrorCallback on_error_callback/* = OnErrorCallback()*/)
 	{
 		boost::recursive_mutex::scoped_lock sentinel(fd_lock_);
+		if (fd_ == -1)
+			throw Exceptions::Connection::UnusableUDPSocket();
+		else
+		{ /* all is well */ }
 		data_handler_ = &handler;
 		Private::ConnectionHandler::getInstance().attach(fd_, boost::bind(&UDPSocket::onDataReady_, this), on_error_callback);
 	}
@@ -225,7 +240,7 @@ namespace Spin
 	void UDPSocket::clearDataHandler()
 	{
 		boost::recursive_mutex::scoped_lock sentinel(fd_lock_);
-		if (data_handler_)
+		if (data_handler_ && fd_ != -1)
 		{
 			AGELENA_DEBUG_1("Detaching FD %1% from the connection handler", fd_);
 			Private::ConnectionHandler::getInstance().detach(fd_);
@@ -235,20 +250,9 @@ namespace Spin
 		{ /* nothing to clear */ }
 	}
 
-	void UDPSocket::checkStatus(const char * for_whom) const
-	{
-		if (status_ != good__)
-		{
-			status_ |= error__;
-			throw Exceptions::SocketError("Socket not usable", for_whom, -1);
-		}
-		else
-		{ /* all is well */ }
-	}
-
 	void UDPSocket::onDataReady_()
 	{
-		if (data_handler_ && status_ == good__)
+		if (data_handler_)
 		{
 			/* If the internal weak pointer in enable_shared_from_this is 
 			 * NULL, we're not stored in a shared_ptr, which means we can't 

@@ -12,6 +12,7 @@ extern "C" {
 #include "Connection.h"
 #include "Private/ConnectionHandler.h"
 #include "Handlers/NewConnectionHandler.h"
+#include "Exceptions/Connection/UnusableListener.h"
 
 namespace Spin
 {
@@ -33,12 +34,20 @@ namespace Spin
 
 	boost::shared_ptr< Connection > Listener::accept()
 	{
+		if (!bio_)
+			throw Exceptions::Connection::UnusableListener();
+		else
+		{ /* all is well */ }
 		return boost::shared_ptr< Connection >(new Connection(bio_->accept()));
 	}
 
 	void Listener::setNewConnectionHandler(Handlers::NewConnectionHandler & handler)
 	{
 		new_connection_handler_ = &handler;
+		if (!bio_)
+			throw Exceptions::Connection::UnusableListener();
+		else
+		{ /* all is well */ }
 		Private::ConnectionHandler::getInstance().attach(bio_->getFD(), boost::bind(&Listener::onNewConnection_, this));
 	}
 
@@ -46,6 +55,10 @@ namespace Spin
 	{
 		if (new_connection_handler_)
 		{
+			if (!bio_)
+				throw Exceptions::Connection::UnusableListener();
+			else
+			{ /* all is well */ }
 			Private::ConnectionHandler::getInstance().detach(bio_->getFD());
 			new_connection_handler_ = 0;
 		}

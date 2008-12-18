@@ -381,6 +381,14 @@
 					RelativePath="..\..\..\lib\Spin\Exceptions\Connection\UnusableConnection.h"
 					>
 				</File>
+				<File
+					RelativePath="..\..\..\lib\Spin\Exceptions\Connection\UnusableListener.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\lib\Spin\Exceptions\Connection\UnusableUDPSocket.h"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<File

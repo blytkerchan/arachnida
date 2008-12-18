@@ -17,6 +17,7 @@ namespace Tests
 			CPPUNIT_TEST( tryComm03 );
 			CPPUNIT_TEST( tryPeek01 );
 			CPPUNIT_TEST( tryTimeOut01 );
+			CPPUNIT_TEST( regression01 );
 			CPPUNIT_TEST_SUITE_END();
 
 		public:
@@ -31,6 +32,8 @@ namespace Tests
 			void tryComm03();
 			void tryPeek01();
 			void tryTimeOut01();
+
+			void regression01();
 
 		private:
 		};

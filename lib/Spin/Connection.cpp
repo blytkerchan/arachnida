@@ -31,14 +31,12 @@ namespace Spin
 	{
 		AGELENA_DEBUG_1("std::pair< std::size_t, int > Connection(%1%)::write(const std::vector< char > & data)", this);
 		boost::recursive_mutex::scoped_lock sentinel(bio_lock_);
-		assert(data.size() < INT_MAX);
-		if (status_ != good__)
-		{
-			status_ |= error__;
+		if (!bio_)
 			throw Exceptions::Connection::UnusableConnection();
-		}
 		else
 		{ /* all is well */ }
+
+		assert(data.size() < INT_MAX);
 		int written(0);
 		int reason(no_error__);
 
@@ -51,7 +49,6 @@ namespace Spin
 			{
 				if (!bio_->shouldRetry())
 				{
-					status_ = done__;
 					throw Exceptions::Connection::ConnectionClosed();
 				}
 				else
@@ -79,11 +76,8 @@ namespace Spin
 	{
 		AGELENA_DEBUG_1("std::pair< std::size_t, int > Connection(%1%)::read(std::vector< char > & buffer)", this);
 		boost::recursive_mutex::scoped_lock sentinel(bio_lock_);
-		if (status_ != good__)
-		{
-			status_ |= error__;
+		if (!bio_)
 			throw Exceptions::Connection::UnusableConnection();
-		}
 		else
 		{ /* all is well */ }
 
@@ -107,7 +101,6 @@ read_entry_point:
 			bytes_read_into_buffer += bytes_read;
 			if (!bio_->shouldRetry() && bytes_read <= 0)
 			{
-				status_ = done__;
 				throw Exceptions::Connection::ConnectionClosed();
 			}
 			else
@@ -142,11 +135,8 @@ read_entry_point:
 	{
 		AGELENA_DEBUG_1("bool Connection(%1%)::poll() const", this);
 		boost::recursive_mutex::scoped_lock sentinel(bio_lock_);
-		if (status_ != good__)
-		{
-			status_ |= error__;
+		if (!bio_)
 			throw Exceptions::Connection::UnusableConnection();
-		}
 		else
 		{ /* all is well */ }
 		return bio_->poll();
@@ -157,18 +147,14 @@ read_entry_point:
 		AGELENA_DEBUG_1("void Connection(%1%)::close()", this);
 		boost::recursive_mutex::scoped_lock sentinel(bio_lock_);
 		bio_.reset();
-		status_ |= done__;
 	}
 
 	bool Connection::usesSSL() const
 	{
 		AGELENA_DEBUG_1("bool Connection(%1%)::usesSSL() const", this);
 		boost::recursive_mutex::scoped_lock sentinel(bio_lock_);
-		if (status_ != good__)
-		{
-			status_ |= error__;
+		if (!bio_)
 			throw Exceptions::Connection::UnusableConnection();
-		}
 		else
 		{ /* all is well */ }
 		return bio_->usesSSL();
@@ -179,6 +165,10 @@ read_entry_point:
 		AGELENA_DEBUG_1("void Connection(%1%)::setNewDataHandler(Handlers::NewDataHandler & handler, OnErrorCallback on_error_callback/* = OnErrorCallback()*/)", this);
 		boost::recursive_mutex::scoped_lock sentinel(bio_lock_);
 		data_handler_ = &handler;
+		if (fd_ == -1)
+			throw Exceptions::Connection::UnusableConnection();
+		else
+		{ /* all is well */ }
 		Private::ConnectionHandler::getInstance().attach(fd_, boost::bind(&Connection::onDataReady_, this), on_error_callback);
 	}
 
@@ -188,6 +178,10 @@ read_entry_point:
 		boost::recursive_mutex::scoped_lock sentinel(bio_lock_);
 		if (data_handler_)
 		{
+			if (fd_ == -1)
+				throw Exceptions::Connection::UnusableConnection();
+			else
+			{ /* all is well */ }
 			Private::ConnectionHandler::getInstance().detach(fd_);
 			data_handler_ = 0;
 		}
@@ -199,10 +193,10 @@ read_entry_point:
 	{
 		AGELENA_DEBUG_1("Details::Address Connection(%1%)::getPeerAddress() const", this);
 		boost::recursive_mutex::scoped_lock sentinel(bio_lock_);
-		if (!bio_ || status_ != good__)
-			throw std::logic_error("No connection");
+		if (!bio_)
+			throw Exceptions::Connection::UnusableConnection();
 		else
-		{ /* carry on */ }
+		{ /* all is well */ }
 		int socket_fd(fd_);
 		::sockaddr_in peer_addr;
 		socklen_t peer_addr_size(sizeof(peer_addr));
@@ -213,7 +207,6 @@ read_entry_point:
 	Connection::Connection(Scorpion::BIO * bio)
 		: bio_(bio),
 		  data_handler_(0),
-		  status_(good__),
 		  fd_(bio->getFD())
 	{
 		AGELENA_DEBUG_1("Connection(%1%)::Connection(Scorpion::BIO * bio)", this);
@@ -222,7 +215,7 @@ read_entry_point:
 	void Connection::onDataReady_()
 	{
 		AGELENA_DEBUG_1("void Connection(%1%)::onDataReady_()", this);
-		if (data_handler_ && status_ == good__)
+		if (data_handler_)
 			(*data_handler_)(shared_from_this());
 		else
 		{ /* no-op */ }

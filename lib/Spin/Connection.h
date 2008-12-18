@@ -129,8 +129,7 @@ namespace Spin
 		//! Get the peer's address
 		Details::Address getPeerAddress() const;
 
-		//! Get the status of this connection
-		int getStatus() const { return status_; }
+		bool usable() const { return bio_; }
 
 	private :
 		// Neither CopyConstructible nor Assignable
@@ -143,7 +142,6 @@ namespace Spin
 		mutable boost::shared_ptr< Scorpion::BIO > bio_;
 		mutable boost::recursive_mutex bio_lock_;
 		Handlers::NewDataHandler * data_handler_;
-		mutable int status_;
 		int fd_;
 
 		friend class Connector; // for construction

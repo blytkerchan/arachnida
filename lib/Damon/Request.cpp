@@ -258,11 +258,11 @@ retry:
 		assert((secured && session.context_) || !secured);
 
 		/* the part of the URL that's important for the connection cache is 
-		* the server and the port. The rest of the URL (i.e. protocol and 
-		* resource) isn't important as it doesn't affect with whom we talk
-		* but rather how (which should not change from one call to the same
-		* port to another) and with which resource (which may change, but
-		* we don't care about that). */
+		 * the server and the port. The rest of the URL (i.e. protocol and 
+		 * resource) isn't important as it doesn't affect with whom we talk
+		 * but rather how (which should not change from one call to the same
+		 * port to another) and with which resource (which may change, but
+		 * we don't care about that). */
 		boost::format cache_key("%1%:%2%");
 		cache_key
 			% server
@@ -287,7 +287,7 @@ retry:
 			else
 			{ /* we've found the connection */ }
 			assert(cached_connection != session.connection_cache_.end());
-			if (cached_connection->second->getStatus() != Spin::Connection::good__)
+			if (!cached_connection->second->usable())
 			{
 				session.connection_cache_.erase(cached_connection);
 				cached_connection = session.connection_cache_.end();
@@ -369,7 +369,7 @@ retry:
 			else
 			{ /* we've found the connection */ }
 			assert(cached_connection != session.connection_cache_.end());
-			if (cached_connection->second->getStatus() != Spin::Connection::good__)
+			if (!cached_connection->second->usable())
 			{
 				session.connection_cache_.erase(cached_connection);
 				cached_connection = session.connection_cache_.end();

@@ -105,17 +105,12 @@ namespace Spin
 		//! Clear the new-data handler, returning to a synchronous mode of operation
 		void clearDataHandler();
 
-		//! Get the status of this connection
-		int getStatus() const { return status_; }
-
 	private :
 		UDPSocket(const UDPSocket&);
 		UDPSocket & operator=(const UDPSocket&);
 
-		void checkStatus(const char * for_whom) const;
 		void onDataReady_();
 
-		mutable int status_;
 		mutable boost::recursive_mutex fd_lock_;
 		int fd_;
 		Handlers::UDPDataHandler * data_handler_;
