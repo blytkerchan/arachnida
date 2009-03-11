@@ -28,8 +28,8 @@ namespace Damon
 		Scorpion::Context * context_;
 		ConnectionCache_ connection_cache_;
 
-		friend Response send(Session & /*session*/, const Request &/* request*/);
-		friend std::vector< Response > send(Session & /*session*/, const std::vector< Request > & requests);
+		friend DAMON_API Response send(Session & /*session*/, const Request &/* request*/);
+		friend DAMON_API std::vector< Response > send(Session & /*session*/, const std::vector< Request > & requests);
 	};
 }
 
