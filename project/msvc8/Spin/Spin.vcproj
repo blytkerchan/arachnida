@@ -239,6 +239,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\lib\Spin\Details\Request.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\lib\Spin\Details\Request.h"
 				>
 			</File>

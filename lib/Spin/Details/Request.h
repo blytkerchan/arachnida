@@ -1,6 +1,7 @@
 #ifndef _spin_details_request_h
 #define _spin_details_request_h
 
+#include "prologue.h"
 #include <string>
 #include <vector>
 #include <utility>
@@ -13,7 +14,7 @@ namespace Spin
 	namespace Details
 	{
 		//! An HTTP request.
-		struct Request
+		struct SPIN_API Request
 		{
 			/** Construct a new request with a connection.
 			 * \param connection the connection to use to respond to the request
@@ -26,6 +27,8 @@ namespace Spin
 				  url_(url),
 				  protocol_and_version_(protocol_and_version)
 			{ /* no-op */ }
+
+			std::string getHeaderValue(const std::string & header_name) const;
 
 			boost::weak_ptr< Connection > connection_;	///< the connection to use to respond to the request
 			std::string method_;						///< the method of the request, as supplied by the client
