@@ -15,11 +15,27 @@ namespace Spin
 		return instance__;
 	}
 
+	boost::shared_ptr< Connection > Connector::connect(const Details::Address & remote_address, boost::uint16_t port)
+	{
+		boost::format fmt("%1%.%2%.%3%.%4%:%5%");
+		fmt % remote_address[0] % remote_address[1] % remote_address[2] % remote_address[3] % port;
+		Scorpion::BIO * bio(connect_(fmt.str()));
+		return boost::shared_ptr< Connection > (new Connection(bio));
+	}
+
 	boost::shared_ptr< Connection > Connector::connect(const std::string & remote_address, boost::uint16_t port)
 	{
 		boost::format fmt("%1%:%2%");
 		fmt % remote_address % port;
 		Scorpion::BIO * bio(connect_(fmt.str()));
+		return boost::shared_ptr< Connection > (new Connection(bio));
+	}
+
+	boost::shared_ptr< Connection > Connector::connect(const Scorpion::Context & context, const Details::Address & remote_address, boost::uint16_t port)
+	{
+		boost::format fmt("%1%.%2%.%3%.%4%:%5%");
+		fmt % remote_address[0] % remote_address[1] % remote_address[2] % remote_address[3] % port;
+		Scorpion::BIO * bio(connectSSL_(context, fmt.str()));
 		return boost::shared_ptr< Connection > (new Connection(bio));
 	}
 
