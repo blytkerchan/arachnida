@@ -163,6 +163,13 @@ read_entry_point:
 	void Connection::setNewDataHandler(Handlers::NewDataHandler & handler, OnErrorCallback on_error_callback/* = OnErrorCallback()*/)
 	{
 		AGELENA_DEBUG_1("void Connection(%1%)::setNewDataHandler(Handlers::NewDataHandler & handler, OnErrorCallback on_error_callback/* = OnErrorCallback()*/)", this);
+		if (on_error_callback.empty())
+		{
+			boost::recursive_mutex::scoped_lock sentinel(error_handler_lock_);
+			on_error_callback = boost::bind(&Connection::onError_, this);
+		}
+		else
+		{ /* use the one provided */ }
 		boost::recursive_mutex::scoped_lock sentinel(bio_lock_);
 		data_handler_ = &handler;
 		if (fd_ == -1)
@@ -187,6 +194,18 @@ read_entry_point:
 		}
 		else
 		{ /* nothing to clear */ }
+	}
+
+	void Connection::setErrorHandler(const OnErrorCallback & on_error_callback)
+	{
+		boost::recursive_mutex::scoped_lock sentinel(error_handler_lock_);
+		error_handler_ = on_error_callback;
+	}
+
+	void Connection::clearErrorHandler()
+	{
+		boost::recursive_mutex::scoped_lock sentinel(error_handler_lock_);
+		error_handler_.clear();
 	}
 
 	Details::Address Connection::getPeerAddress() const
@@ -217,6 +236,17 @@ read_entry_point:
 		AGELENA_DEBUG_1("void Connection(%1%)::onDataReady_()", this);
 		if (data_handler_)
 			(*data_handler_)(shared_from_this());
+		else
+		{ /* no-op */ }
+	}
+
+	void Connection::onError_()
+	{
+		boost::recursive_mutex::scoped_lock sentinel(error_handler_lock_);
+		if (error_handler_)
+		{
+			error_handler_();
+		}
 		else
 		{ /* no-op */ }
 	}

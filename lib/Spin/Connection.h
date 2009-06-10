@@ -125,6 +125,10 @@ namespace Spin
 		void setNewDataHandler(Handlers::NewDataHandler & handler, OnErrorCallback on_error_callback = OnErrorCallback());
 		//! Clear the new-data handler, returning to a synchronous mode of operation
 		void clearNewDataHandler();
+		//! Set an error handler
+		void setErrorHandler(const OnErrorCallback & on_error_callback);
+		//! Clear the error handler - connection and socket errors will no longer be reported asynchronously
+		void clearErrorHandler();
 
 		//! Get the peer's address
 		Details::Address getPeerAddress() const;
@@ -138,11 +142,14 @@ namespace Spin
 
 		Connection(Scorpion::BIO * bio);
 		void onDataReady_();
+		void onError_();
 
 		mutable boost::shared_ptr< Scorpion::BIO > bio_;
 		mutable boost::recursive_mutex bio_lock_;
 		Handlers::NewDataHandler * data_handler_;
 		int fd_;
+		OnErrorCallback error_handler_;
+		mutable boost::recursive_mutex error_handler_lock_;
 
 		friend class Connector; // for construction
 		friend class Listener; // for construction
