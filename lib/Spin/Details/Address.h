@@ -33,6 +33,11 @@ namespace Spin
 				u_.u8_[3] = u8_3;
 			}
 
+			boost::uint8_t operator[](int i) const
+			{
+				return u_.u8_[i];
+			}
+
 			//! The union between a network-byte-order 32-bit integer and four 8-bit integers
 			union U_
 			{
