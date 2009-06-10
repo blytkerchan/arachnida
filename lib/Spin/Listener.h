@@ -43,6 +43,9 @@ namespace Spin
 
 		//! Synchronously accept a connection (i.e. wait for it)
 		boost::shared_ptr< Connection > accept();
+		/** Stop waiting for connections.
+		 * You should destroy the listener immediately after using this method! */
+		void abort();
 
 		//! Set a new connection handler for accepting connections asynchronously
 		void setNewConnectionHandler(Handlers::NewConnectionHandler & handler);

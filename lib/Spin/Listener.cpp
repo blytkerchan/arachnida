@@ -41,6 +41,15 @@ namespace Spin
 		return boost::shared_ptr< Connection >(new Connection(bio_->accept()));
 	}
 
+	void Listener::abort()
+	{
+		if (!bio_)
+			throw Exceptions::Connection::UnusableListener();
+		else
+		{ /* all is well */ }
+		bio_->reset();
+	}
+
 	void Listener::setNewConnectionHandler(Handlers::NewConnectionHandler & handler)
 	{
 		new_connection_handler_ = &handler;
