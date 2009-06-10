@@ -18,6 +18,11 @@ namespace Scorpion
 		ConnectionBIO()
 		{ /* no-op */ }
 
+		/*virtual */void reset()/* = 0*/
+		{
+			BIO_reset(getBIO());
+		}
+
 		/*virtual */int read(void * buffer, std::size_t buffer_size)
 		{
 			return ::BIO_read(getBIO(), buffer, static_cast< int >(buffer_size));
@@ -45,6 +50,11 @@ namespace Scorpion
 
 		AcceptBio()
 		{ /* no-op */ }
+
+		/*virtual */void reset()/* = 0*/
+		{
+			BIO_reset(getBIO());
+		}
 
 		/*virtual */BIO * accept() const
 		{

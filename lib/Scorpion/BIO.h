@@ -26,6 +26,9 @@ namespace Scorpion
 
 		virtual ~BIO();
 
+		//! Reset the BIO, aborting anything currently happening on it and possibly rendering it useless
+		virtual void reset() = 0;
+
 		//! Accept a connection
 		virtual BIO * accept() const { return 0; }
 		//! Write data to a socket, handle, or what not
