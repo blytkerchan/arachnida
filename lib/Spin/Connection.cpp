@@ -223,6 +223,18 @@ read_entry_point:
 		return Details::Address(peer_addr.sin_addr.s_addr);
 	}
 
+	void Connection::setReadTimeout(unsigned int seconds)
+	{
+		AGELENA_DEBUG_2("void Connection(%1%)::setReadTimeout(unsigned int %2%)", this, seconds);
+		boost::recursive_mutex::scoped_lock sentinel(bio_lock_);
+		if (!bio_)
+			throw Exceptions::Connection::UnusableConnection();
+		else
+		{ /* all is well */ }
+		int socket_fd(fd_);
+		::setsockopt(fd_, SOL_SOCKET, SO_RCVTIMEO, (const char *)&seconds, sizeof(unsigned int));
+	}
+
 	Connection::Connection(Scorpion::BIO * bio)
 		: bio_(bio),
 		  data_handler_(0),

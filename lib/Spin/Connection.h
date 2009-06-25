@@ -133,6 +133,9 @@ namespace Spin
 		//! Get the peer's address
 		Details::Address getPeerAddress() const;
 
+		//! Set the number of seconds the implementation should wait for a read
+		void setReadTimeout(unsigned int seconds);
+
 		bool usable() const { return bio_; }
 
 	private :
