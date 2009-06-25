@@ -18,7 +18,7 @@ namespace Spin
 	boost::shared_ptr< Connection > Connector::connect(const Details::Address & remote_address, boost::uint16_t port)
 	{
 		boost::format fmt("%1%.%2%.%3%.%4%:%5%");
-		fmt % remote_address[0] % remote_address[1] % remote_address[2] % remote_address[3] % port;
+		fmt % (unsigned int)remote_address[0] % (unsigned int)remote_address[1] % (unsigned int)remote_address[2] % (unsigned int)remote_address[3] % port;
 		Scorpion::BIO * bio(connect_(fmt.str()));
 		return boost::shared_ptr< Connection > (new Connection(bio));
 	}
