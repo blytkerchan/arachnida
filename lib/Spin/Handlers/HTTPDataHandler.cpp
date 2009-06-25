@@ -25,7 +25,7 @@ namespace Spin
 			boost::call_once(initStaticMembers, once_flag__);
 		}
 
-		/*virtual */void HTTPDataHandler::onDataReady(boost::shared_ptr< Connection > connection) const
+		/*virtual */void HTTPDataHandler::onDataReady(boost::shared_ptr< Connection > connection)
 		{
 			// get any pending data from the connection
 			std::vector< char > buffer;
