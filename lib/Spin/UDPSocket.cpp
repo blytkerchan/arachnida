@@ -1,6 +1,7 @@
 #include "UDPSocket.h"
 #include <Agelena/Logger.h>
 #include <boost/bind.hpp>
+#include <boost/version.hpp>
 #include "Exceptions/Socket.h"
 #include "Exceptions/Connection/UnusableUDPSocket.h"
 extern "C" {
@@ -259,10 +260,34 @@ namespace Spin
 			 * pass one to our users. This is possible, for example, if the 
 			 * client app uses RAII to handle the life-cycle of the UDP 
 			 * socket, rather than using a shared_ptr. */
+			/* NOTE: this is only known to work in version 1.33.1 of Boost,
+			 *       so using UDPSocket with RAII is only supported in that
+			 *       particular version of Boost. The reason for this being 
+			 *       here is to accomodate one particular user of Arachnida.
+			 *       Use of UDPSocet in this fashion is deprecated. */
+#if BOOST_VERSION == 103301
 			if (_internal_weak_this.lock())
 				(*data_handler_)(shared_from_this());
 			else
 				(*data_handler_)(this);
+#else
+			/* NOTE: if your application crashed here or passes you an empty
+			 *       shared pointer, it means you are not using version 1.33.1
+			 *       of boost and you are using the UDPSocket as a free or 
+			 *       stack-based object, rather than through a shared_ptr. 
+			 *       If that is the case, you have three avenues before you:
+			 *			1.	check whether the version of Boost you are using
+			 *				has an enable_shared_from_this with an accessible 
+			 *				_internal_weak member and, if so, add it to the 
+			 *				exceptions above (and contribute the change back 
+			 *				to support@vlinder.ca, please);
+			 *			2.	fix your code to use UDPSocket from a shared_ptr
+			 *			3.	contact support@vlinder.ca and tell us about your
+			 *				problem - we'll be happy to help you fix it. As you 
+			 *				can see above, we're happy to adjust our code for
+			 *				customers. */
+			(*data_handler_)(shared_from_this());
+#endif
 		}
 		else
 		{ /* no-op */ }

@@ -4,12 +4,12 @@
 #include "Details/prologue.h"
 #include <boost/cstdint.hpp>
 #include <boost/scoped_ptr.hpp>
+#include <boost/filesystem/path.hpp>
 #include "Connection.h"
 #include "Details/Address.h"
 #include <Scorpion/Context.h>
 
 #ifndef DOXYGEN_GENERATING
-namespace boost { namespace filesystem { class path; } }
 namespace Scorpion { class BIO; }
 #endif
 namespace Spin
