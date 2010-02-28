@@ -32,9 +32,9 @@ namespace Scorpion
 		//! Accept a connection
 		virtual BIO * accept() const { return 0; }
 		//! Write data to a socket, handle, or what not
-		virtual int write(const void * buffer, std::size_t buffer_size) { return not_implemented__; }
+		virtual int write(const void * buffer, std::size_t buffer_size) { (void)buffer; (void)buffer_size; return not_implemented__; }
 		//! Read data from a socket, handle, or what not
-		virtual int read(void * buffer, std::size_t buffer_size) { return not_implemented__; }
+		virtual int read(void * buffer, std::size_t buffer_size) { (void)buffer; (void)buffer_size; return not_implemented__; }
 
 		virtual bool poll() const { return false; }
 

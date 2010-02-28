@@ -25,3 +25,5 @@ ltmain.sh
 *.exe
 *.pdb
 *.lib
+project/msvc9/UpgradeLog.XML
+project/msvc9/_UpgradeReport_Files

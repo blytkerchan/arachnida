@@ -107,6 +107,7 @@ namespace Scorpion
 
 	BIO * createAcceptBIO(const std::string & local_address, int flags)
 	{
+		(void)flags;
 		std::vector< char > b(local_address.begin(), local_address.end());
 		b.push_back(0);
 		SCORPION_PRIVATE_OPENSSL_EXEC(::BIO * bio(BIO_new_accept(&(b[0]))), bio, Exceptions::SSL::AcceptSocketAllocationError);
@@ -122,6 +123,7 @@ namespace Scorpion
 
 	BIO * createSSLAcceptBIO(const std::string & local_address, Context & security_context, int flags)
 	{
+		(void)flags;
 		::SSL_CTX * ssl_context(security_context.getContext());
 
 		// New SSL BIO setup as server

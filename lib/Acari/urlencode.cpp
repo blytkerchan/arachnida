@@ -44,7 +44,7 @@ namespace Acari
 					temp[0] = *(itr+1);
 					temp[1] = *(itr+2);
 					temp[2] = '\0';
-					result += strtol(temp, 0, 16);
+					result += (char)strtol(temp, 0, 16);
 					itr += 2;
 				} else {
 					result += *itr;

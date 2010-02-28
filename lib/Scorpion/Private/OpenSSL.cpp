@@ -139,6 +139,8 @@ namespace Scorpion
 	
 			static void lock(int mode, int lock_id, const char * file, int line)
 			{
+				(void)file;
+				(void)line;
 				assert(lock_id >= 0);
 				assert(static_cast< std::size_t >(lock_id) < instance__->locks_.size());
 				if (mode & CRYPTO_LOCK)
