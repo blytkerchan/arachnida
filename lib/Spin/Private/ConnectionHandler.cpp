@@ -20,6 +20,12 @@ extern "C" {
 #include <functional>
 #undef max
 
+#ifdef _MSC_VER
+#pragma warning(disable: 4389) // == signed/unsigned mismatch - part of FD_SET
+#endif
+
+#define AGELENA_COMPONENT_ID	0x5350493eUL
+#define AGELENA_SUBCOMPONENT_ID 0x434e4852UL
 namespace 
 {
 	struct DoneCountingPred
@@ -216,7 +222,7 @@ namespace Spin
 			if (!DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &worker_thread_handle_, 0, 0, DUPLICATE_SAME_ACCESS))
 			{
 				AGELENA_FATAL_ERROR_0("Failed to duplicate worker thread handle - cannot continue");
-				worker_thread_id_ = ~0;
+				worker_thread_id_ = (unsigned int)~0;
 				throw std::bad_alloc();	// be more eloquent HERE
 			}
 			else
@@ -359,6 +365,7 @@ namespace Spin
 						// consume the bytes put in the pipe
 						char buffer[64];
 						std::size_t bytes_read_from_sync_pipe(sync_pipe_.read(buffer, sizeof(buffer)));
+						(void)bytes_read_from_sync_pipe;
 					}
 					else
 					{ /* not notified */ }
@@ -413,7 +420,7 @@ namespace Spin
 				AGELENA_ERROR_1("WaitForSingleObject returned with %x, which is unexpected. We will assume the worker thread is no longer alive.\nNote that this may cause problems if it is!", wfso_result);
 			}
 			worker_thread_handle_ = NULL;
-			worker_thread_id_ = -1;
+			worker_thread_id_ = (unsigned int)-1;
 			return false;
 		}
 #endif

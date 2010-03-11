@@ -28,24 +28,16 @@ namespace Tests
 					{ /* no-op */ }
 				}
 
-				/*virtual */void debug_(const std::string & component, const std::string & message, const std::string & aux)
+				/*virtual */void add_(unsigned int level, unsigned int component, unsigned int sub_component, const char * file, unsigned int line, const char * message, const unsigned char * aux, unsigned long aux_size) throw()/* = 0*/
 				{
-					// do something useful here
-				}
-
-				/*virtual */void warning_(const std::string & component, const std::string & message, const std::string & aux)
-				{
-					// do something useful here
-				}
-
-				/*virtual */void error_(const std::string & component, const std::string & message, const std::string & aux)
-				{
-					// do something useful here
-				}
-
-				/*virtual */void fatalError_(const std::string & component, const std::string & message, const std::string & aux)
-				{
-					// do something useful here
+					(void)level;
+					(void)component;
+					(void)sub_component;
+					(void)file;
+					(void)line;
+					(void)message;
+					(void)aux;
+					(void)aux_size;
 				}
 			};
 		}

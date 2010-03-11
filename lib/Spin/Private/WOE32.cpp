@@ -3,6 +3,8 @@
 
 BOOL __stdcall DllMain(HANDLE instance, DWORD treason, LPVOID reserved)
 {
+	(void)instance;
+	(void)reserved;
 	static bool wsa_initialized__(false);
 	switch (treason)
 	{

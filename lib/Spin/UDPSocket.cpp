@@ -29,6 +29,13 @@ extern "C" {
 	else																			\
 	{ /* all is well */ }
 
+#ifdef _MSC_VER
+#pragma warning(disable: 4389) // == signed/unsigned mismatch - part of FD_SET
+#endif
+
+#define AGELENA_COMPONENT_ID	0x5350493eUL
+#define AGELENA_SUBCOMPONENT_ID 0x55445053UL
+
 namespace Spin
 {
 	UDPSocket::UDPSocket(const Details::Address & address, unsigned short port)

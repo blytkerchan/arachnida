@@ -126,6 +126,7 @@ namespace Spin
 
 		/*virtual */bool HTTPConnectionHandler::validate(const Details::Address & peer_address)
 		{
+			(void)peer_address;
 			return true;
 		}
 	}

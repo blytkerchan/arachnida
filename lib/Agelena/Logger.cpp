@@ -5,58 +5,13 @@ namespace Agelena
 {
 	Logger * Logger::instance__(0);
 
-	/*static */void Logger::debug(const std::string & component, const std::string & message, const std::string & aux/* = std::string()*/) throw()
+	/*static */void Logger::add(unsigned int level, unsigned int component, unsigned int sub_component, const char * file, unsigned int line, const char * message, const unsigned char * aux/* = 0*/, unsigned long aux_size/* = 0*/)
 	{
 		if (instance__)
 		{
 			try
 			{
-				instance__->debug_(component, message, aux);
-			}
-			catch (...)
-			{ /* nothing I can do here */ }
-		}
-		else
-		{ /* ignore */ }
-	}
-
-	/*static */void Logger::warning(const std::string & component, const std::string & message, const std::string & aux/* = std::string()*/) throw()
-	{
-		if (instance__)
-		{
-			try
-			{
-				instance__->warning_(component, message, aux);
-			}
-			catch (...)
-			{ /* nothing I can do here */ }
-		}
-		else
-		{ /* ignore */ }
-	}
-
-	/*static */void Logger::error(const std::string & component, const std::string & message, const std::string & aux/* = std::string()*/) throw()
-	{
-		if (instance__)
-		{
-			try
-			{
-				instance__->error_(component, message, aux);
-			}
-			catch (...)
-			{ /* nothing I can do here */ }
-		}
-		else
-		{ /* ignore */ }
-	}
-
-	/*static */void Logger::fatalError(const std::string & component, const std::string & message, const std::string & aux/* = std::string()*/) throw()
-	{
-		if (instance__)
-		{
-			try
-			{
-				instance__->fatalError_(component, message, aux);
+				instance__->add_(level, component, sub_component, file, line, message, aux, aux_size);
 			}
 			catch (...)
 			{ /* nothing I can do here */ }
@@ -74,7 +29,4 @@ namespace Agelena
 	{
 		instance__ = logger;
 	}
-
-	/*virtual */void Logger::debug_(const std::string & component, const std::string & message, const std::string & aux)
-	{ /* no-op by default - loggers are not required to have a debug_ method */ }
 }

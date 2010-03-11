@@ -1,5 +1,6 @@
 #include "DefaultWindowsLogger.h"
 #include <iostream>
+#include <iomanip>
 #include <Windows.h>
 
 namespace Agelena
@@ -23,24 +24,35 @@ namespace Agelena
 			{ /* no-op */ }
 		}
 
-		/*virtual */void DefaultWindowsLogger::debug_(const std::string & component, const std::string & message, const std::string & aux)
+		/*virtual */void DefaultWindowsLogger::add_(unsigned int level, unsigned int component, unsigned int sub_component, const char * file, unsigned int line, const char * message, const unsigned char * aux, unsigned long aux_size) throw()/* = 0*/
 		{
-			OutputDebugStringA((boost::format("%1% %2% %3%\n") % component % message % aux).str().c_str());
-		}
+			(void)aux;
+			(void)aux_size;
+			using boost::format;
+			using boost::io::group;
+			using std::setfill;
+			using std::setw;
+			using std::hex ;
 
-		/*virtual */void DefaultWindowsLogger::warning_(const std::string & component, const std::string & message, const std::string & aux)
-		{
-			std::clog << component << ' ' << message << ' ' << aux << std::endl;
-		}
-
-		/*virtual */void DefaultWindowsLogger::error_(const std::string & component, const std::string & message, const std::string & aux)
-		{
-			std::cerr << component << ' ' << message << ' ' << aux << std::endl;
-		}
-
-		/*virtual */void DefaultWindowsLogger::fatalError_(const std::string & component, const std::string & message, const std::string & aux)
-		{
-			std::cerr << component << ' ' << message << ' ' << aux << std::endl;
+			format fmt("%3%(%4%): (%1%:%2%) %5%");
+			fmt % group(setfill('0'), hex, setw(8), component)
+				% group(setfill('0'), hex, setw(8), sub_component)
+				% file
+				% line
+				% message
+				;
+			if (level <= info__)
+			{
+				OutputDebugStringA(fmt.str().c_str());
+			}
+			else if (level < error__)
+			{
+				std::clog << fmt.str() << std::endl;
+			}
+			else
+			{
+				std::cerr << fmt.str() << std::endl;
+			}
 		}
 	}
 }

@@ -12,10 +12,7 @@ namespace Agelena
 		{
 			DefaultWindowsLogger();
 			~DefaultWindowsLogger();
-			/*virtual */void debug_(const std::string & component, const std::string & message, const std::string & aux);
-			/*virtual */void warning_(const std::string & component, const std::string & message, const std::string & aux);
-			/*virtual */void error_(const std::string & component, const std::string & message, const std::string & aux);
-			/*virtual */void fatalError_(const std::string & component, const std::string & message, const std::string & aux);
+			/*virtual */void add_(unsigned int level, unsigned int component, unsigned int sub_component, const char * file, unsigned int line, const char * message, const unsigned char * aux, unsigned long aux_size) throw()/* = 0*/;
 		};
 	}
 }

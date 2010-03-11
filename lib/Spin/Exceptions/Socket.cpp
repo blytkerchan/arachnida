@@ -34,12 +34,12 @@ namespace Spin
 			std::size_t message_size(std::strlen(message));
 			message_size = message_size > max_message_size__ ? max_message_size__ : message_size;
 			char * where(std::copy(message, message + message_size, message_));
-			assert(std::distance(message_, where) == message_size);
+			assert(std::distance(message_, where) == (std::iterator_traits< char* /* type of where */ >::difference_type)message_size);
 			*where = 0;
 			std::size_t function_size(std::strlen(function));
 			function_size = function_size > max_function_size__ ? max_function_size__ : function_size;
 			where = std::copy(function, function + function_size, function_);
-			assert(std::distance(function_, where) == function_size);
+			assert(std::distance(function_, where) == (std::iterator_traits< char* /* type of where */ >::difference_type)function_size);
 			*where = 0;
 		}
 

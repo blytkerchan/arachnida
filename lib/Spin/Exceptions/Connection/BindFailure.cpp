@@ -74,7 +74,7 @@ namespace Spin
 						what_ = new char[error_text_size__ + error_text_size + 1];
 						char * where(std::copy(error_text__, error_text__ + error_text_size__, what_));
 						std::copy(error_text, error_text + error_text_size, where);
-						assert(std::distance(what_, where) == error_text_size__ + error_text_size);
+						assert(std::distance(what_, where) == (std::iterator_traits< char* /* type of where */ >::difference_type)(error_text_size__ + error_text_size));
 						*where = 0;
 					}
 					catch(...)

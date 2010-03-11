@@ -176,7 +176,7 @@ namespace Scorpion
 			else
 			{ /* no private key */ }
 			
-			int verification_flags;
+			int verification_flags(SSL_VERIFY_NONE);
 			switch (flags_ & _verification_mask__)
 			{
 			case 0 :

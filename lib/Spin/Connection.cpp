@@ -19,6 +19,9 @@ extern "C" {
 #include "Handlers/NewDataHandler.h"
 #include "Exceptions/Connection.h"
 
+#define AGELENA_COMPONENT_ID	0x5350493eUL
+#define AGELENA_SUBCOMPONENT_ID	0x434e584eUL
+
 namespace Spin
 {
 	Connection::~Connection()
@@ -232,7 +235,7 @@ read_entry_point:
 		else
 		{ /* all is well */ }
 		int socket_fd(fd_);
-		::setsockopt(fd_, SOL_SOCKET, SO_RCVTIMEO, (const char *)&seconds, sizeof(unsigned int));
+		::setsockopt(socket_fd, SOL_SOCKET, SO_RCVTIMEO, (const char *)&seconds, sizeof(unsigned int));
 	}
 
 	Connection::Connection(Scorpion::BIO * bio)

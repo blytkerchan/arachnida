@@ -7,7 +7,7 @@
 
 boost::filesystem::path cert_path__;
 
-int main(int argc, char ** argv)
+int main(/*int argc, char ** argv*/)
 {
 	// UnitTest
 	CppUnit::TextTestRunner runner;
