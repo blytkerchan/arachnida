@@ -1,10 +1,9 @@
 #include "Attributes.h"
 #include <cassert>
-#include "atomicPrimitives.h"
 
 namespace Acari
 {
-	/*static */volatile boost::uint32_t Attributes::next_attribute_index__(0);
+	/*static */Vlinder::Atomics::Atomics::Atomic< boost::uint32_t > Attributes::next_attribute_index__(0);
 
 	Attributes::Attributes()
 		: attributes_(max_attribute_count__)
@@ -19,7 +18,7 @@ namespace Acari
 
 	/*static */unsigned long Attributes::allocateAttribute()
 	{
-		unsigned long retval(fetchAndIncrement(next_attribute_index__));
+		unsigned long retval(next_attribute_index__.fetchAndAdd($, 1, Vlinder::Atomics::Atomics::memory_order_relaxed__));
 		if (retval >= max_attribute_count__)
 			throw std::bad_alloc();
 		else

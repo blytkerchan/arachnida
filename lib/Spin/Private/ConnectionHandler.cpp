@@ -28,22 +28,6 @@ extern "C" {
 #define AGELENA_SUBCOMPONENT_ID 0x434e4852UL
 namespace 
 {
-	struct DoneCountingPred
-	{
-		DoneCountingPred(boost::uint16_t target_count, Acari::BakeryCounter & counter)
-			: target_count_(target_count),
-			  counter_(counter)
-		{ /* no-op */ }
-
-		bool operator()() const
-		{
-			return counter_.getBakerCounter() == target_count_;
-		}
-
-		boost::uint16_t target_count_;
-		Acari::BakeryCounter & counter_;
-	};
-
 	template < typename Pair, typename OpType >
 	struct apply_to_1st_impl_
 	{

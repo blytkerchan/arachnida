@@ -5,6 +5,7 @@
 #include <vector>
 #include <boost/any.hpp>
 #include <boost/cstdint.hpp>
+#include <Vlinder/Atomics/Atomics.h>
 
 namespace Acari
 {
@@ -44,7 +45,7 @@ namespace Acari
 
 	private :
 		std::vector< boost::any > attributes_;
-		static volatile boost::uint32_t next_attribute_index__;
+		static Vlinder::Atomics::Atomics::Atomic< boost::uint32_t > next_attribute_index__;
 	};
 }
 

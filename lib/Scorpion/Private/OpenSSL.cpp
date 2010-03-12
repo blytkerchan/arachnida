@@ -21,7 +21,7 @@ extern "C" {
 #define USING_PTHREADS
 #endif
 #include <Acari/ThreadLocalStorage.h>
-#include <Acari/atomicPrimitives.h>
+#include <Vlinder/Atomics/Atomics.h>
 
 #ifndef SCORPION_USE_DEV_RANDOM
 #define SCORPION_USE_DEV_RANDOM 0
@@ -181,7 +181,7 @@ namespace Scorpion
 				void * val(tls.getValue(instance__->tls_key_));
 				if (!val)
 				{
-					retval = Acari::fetchAndIncrement(instance__->next_thread_id_);
+					retval = instance__->next_thread_id_.fetchAndAdd($, 1, Vlinder::Atomics::Atomics::memory_order_relaxed__);
 					tls.setValue(instance__->tls_key_, new boost::uint32_t(retval));
 				}
 				else
@@ -206,7 +206,7 @@ namespace Scorpion
 	
 			Locks_ locks_;
 			Acari::ThreadLocalStorage::Key tls_key_;
-			volatile boost::uint32_t next_thread_id_;
+			Vlinder::Atomics::Atomics::Atomic< boost::uint32_t > next_thread_id_;
 	
 			static OpenSSLInitializer * instance__;
 		} openssl_initializer__;

@@ -6,7 +6,6 @@
 #include <boost/function.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/condition.hpp>
-#include <Acari/BakeryCounter.h>
 #if defined(_WIN32) && ! defined(__CYGWIN__)
 #	define _WINSOCKAPI_ // Prevent inclusion of winsock.h in windows.h
 #	include <Windows.h>

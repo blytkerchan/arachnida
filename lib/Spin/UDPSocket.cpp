@@ -1,3 +1,6 @@
+#if defined(_WIN32) && ! defined(__CYGWIN__)
+#	include <WinSock2.h>
+#endif
 #include "UDPSocket.h"
 #include <Agelena/Logger.h>
 #include <boost/bind.hpp>
@@ -6,7 +9,6 @@
 #include "Exceptions/Connection/UnusableUDPSocket.h"
 extern "C" {
 #if defined(_WIN32) && ! defined(__CYGWIN__)
-#	include <WinSock2.h>
 #	define ssize_t int
 #	define getLastError__ WSAGetLastError
 #	define socklen_t int

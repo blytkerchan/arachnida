@@ -12,7 +12,6 @@ extern "C" {
 }
 #endif
 #include <boost/bind.hpp>
-#include <Acari/atomicPrimitives.h>
 #include <Scorpion/BIO.h>
 #include <Agelena/Logger.h>
 #include "Private/ConnectionHandler.h"

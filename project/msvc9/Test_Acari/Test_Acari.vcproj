@@ -179,27 +179,11 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\..\..\tests\lib\Acari\atomicPrimitives.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Acari\atomicPrimitives.h"
-			>
-		</File>
-		<File
 			RelativePath="..\..\..\tests\lib\Acari\Attributes.cpp"
 			>
 		</File>
 		<File
 			RelativePath="..\..\..\tests\lib\Acari\Attributes.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Acari\BakeryCounter.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\tests\lib\Acari\BakeryCounter.h"
 			>
 		</File>
 		<File
