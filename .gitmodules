@@ -1,0 +1,3 @@
+[submodule "lib/Atomics"]
+	path = lib/Atomics
+	url = git@github.com:blytkerchan/atomics.git
