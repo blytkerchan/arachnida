@@ -3,7 +3,6 @@
 
 #include "Details/prologue.h"
 #include <string>
-#include <boost/format.hpp>
 
 namespace Agelena
 {

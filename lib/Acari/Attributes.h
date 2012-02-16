@@ -3,8 +3,6 @@
 
 #include "Details/prologue.h"
 #include <vector>
-#include <boost/any.hpp>
-#include <boost/cstdint.hpp>
 #include <Vlinder/Atomics/Atomics.h>
 
 namespace Acari

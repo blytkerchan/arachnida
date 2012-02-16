@@ -2,11 +2,11 @@
 #define _acari_tls_h
 
 #include "Details/prologue.h"
+#include "Mutex.h"
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 #	include <utility>
 #	include <vector>
-#	include <boost/thread/mutex.hpp>
 #endif
 
 namespace Acari
@@ -49,7 +49,7 @@ namespace Acari
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 		Keys_ keys_;
-		boost::mutex keys_lock_;
+		Mutex keys_lock_;
 #endif
 	};
 }

@@ -37,7 +37,7 @@ namespace Acari
 #else
 		DWORD _key(TlsAlloc());
 		Key key; key.u_.ui_ = _key;
-		boost::mutex::scoped_lock lock(keys_lock_);
+		Mutex::scoped_lock lock(keys_lock_);
 		keys_.push_back(std::make_pair(key, deleter));
 		return key;
 #endif
@@ -78,7 +78,7 @@ namespace Acari
 
 	void ThreadLocalStorage::_clean_()
 	{
-		boost::mutex::scoped_lock lock(keys_lock_);
+		Mutex::scoped_lock lock(keys_lock_);
 		for (Keys_::const_iterator curr(keys_.begin()); curr != keys_.end(); ++curr)
 		{
 			void * val(TlsGetValue(curr->first.u_.ui_));
